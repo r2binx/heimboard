@@ -5,7 +5,7 @@ import { NDivider, NSpace, NProgress } from 'naive-ui'
 const cpuUsage = ref(0);
 const memUsage = ref(0);
 
-let connection = new WebSocket('ws://192.168.178.175:18500/usage/1');
+let connection = new WebSocket('ws://' + import.meta.env.VITE_APP_IDLEREPORTER + '/usage/1');
 connection.onmessage = function (event) {
     let data = JSON.parse(event.data)
     cpuUsage.value = data["cpu"];

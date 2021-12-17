@@ -1,6 +1,7 @@
 import axios from "axios";
 
-const host = "http://192.168.178.175:18500"
+console.log(import.meta.env.VITE_APP_IDLEREPORTER)
+const host = "https://" + import.meta.env.VITE_APP_IDLEREPORTER
 
 export function fetchIdle() {
     return axios.get(host + "/idle");
@@ -55,5 +56,5 @@ export function setVmMemory(vmName, memory) {
 }
 
 export function wakeOnLan() {
-    return axios.get("http://192.168.178.22:15000/wakeup");
+    return axios.get("https://" + import.meta.env.VITE_APP_WAKESERVER + "/wakeup");
 }

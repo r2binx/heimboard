@@ -6,3 +6,6 @@ dist-ssr
 *.code-workspace
 *.vscode
 .idea
+!.env.example
+.env.*
+.env
