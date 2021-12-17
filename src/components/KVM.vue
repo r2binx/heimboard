@@ -1,0 +1,126 @@
+<script setup>
+import { ref } from 'vue';
+import { useMessage, NInputNumber, NPopconfirm, NDivider, NSpace, NButton, NCollapse, NCollapseItem, NTable, NTbody, NTr, NTd } from 'naive-ui';
+import { fetchAllVms, startVm, stopVm, setVmMemory } from '../utils/api';
+
+const message = useMessage();
+
+const activeShade = "#63e2b7";
+const idleShade = "#e88080";
+
+const vmList = ref([]);
+
+fetchAllVms().then(res => {
+    if (res.status == 200) {
+        vmList.value = res.data.result;
+    }
+}).catch(err => {
+    console.log(err);
+});
+
+function handleVmStart(name) {
+    startVm(name).then(res => {
+        if (res.data.result.success) {
+            let index = vmList.value.findIndex((vm) => vm.name == name)
+            vmList.value[index].state = "running";
+            message.success("Successfully started " + name);
+        } else {
+            message.error(res.data.result.message);
+        }
+    }).catch(
+        err => {
+            message.error("Failed to start " + name);
+            console.log(err);
+        }
+    );
+}
+
+function confirmShutdown(name) {
+    stopVm(name).then(res => {
+        if (res.data.result.success) {
+            let index = vmList.value.findIndex((vm) => vm.name == name)
+            vmList.value[index].state = "shutoff";
+            message.success("Shutdown successfull" + name);
+        } else {
+            message.error(res.data.result.message);
+        }
+    }).catch(
+        err => {
+            message.error("Failed to shutdown " + name);
+            console.log(err);
+        }
+    );
+}
+
+function handleMemoryEdit(name, value) {
+    console.log(name, value);
+    setVmMemory(name, value * (1024 ^ 2)).then(res => {
+        console.log(res.data);
+        if (res.data.result.success) {
+            let index = vmList.value.findIndex((vm) => vm.name == name)
+            vmList.value[index].current_memory = value * (1024 ^ 2);
+            message.success("Successfully set memory of " + name);
+        } else {
+            message.error(res.data.result.message);
+        }
+    }).catch(
+        err => {
+            message.error("Failed to set memory of " + name);
+            console.log(err);
+        }
+    );
+}
+
+</script>
+<template>
+    <n-divider title-placement="left">KVM</n-divider>
+    <n-table :striped="true">
+        <n-tbody>
+            <n-tr v-for="vm in vmList" :key="vm.name">
+                <n-td>
+                    <n-collapse v-if="vm.state == 'running' && vm.mem_modifiable">
+                        <n-collapse-item :title="vm.name.toUpperCase()" :key="vm.name">
+                            <n-space style="width: max-content;">
+                                MEMORY:
+                                <n-input-number
+                                    style="width: 150px; min-width: 30%; max-width: 80%;"
+                                    size="small"
+                                    :max="vm.max_memory / 1024 / 1024"
+                                    :value="vm.current_memory / 1024 / 1024"
+                                />
+                            </n-space>
+                        </n-collapse-item>
+                    </n-collapse>
+                    <div v-else>{{ vm.name.toUpperCase() }}</div>
+                </n-td>
+                <n-td>
+                    <n-space style="float: right;" v-if="vm.state == 'running'">
+                        <n-popconfirm @positive-click="confirmShutdown(vm.name)">
+                            <template #trigger>
+                                <n-button type="error">SHUTDOWN</n-button>
+                            </template>
+                            Shutdown?
+                        </n-popconfirm>
+                    </n-space>
+                    <n-button
+                        style="float: right;"
+                        type="primary"
+                        v-else-if="vm.state == 'shutoff'"
+                        @click="handleVmStart(vm.name)"
+                    >START</n-button>
+                    <div style="float: right;" v-else>{{ vm.sate.toUpperCase() }}</div>
+                </n-td>
+            </n-tr>
+        </n-tbody>
+    </n-table>
+</template>
+
+<style>
+.idle {
+    color: v-bind(idleShade);
+}
+
+.active {
+    color: v-bind(activeShade);
+}
+</style>

@@ -1,0 +1,110 @@
+<script setup>
+// This starter template is using Vue 3 <script setup> SFCs
+// Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
+import { ref } from "vue";
+import { useMessage, NButton, NSpace, NCollapse, NCollapseItem, NIcon, NPopconfirm } from "naive-ui";
+import { PowerOff, Spinner } from "@vicons/fa";
+import { fetchUptime, reboot, shutdown } from "../utils/api.js";
+
+const message = useMessage();
+const activeShade = "#63e2b7";
+const idleShade = "#e88080";
+
+const uptime = ref(0);
+const reachable = ref(Boolean);
+
+fetchUptime().then(res => {
+    if (res.status == 200) {
+        uptime.value = res.data;
+        reachable.value = true;
+    } else {
+        reachable.value = false;
+    }
+}).catch(err => {
+    reachable.value = false;
+    console.log(err);
+});
+
+function shutdownConfirm() {
+    shutdown().then(res => {
+        if (res.data.success) {
+            message.success("Shutting down!");
+        } else {
+            message.error(res.data.message);
+        }
+    }).catch(
+        err => {
+            message.error("Failed to shutdown!");
+            console.log(err);
+        }
+    );
+
+}
+
+function rebootConfirm() {
+    reboot().then(res => {
+        console.log(res.data)
+        if (res.data.success) {
+            message.success("Rebooted!");
+        } else {
+            message.error(res.data.message);
+        }
+    }).catch(
+        err => {
+            message.error("Failed to reboot!");
+            console.log(err);
+        }
+    );
+
+}
+
+</script>
+
+<template>
+    <n-collapse>
+        <n-collapse-item style="font-size: xx-large !important;" title="STATUS">
+            <template #header-extra>
+                <p v-if="reachable" class="active">ONLINE</p>
+                <p v-else class="idle">OFFLINE</p>
+            </template>
+            <n-space justify="space-around" size="large">
+                <n-popconfirm @positive-click="rebootConfirm">
+                    <template #trigger>
+                        <n-button type="warning">
+                            <template #icon>
+                                <n-icon color="#18181c">
+                                    <spinner />
+                                </n-icon>
+                            </template>
+                            REBOOT
+                        </n-button>
+                    </template>
+                    Are you sure you want to reboot?
+                </n-popconfirm>
+                <n-popconfirm @positive-click="shutdownConfirm">
+                    <template #trigger>
+                        <n-button type="error">
+                            <template #icon>
+                                <n-icon color="#18181c">
+                                    <power-off />
+                                </n-icon>
+                            </template>SHUTDOWN
+                        </n-button>
+                    </template>
+                    Are you sure you want to shutdown?
+                </n-popconfirm>
+            </n-space>
+        </n-collapse-item>
+    </n-collapse>
+</template>
+
+<style>
+.idle {
+    color: v-bind(idleShade);
+}
+
+.active {
+    color: v-bind(activeShade);
+}
+</style>
+

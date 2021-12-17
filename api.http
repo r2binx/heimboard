@@ -1,0 +1,13 @@
+@host = 192.168.178.175
+@port = 18500
+@method = http
+
+GET {{method}}://{{host}}:{{port}}/uptime
+###
+GET {{method}}://{{host}}:{{port}}/reboot
+###
+GET {{method}}://{{host}}:{{port}}/vm/all
+###
+GET {{method}}://{{host}}:{{port}}/idle
+
+
