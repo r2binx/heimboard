@@ -10,11 +10,11 @@ import Services from "./components/Services.vue";
 import KVM from "./components/KVM.vue";
 import { fetchUptime, wakeOnLan } from "./utils/api.js";
 
-const activeShade = "#63e2b7";
-const idleShade = "#e88080";
+
 const osThemeRef = useOsTheme();
 const theme = ref(osThemeRef.value === 'dark' ? darkTheme : null);
-
+const activeShade = ref(osThemeRef.value === 'dark' ? "#63e2b7" : "#18a058");
+const idleShade = ref(osThemeRef.value === 'dark' ? "#e88080" : "#d03050");
 const uptime = ref(0);
 const reachable = ref(false);
 
@@ -45,6 +45,12 @@ function handleWakeUp() {
   );
 }
 
+function changeTheme(newTheme) {
+  theme.value = newTheme;
+  activeShade.value = newTheme === darkTheme ? "#63e2b7" : "#18a058";
+  idleShade.value = newTheme === darkTheme ? "#e88080" : "#d03050";
+}
+
 </script>
 
 <template>
@@ -57,9 +63,9 @@ function handleWakeUp() {
             size="large"
             circle
             v-if="theme == null || theme == 'light'"
-            @click="theme = darkTheme"
+            @click="changeTheme(darkTheme)"
           >🌚</n-button>
-          <n-button class="theme-toggle" size="large" circle v-else @click="theme = null">🌞</n-button>
+          <n-button class="theme-toggle" size="large" circle v-else @click="changeTheme(null)">🌞</n-button>
         </template>
         <div v-if="reachable">
           <n-message-provider>
@@ -72,12 +78,12 @@ function handleWakeUp() {
           </n-message-provider>
         </div>
         <div v-else>
-          <n-button @click="handleWakeUp" style="font-size: xxx-large;" circle :bordered="false">
+          <n-button @click="handleWakeUp" style="font-size: 72px;" circle :bordered="false">
             <n-icon>
               <PowerOff />
             </n-icon>
           </n-button>
-          <p>WAKE UP</p>
+          <p style="font-size: large;">WAKE UP</p>
         </div>
       </n-card>
     </div>

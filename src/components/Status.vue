@@ -1,14 +1,10 @@
 <script setup>
-// This starter template is using Vue 3 <script setup> SFCs
-// Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
 import { ref } from "vue";
 import { useMessage, NButton, NSpace, NCollapse, NCollapseItem, NIcon, NPopconfirm } from "naive-ui";
 import { PowerOff, Spinner } from "@vicons/fa";
 import { fetchUptime, reboot, shutdown } from "../utils/api.js";
 
 const message = useMessage();
-const activeShade = "#63e2b7";
-const idleShade = "#e88080";
 
 const uptime = ref(0);
 const reachable = ref(Boolean);
@@ -99,12 +95,5 @@ function rebootConfirm() {
 </template>
 
 <style>
-.idle {
-    color: v-bind(idleShade);
-}
-
-.active {
-    color: v-bind(activeShade);
-}
 </style>
 

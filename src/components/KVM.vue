@@ -5,9 +5,6 @@ import { fetchAllVms, startVm, stopVm, setVmMemory } from '../utils/api';
 
 const message = useMessage();
 
-const activeShade = "#63e2b7";
-const idleShade = "#e88080";
-
 const vmList = ref([]);
 
 fetchAllVms().then(res => {
@@ -40,7 +37,7 @@ function confirmShutdown(name) {
         if (res.data.result.success) {
             let index = vmList.value.findIndex((vm) => vm.name == name)
             vmList.value[index].state = "shutoff";
-            message.success("Shutdown successfull" + name);
+            message.success("Shutdown successfull " + name);
         } else {
             message.error(res.data.result.message);
         }
@@ -53,13 +50,11 @@ function confirmShutdown(name) {
 }
 
 function handleMemoryEdit(name, value) {
-    console.log(name, value);
-    setVmMemory(name, value * (1024 ^ 2)).then(res => {
-        console.log(res.data);
+    setVmMemory(name, value * 1024 * 1024).then(res => {
         if (res.data.result.success) {
             let index = vmList.value.findIndex((vm) => vm.name == name)
-            vmList.value[index].current_memory = value * (1024 ^ 2);
-            message.success("Successfully set memory of " + name);
+            vmList.value[index].current_memory = value * 1024 * 1024;
+            message.success("Successfully set memory of " + name + " to " + value + "GB");
         } else {
             message.error(res.data.result.message);
         }
@@ -87,6 +82,7 @@ function handleMemoryEdit(name, value) {
                                     size="small"
                                     :max="vm.max_memory / 1024 / 1024"
                                     :value="vm.current_memory / 1024 / 1024"
+                                    @update:value="$event => handleMemoryEdit(vm.name, $event)"
                                 />
                             </n-space>
                         </n-collapse-item>
@@ -116,11 +112,4 @@ function handleMemoryEdit(name, value) {
 </template>
 
 <style>
-.idle {
-    color: v-bind(idleShade);
-}
-
-.active {
-    color: v-bind(activeShade);
-}
 </style>
