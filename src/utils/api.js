@@ -1,6 +1,5 @@
 import axios from "axios";
 
-console.log(import.meta.env.VITE_APP_IDLEREPORTER)
 const host = "https://" + import.meta.env.VITE_APP_IDLEREPORTER
 
 export function fetchIdle() {

@@ -14,7 +14,6 @@ export default defineConfig({
       name: 'HEIMBOARD',
       short_name: 'HEIM',
       description: 'Dashboard for the blckct.io server',
-      theme_color: '#ffffff',
       display: 'standalone',
       start_url: "/",
       icons: [
