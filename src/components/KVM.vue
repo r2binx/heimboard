@@ -1,50 +1,64 @@
 <script setup>
 import { ref } from 'vue';
-import { useMessage, NInputNumber, NPopconfirm, NDivider, NSpace, NButton, NCollapse, NCollapseItem, NTable, NTbody, NTr, NTd } from 'naive-ui';
+import { useMessage, useLoadingBar, NInputNumber, NPopconfirm, NDivider, NSpace, NButton, NCollapse, NCollapseItem, NTable, NTbody, NTr, NTd } from 'naive-ui';
 import { fetchAllVms, startVm, stopVm, setVmMemory } from '../utils/api';
 
 const message = useMessage();
-
+const loadingBar = useLoadingBar();
 const vmList = ref([]);
 
-fetchAllVms().then(res => {
-    if (res.status == 200) {
-        vmList.value = res.data.result;
-    }
-}).catch(err => {
-    console.log(err);
-});
+function refreshVms() {
+    fetchAllVms().then(res => {
+        if (res.status == 200) {
+            vmList.value = res.data.result;
+        }
+    }).catch(err => {
+        console.log(err);
+    });
+}
+
+refreshVms();
 
 function handleVmStart(name) {
+    loadingBar.start();
     startVm(name).then(res => {
         if (res.data.result.success) {
             let index = vmList.value.findIndex((vm) => vm.name == name)
             vmList.value[index].state = "running";
             message.success("Successfully started " + name);
+            loadingBar.finish();
+            refreshVms();
         } else {
             message.error(res.data.result.message);
+            loadingBar.error()
         }
     }).catch(
         err => {
             message.error("Failed to start " + name);
+            loadingBar.error()
             console.log(err);
         }
     );
 }
 
 function confirmShutdown(name) {
+    loadingBar.start();
     stopVm(name).then(res => {
         if (res.data.result.success) {
             let index = vmList.value.findIndex((vm) => vm.name == name)
             vmList.value[index].state = "shutoff";
             message.success("Shutdown successfull " + name);
+            loadingBar.finish();
+            refreshVms();
         } else {
             message.error(res.data.result.message);
+            loadingBar.error()
         }
     }).catch(
         err => {
             message.error("Failed to shutdown " + name);
             console.log(err);
+            loadingBar.error()
         }
     );
 }
@@ -55,6 +69,7 @@ function handleMemoryEdit(name, value) {
             let index = vmList.value.findIndex((vm) => vm.name == name)
             vmList.value[index].current_memory = value * 1024 * 1024;
             message.success("Successfully set memory of " + name + " to " + value + "GB");
+            refreshVms();
         } else {
             message.error(res.data.result.message);
         }

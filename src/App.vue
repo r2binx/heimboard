@@ -2,7 +2,7 @@
 // This starter template is using Vue 3 <script setup> SFCs
 // Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
 import { ref } from "vue";
-import { NConfigProvider, NMessageProvider, useOsTheme, darkTheme, NButton, NCard, NGlobalStyle, NIcon } from "naive-ui";
+import { NConfigProvider, NMessageProvider, useOsTheme, darkTheme, NButton, NCard, NGlobalStyle, NIcon, NLoadingBarProvider } from "naive-ui";
 import { PowerOff } from "@vicons/fa";
 import Status from "./components/Status.vue";
 import Usage from "./components/Usage.vue";
@@ -81,7 +81,9 @@ function changeTheme(newTheme) {
               <Usage />
               <Services />
               <n-message-provider v-if="AuthState.user.email == 'robin@blckct.io'">
-                <KVM />
+                <n-loading-bar-provider>
+                  <KVM />
+                </n-loading-bar-provider>
               </n-message-provider>
             </div>
             <div v-else>
