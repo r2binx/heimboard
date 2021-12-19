@@ -2,25 +2,11 @@
 import { ref } from "vue";
 import { useMessage, NButton, NSpace, NCollapse, NCollapseItem, NIcon, NPopconfirm } from "naive-ui";
 import { PowerOff, Spinner } from "@vicons/fa";
-import { fetchUptime, reboot, shutdown } from "../utils/api.js";
+import { state, reboot, shutdown } from "../utils/api.js";
 import { AuthState } from "../utils/useAuth0";
 
 const message = useMessage();
 
-const uptime = ref(0);
-const reachable = ref(Boolean);
-
-fetchUptime().then(res => {
-    if (res.status == 200) {
-        uptime.value = res.data;
-        reachable.value = true;
-    } else {
-        reachable.value = false;
-    }
-}).catch(err => {
-    reachable.value = false;
-    console.log(err);
-});
 
 function shutdownConfirm() {
     shutdown().then(res => {
@@ -61,7 +47,7 @@ function rebootConfirm() {
     <n-collapse>
         <n-collapse-item style="font-size: xx-large !important;" title="STATUS">
             <template #header-extra>
-                <p v-if="reachable" class="active">ONLINE</p>
+                <p v-if="state.reachable" class="active">ONLINE</p>
                 <p v-else class="idle">OFFLINE</p>
             </template>
             <n-space

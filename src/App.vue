@@ -8,7 +8,7 @@ import Status from "./components/Status.vue";
 import Usage from "./components/Usage.vue";
 import Services from "./components/Services.vue";
 import KVM from "./components/KVM.vue";
-import { fetchUptime, wakeOnLan } from "./utils/api.js";
+import { fetchUptime, wakeOnLan, state } from "./utils/api.js";
 import { useAuth0, AuthState } from "./utils/useAuth0";
 const { login, logout, initAuth } = useAuth0(AuthState);
 
@@ -18,18 +18,16 @@ const osThemeRef = useOsTheme();
 const theme = ref(osThemeRef.value === 'dark' ? darkTheme : null);
 const activeShade = ref(osThemeRef.value === 'dark' ? "#63e2b7" : "#18a058");
 const idleShade = ref(osThemeRef.value === 'dark' ? "#e88080" : "#d03050");
-const uptime = ref(0);
-const reachable = ref(false);
 
 fetchUptime().then(res => {
   if (res.status == 200) {
-    uptime.value = res.data;
-    reachable.value = true;
+    state.uptime = res.data;
+    state.reachable = true;
   } else {
-    reachable.value = false;
+    state.reachable = false;
   }
 }).catch(err => {
-  reachable.value = false;
+  state.reachable = false;
   console.log(err);
 });
 
@@ -76,7 +74,7 @@ function changeTheme(newTheme) {
           </div>
 
           <div v-else>
-            <div v-if="reachable">
+            <div v-if="state.reachable">
               <n-message-provider>
                 <Status />
               </n-message-provider>

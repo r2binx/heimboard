@@ -1,4 +1,5 @@
 import axios from "axios";
+import { reactive } from "vue";
 
 const host = "https://" + import.meta.env.VITE_APP_IDLEREPORTER
 
@@ -57,3 +58,8 @@ export function setVmMemory(vmName, memory) {
 export function wakeOnLan() {
     return axios.get("https://" + import.meta.env.VITE_APP_WAKESERVER + "/wakeup");
 }
+
+export const state = reactive({
+    uptime: 0,
+    reachable: false,
+})
