@@ -65,7 +65,7 @@ function rebootConfirm() {
                 <p v-else class="idle">OFFLINE</p>
             </template>
             <n-space
-                v-if="!AuthState.user.email == 'robin@blckct.io'"
+                v-if="AuthState.user.email == 'robin@blckct.io'"
                 justify="space-around"
                 size="large"
             >
@@ -95,7 +95,7 @@ function rebootConfirm() {
                     Are you sure you want to shutdown?
                 </n-popconfirm>
             </n-space>
-            <div style="font-size: small;">NOTHING TO SEE HERE...</div>
+            <div v-else style="font-size: small;">NOTHING TO SEE HERE...</div>
         </n-collapse-item>
     </n-collapse>
 </template>
