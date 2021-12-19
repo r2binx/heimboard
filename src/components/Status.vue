@@ -65,7 +65,7 @@ function rebootConfirm() {
                 <p v-else class="idle">OFFLINE</p>
             </template>
             <n-space
-                v-if="!AuthState.user.email == 'robin@blckct.io'"
+                v-if="AuthState.user.email == 'robin@blckct.io'"
                 justify="space-around"
                 size="large"
             >
