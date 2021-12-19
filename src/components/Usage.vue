@@ -5,11 +5,19 @@ import { NDivider, NSpace, NProgress } from 'naive-ui'
 const cpuUsage = ref(0);
 const memUsage = ref(0);
 
-let connection = new WebSocket('wss://' + import.meta.env.VITE_APP_IDLEREPORTER + '/usage/1');
+let old_tx = ref(null);
+const net_tx = ref(0);
+
+let connection = new WebSocket('wss://' + import.meta.env.VITE_APP_IDLEREPORTER + '/usage?rate=1');
 connection.onmessage = function (event) {
     let data = JSON.parse(event.data)
     cpuUsage.value = data["cpu"];
     memUsage.value = data["memory"]["used"];
+    if (old_tx) {
+        net_tx.value = ~~((data["net"]["out"] - old_tx.value) / 1024 / 1024 * 8);
+    }
+
+    old_tx.value = data["net"]["out"];
 }
 
 connection.onopen = function () {
