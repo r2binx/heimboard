@@ -2,11 +2,12 @@
   "name": "heimboard",
   "version": "0.6.0",
   "scripts": {
-    "dev": "vite --host",
+    "dev": "vite --port 4000",
     "build": "vite build",
     "serve": "vite preview --host --port 4000"
   },
   "dependencies": {
+    "@auth0/auth0-spa-js": "^1.19.3",
     "axios": "^0.24.0",
     "vue": "^3.2.25"
   },

@@ -9,7 +9,10 @@ import Usage from "./components/Usage.vue";
 import Services from "./components/Services.vue";
 import KVM from "./components/KVM.vue";
 import { fetchUptime, wakeOnLan } from "./utils/api.js";
+import { useAuth0, AuthState } from "./utils/useAuth0";
+const { login, logout, initAuth } = useAuth0(AuthState);
 
+initAuth();
 
 const osThemeRef = useOsTheme();
 const theme = ref(osThemeRef.value === 'dark' ? darkTheme : null);
@@ -67,24 +70,37 @@ function changeTheme(newTheme) {
           >🌚</n-button>
           <n-button class="theme-toggle" size="large" circle v-else @click="changeTheme(null)">🌞</n-button>
         </template>
-        <div v-if="reachable">
-          <n-message-provider>
-            <Status />
-          </n-message-provider>
-          <Usage />
-          <Services />
-          <n-message-provider>
-            <KVM />
-          </n-message-provider>
+        <div v-if="!AuthState.loading">
+          <div v-if="!AuthState.isAuthenticated">
+            <n-button size="large" type="primary" @click="login()">LOGIN</n-button>
+          </div>
+
+          <div v-else>
+            <div v-if="reachable">
+              <n-message-provider>
+                <Status />
+              </n-message-provider>
+              <Usage />
+              <Services />
+              <n-message-provider v-if="AuthState.user.email == 'robin@blckct.io'">
+                <KVM />
+              </n-message-provider>
+            </div>
+            <div v-else>
+              <n-button @click="handleWakeUp" style="font-size: 72px;" circle :bordered="false">
+                <n-icon>
+                  <PowerOff />
+                </n-icon>
+              </n-button>
+              <p style="font-size: large;">WAKE UP</p>
+            </div>
+          </div>
         </div>
-        <div v-else>
-          <n-button @click="handleWakeUp" style="font-size: 72px;" circle :bordered="false">
-            <n-icon>
-              <PowerOff />
-            </n-icon>
-          </n-button>
-          <p style="font-size: large;">WAKE UP</p>
-        </div>
+
+        <div v-else>Loading ...</div>
+        <template v-if="AuthState.isAuthenticated" #action>
+          <n-button size="small" style="float: right;" @click="logout()">LOGOUT</n-button>
+        </template>
       </n-card>
     </div>
     <n-global-style />

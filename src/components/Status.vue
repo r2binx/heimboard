@@ -3,6 +3,7 @@ import { ref } from "vue";
 import { useMessage, NButton, NSpace, NCollapse, NCollapseItem, NIcon, NPopconfirm } from "naive-ui";
 import { PowerOff, Spinner } from "@vicons/fa";
 import { fetchUptime, reboot, shutdown } from "../utils/api.js";
+import { AuthState } from "../utils/useAuth0";
 
 const message = useMessage();
 
@@ -63,7 +64,11 @@ function rebootConfirm() {
                 <p v-if="reachable" class="active">ONLINE</p>
                 <p v-else class="idle">OFFLINE</p>
             </template>
-            <n-space justify="space-around" size="large">
+            <n-space
+                v-if="!AuthState.user.email == 'robin@blckct.io'"
+                justify="space-around"
+                size="large"
+            >
                 <n-popconfirm @positive-click="rebootConfirm">
                     <template #trigger>
                         <n-button type="warning">
@@ -90,6 +95,7 @@ function rebootConfirm() {
                     Are you sure you want to shutdown?
                 </n-popconfirm>
             </n-space>
+            <div style="font-size: small;">NOTHING TO SEE HERE...</div>
         </n-collapse-item>
     </n-collapse>
 </template>
