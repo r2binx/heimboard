@@ -1,2 +1,3 @@
 fastapi
-"uvicorn[standard]"
+uvicorn[standard]
+pyjwt[crypto]==2.3.0

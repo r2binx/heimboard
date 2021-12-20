@@ -36,7 +36,7 @@ export async function initAuth() {
 }
 
 export async function login() {
-    await (await auth0Promise).loginWithPopup();
+    await (await auth0Promise).loginWithPopup({});
     await handleStateChange();
 }
 
