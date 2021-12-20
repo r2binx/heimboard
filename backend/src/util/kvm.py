@@ -1,6 +1,6 @@
 import sys
 from dataclasses import dataclass
-from typing import List, Tuple, Union
+from typing import List, Tuple, Union, Dict
 from xml.dom import minidom
 import libvirt
 from libvirt import virConnect
@@ -40,7 +40,7 @@ class DomainState:
 @dataclass
 class State:
     name: str
-    status: dict[str, Union[str, bool]]
+    status: Dict[str, Union[str, bool]]
 
 
 class KVM:
@@ -103,7 +103,7 @@ class KVM:
 
         return False
 
-    def get_vms(self) -> list[dict[str, any]]:
+    def get_vms(self) -> list[Dict[str, any]]:
         try:
             vm_list = []
             for d in self.conn.listAllDomains():
