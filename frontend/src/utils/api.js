@@ -1,4 +1,4 @@
-import axios, { Axios } from "axios";
+import axios from "axios";
 import { reactive } from "vue";
 
 import { getToken } from "./useAuth0"

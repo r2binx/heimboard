@@ -77,7 +77,6 @@ function changeTheme(newTheme) {
           <div v-if="!AuthState.isAuthenticated">
             <n-button size="large" type="primary" @click="login()">LOGIN</n-button>
           </div>
-
           <div v-else>
             <div v-if="state.reachable">
               <n-message-provider>
@@ -91,13 +90,16 @@ function changeTheme(newTheme) {
                 </n-loading-bar-provider>
               </n-message-provider>
             </div>
-            <div v-else>
+            <div v-else-if="getUserPermissions(AuthState.user).indexOf('guest') !== -1">
               <n-button @click="handleWakeUp" style="font-size: 72px;" circle :bordered="false">
                 <n-icon>
                   <PowerOff />
                 </n-icon>
               </n-button>
               <p style="font-size: large;">WAKE UP</p>
+            </div>
+            <div v-else>
+              <p>You haven't been authorized yet to view this page.</p>
             </div>
           </div>
         </div>
