@@ -55,10 +55,9 @@ def idle():
 @app.get("/uptime")
 # returns uptime in in seconds
 def uptime():
-    cmd = subprocess.check_output("awk '{print $1}' /proc/uptime",
-                                  shell=True).strip()
-    uptime = float(cmd)
-    return round(uptime)
+    with open('/proc/uptime', 'r') as f:
+        uptime_seconds = float(f.readline().split()[0])
+        return round(uptime_seconds)
 
 
 @app.websocket("/usage")
