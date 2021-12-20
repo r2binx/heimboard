@@ -1,3 +1,4 @@
+from typing import Dict
 import requests
 import json
 import logging
@@ -18,11 +19,11 @@ class Sabnzbd:
     API_KEY: str
     HOST: str
 
-    def __init__(self, config: dict):
+    def __init__(self, config: Dict):
         self.API_KEY = config["API_KEY"]
         self.HOST = config["HOST"]
 
-    def get_queue(self) -> dict:
+    def get_queue(self) -> Dict:
         url = (self.HOST +
                "/api?mode=queue&limit=5&apikey={apikey}&output=json").format(
                    apikey=self.API_KEY)

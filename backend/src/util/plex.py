@@ -1,3 +1,4 @@
+from typing import Dict
 import requests
 import json
 import logging
@@ -19,11 +20,11 @@ class Plex:
     API_KEY: str
     HOST: str
 
-    def __init__(self, config: dict):
+    def __init__(self, config: Dict):
         self.API_KEY = config["API_KEY"]
         self.HOST = config["HOST"]
 
-    def get_activity(self) -> dict:
+    def get_activity(self) -> Dict:
         url = (
             self.HOST +
             "/api/v2?apikey={apikey}&cmd=get_activity&out_type=json").format(
@@ -33,7 +34,7 @@ class Plex:
 
         return json.loads(response.text)['response']
 
-    def is_active(self, data: dict) -> bool:
+    def is_active(self, data: Dict) -> bool:
         return True if int(data.get('stream_count')) > 0 else False
 
     def is_plex_idle(self) -> bool:

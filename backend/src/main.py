@@ -2,7 +2,7 @@ import os
 import psutil
 import asyncio
 import subprocess
-from typing import Optional, Tuple
+from typing import Dict, Optional, Tuple
 from fastapi import Request, FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from websockets import ConnectionClosedOK
@@ -55,10 +55,7 @@ def idle():
 @app.get("/uptime")
 # returns uptime in in seconds
 def uptime():
-    cmd = subprocess.check_output("awk '{print $1}' /proc/uptime",
-                                  shell=True).strip()
-    uptime = float(cmd)
-    return round(uptime)
+    return round((datetime.now() - datetime.fromtimestamp(psutil.boot_time())).total_seconds())
 
 
 @app.websocket("/usage")
@@ -187,7 +184,7 @@ def stop_vm(domain: str):
     return {"result": result.status}
 
 
-def check_all_idle() -> Tuple[bool, dict[str, bool]]:
+def check_all_idle() -> Tuple[bool, Dict[str, bool]]:
     jelly_idle = jelly.is_jelly_idle()
     plex_idle = plex.is_plex_idle()
     kvm_idle = kvm.is_kvm_idle()
