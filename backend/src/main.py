@@ -16,19 +16,19 @@ from util.sabnzbd import Sabnzbd
 
 app = FastAPI()
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
 env = os.getenv("ENV", ".config")
 config = []
 if env == ".config":
     config = ConfigParser()
     config.read(".config")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=config["BACKEND"]["ORIGINS"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 kvm = KVM()
 jelly = Jelly(config["JELLY"])
@@ -55,7 +55,8 @@ def idle():
 @app.get("/uptime")
 # returns uptime in in seconds
 def uptime():
-    return round((datetime.now() - datetime.fromtimestamp(psutil.boot_time())).total_seconds())
+    return round((datetime.now() -
+                  datetime.fromtimestamp(psutil.boot_time())).total_seconds())
 
 
 @app.websocket("/usage")
