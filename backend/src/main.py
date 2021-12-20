@@ -31,10 +31,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-#kvm = KVM()
-#jelly = Jelly(config["JELLY"])
-#plex = Plex(config["PLEX"])
-#nzb = Sabnzbd(config["NZB"])
+kvm = KVM()
+jelly = Jelly(config["JELLY"])
+plex = Plex(config["PLEX"])
+nzb = Sabnzbd(config["NZB"])
 
 jwt_validator = JWTValidator(config=config["AUTH0"])
 
@@ -63,7 +63,11 @@ def uptime(jwt=Depends(jwt_validator.verify(permission='guest'))):
 
 
 @app.websocket("/usage")
-async def system_stats(websocket: WebSocket, rate: Optional[int] = 1, jwt=Depends(jwt_validator.verify(permission='guest', query=True))):
+async def system_stats(websocket: WebSocket,
+                       rate: Optional[int] = 1,
+                       jwt=Depends(
+                           jwt_validator.verify(permission='guest',
+                                                query=True))):
     try:
         await websocket.accept()
         while True:
@@ -140,7 +144,9 @@ def active_vms(jwt=Depends(jwt_validator.verify(permission='guest'))):
 
 
 @app.put("/vm/{domain}")
-async def edit_vm(domain, request: Request, jwt=Depends(jwt_validator.verify(permission='admin'))):
+async def edit_vm(domain,
+                  request: Request,
+                  jwt=Depends(jwt_validator.verify(permission='admin'))):
     data = await request.json()
     for k, v in data.items():
         if k == "memory":
@@ -175,14 +181,16 @@ def vm_info(domain, jwt=Depends(jwt_validator.verify(permission='guest'))):
 
 
 @app.post("/vm/{domain}/start")
-def start_vm(domain: str, jwt=Depends(jwt_validator.verify(permission='admin'))):
+def start_vm(domain: str,
+             jwt=Depends(jwt_validator.verify(permission='admin'))):
     result = kvm.boot_vm(domain)
 
     return {"result": result.status}
 
 
 @app.post("/vm/{domain}/stop")
-def stop_vm(domain: str, jwt=Depends(jwt_validator.verify(permission='admin'))):
+def stop_vm(domain: str,
+            jwt=Depends(jwt_validator.verify(permission='admin'))):
     result = kvm.shutdown_vm(domain)
 
     return {"result": result.status}
