@@ -1,7 +1,18 @@
-import axios from "axios";
+import axios, { Axios } from "axios";
 import { reactive } from "vue";
 
+import { getToken } from "./useAuth0"
+
 const host = "https://" + import.meta.env.VITE_APP_IDLEREPORTER
+
+axios.interceptors.request.use(async (config) => {
+    const token = await getToken();
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+    }
+    console.log(token);
+    return config;
+});
 
 export function fetchIdle() {
     return axios.get(host + "/idle");

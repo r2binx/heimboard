@@ -3,7 +3,7 @@ import { ref } from "vue";
 import { useMessage, NButton, NSpace, NCollapse, NCollapseItem, NIcon, NPopconfirm } from "naive-ui";
 import { PowerOff, Spinner } from "@vicons/fa";
 import { state, reboot, shutdown } from "../utils/api.js";
-import { AuthState } from "../utils/useAuth0";
+import { AuthState, getUserPermissions } from "../utils/useAuth0";
 
 const message = useMessage();
 
@@ -51,7 +51,7 @@ function rebootConfirm() {
                 <p v-else class="idle">OFFLINE</p>
             </template>
             <n-space
-                v-if="AuthState.user.email == 'robin@blckct.io'"
+                v-if="getUserPermissions(AuthState.user).indexOf('admin') !== -1"
                 justify="space-around"
                 size="large"
             >

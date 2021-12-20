@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import { NDivider, NSpace, NProgress } from 'naive-ui'
+import { getToken } from '../utils/useAuth0';
 
 const cpuUsage = ref(0);
 const memUsage = ref(0);
@@ -8,7 +9,7 @@ const memUsage = ref(0);
 let old_tx = ref(null);
 const net_tx = ref(0);
 
-let connection = new WebSocket('wss://' + import.meta.env.VITE_APP_IDLEREPORTER + '/usage?rate=1');
+let connection = new WebSocket('wss://' + import.meta.env.VITE_APP_IDLEREPORTER + '/usage?rate=1&token=' + await getToken());
 connection.onmessage = function (event) {
     let data = JSON.parse(event.data)
     cpuUsage.value = data["cpu"];
