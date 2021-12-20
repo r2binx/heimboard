@@ -9,7 +9,7 @@ const memUsage = ref(0);
 let old_tx = ref(null);
 const net_tx = ref(0);
 
-let connection = new WebSocket('wss://' + import.meta.env.VITE_APP_IDLEREPORTER + '/usage?rate=1');
+let connection = new WebSocket('wss://' + import.meta.env.VITE_APP_IDLEREPORTER + '/usage?rate=1&token=' + await getToken());
 connection.onmessage = function (event) {
     let data = JSON.parse(event.data)
     cpuUsage.value = data["cpu"];
@@ -21,9 +21,8 @@ connection.onmessage = function (event) {
     old_tx.value = data["net"]["out"];
 }
 
-connection.onopen = async function () {
+connection.onopen = function () {
     console.log("Successfully connected to the websocket server...")
-    connection.send(await getToken());
 }
 </script>
 <template>

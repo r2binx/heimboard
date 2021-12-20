@@ -82,7 +82,7 @@ function changeTheme(newTheme) {
               </n-message-provider>
               <Usage />
               <Services />
-              <n-message-provider v-if="AuthState.user.email == 'robin@blckct.io'">
+              <n-message-provider v-if="AuthState.user.persmissions.indexOf('admin') !== -1">
                 <n-loading-bar-provider>
                   <KVM />
                 </n-loading-bar-provider>

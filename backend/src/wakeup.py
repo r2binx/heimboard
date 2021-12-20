@@ -1,5 +1,5 @@
 import subprocess
-from auth import JWTValidator
+from util.auth import JWTValidator
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from datetime import datetime
@@ -15,7 +15,7 @@ app.add_middleware(
 )
 
 jwt_validator = JWTValidator(config={
-                             'DOMAIN': 'blckct.eu.auth0.com', 'API_AUDIENCE': 'POV4guAJwYXpDC78LyaNT06VCHZ4xZDj'})  # TODO
+    'URL': 'https://blckct.eu.auth0.com/', 'API_AUDIENCE': 'POV4guAJwYXpDC78LyaNT06VCHZ4xZDj'})  # TODO
 
 
 @app.get("/ping")
@@ -26,7 +26,7 @@ def ping():
 
 
 @app.get("/wakeup")
-def wake(jwt=Depends(jwt_validator.verify(role='admin'))):
+def wake(jwt=Depends(jwt_validator.verify(permission='admin'))):
     cmd = subprocess.check_output("wakeonlan 00:1D:A5:1B:1C:1D",
                                   shell=True).strip()
     return cmd

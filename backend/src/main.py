@@ -3,16 +3,17 @@ import psutil
 import asyncio
 import subprocess
 from typing import Dict, Optional, Tuple
-from fastapi import Request, FastAPI, WebSocket, WebSocketDisconnect
+from fastapi import Request, FastAPI, WebSocket, WebSocketDisconnect, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from websockets import ConnectionClosedOK
 from datetime import datetime
 import time
 from configparser import ConfigParser
-from util.jelly import Jelly
-from util.kvm import KVM
-from util.plex import Plex
-from util.sabnzbd import Sabnzbd
+from util.auth import JWTValidator
+#from util.jelly import Jelly
+#from util.kvm import KVM
+#from util.plex import Plex
+#from util.sabnzbd import Sabnzbd
 
 app = FastAPI()
 
@@ -30,10 +31,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-kvm = KVM()
-jelly = Jelly(config["JELLY"])
-plex = Plex(config["PLEX"])
-nzb = Sabnzbd(config["NZB"])
+#kvm = KVM()
+#jelly = Jelly(config["JELLY"])
+#plex = Plex(config["PLEX"])
+#nzb = Sabnzbd(config["NZB"])
+
+jwt_validator = JWTValidator(config=config["AUTH0"])
 
 
 @app.get("/ping")
@@ -44,7 +47,7 @@ def ping():
 
 
 @app.get("/idle")
-def idle():
+def idle(jwt=Depends(jwt_validator.verify(permission='guest'))):
     idle_check = check_all_idle()
     idle = idle_check[0]
     details = idle_check[1]
@@ -54,13 +57,13 @@ def idle():
 
 @app.get("/uptime")
 # returns uptime in in seconds
-def uptime():
+def uptime(jwt=Depends(jwt_validator.verify(permission='guest'))):
     return round((datetime.now() -
                   datetime.fromtimestamp(psutil.boot_time())).total_seconds())
 
 
 @app.websocket("/usage")
-async def system_stats(websocket: WebSocket, rate: Optional[int] = 1):
+async def system_stats(websocket: WebSocket, rate: Optional[int] = 1, jwt=Depends(jwt_validator.verify(permission='guest', query=True))):
     try:
         await websocket.accept()
         while True:
@@ -71,8 +74,8 @@ async def system_stats(websocket: WebSocket, rate: Optional[int] = 1):
             await websocket.send_json({
                 "cpu": cpu_pct,
                 "net": {
-                    "in": netio["enp5s0"].bytes_recv,
-                    "out": netio["enp5s0"].bytes_sent
+                    "in": 1,  # netio["enp5s0"].bytes_recv,
+                    "out": 2  # netio["enp5s0"].bytes_sent
                 },
                 "memory": {
                     "total": total,
@@ -93,7 +96,7 @@ def convert_to_mbit(value):
 
 
 @app.get("/shutdown")
-def shutdown():
+def shutdown(jwt=Depends(jwt_validator.verify(permission='admin'))):
     idle = check_all_idle()
     if idle[0]:
         cmd = subprocess.check_output('sudo shutdown', shell=True).strip()
@@ -103,7 +106,7 @@ def shutdown():
 
 
 @app.get("/reboot")
-def reboot():
+def reboot(jwt=Depends(jwt_validator.verify(permission='admin'))):
     idle = check_all_idle()
     if idle[0]:
         cmd = subprocess.check_output('sudo shutdown -r', shell=True).strip()
@@ -113,7 +116,7 @@ def reboot():
 
 
 @app.get("/vm/all")
-def all_vms():
+def all_vms(jwt=Depends(jwt_validator.verify(permission='guest'))):
     vms = kvm.get_vms()
     sorted_vms = sorted(vms, key=lambda d: d['name'])
     response = {"result": []}
@@ -124,7 +127,7 @@ def all_vms():
 
 
 @app.get("/vm/active")
-def active_vms():
+def active_vms(jwt=Depends(jwt_validator.verify(permission='guest'))):
     vms = kvm.get_active()
     response = {"result": []}
     for vm in vms:
@@ -137,7 +140,7 @@ def active_vms():
 
 
 @app.put("/vm/{domain}")
-async def edit_vm(domain, request: Request):
+async def edit_vm(domain, request: Request, jwt=Depends(jwt_validator.verify(permission='admin'))):
     data = await request.json()
     for k, v in data.items():
         if k == "memory":
@@ -165,21 +168,21 @@ async def edit_vm(domain, request: Request):
 
 
 @app.get("/vm/{domain}/info")
-def vm_info(domain):
+def vm_info(domain, jwt=Depends(jwt_validator.verify(permission='guest'))):
     result = kvm.get_vm_info(domain)
 
     return {"result": result.status}
 
 
 @app.post("/vm/{domain}/start")
-def start_vm(domain: str):
+def start_vm(domain: str, jwt=Depends(jwt_validator.verify(permission='admin'))):
     result = kvm.boot_vm(domain)
 
     return {"result": result.status}
 
 
 @app.post("/vm/{domain}/stop")
-def stop_vm(domain: str):
+def stop_vm(domain: str, jwt=Depends(jwt_validator.verify(permission='admin'))):
     result = kvm.shutdown_vm(domain)
 
     return {"result": result.status}
