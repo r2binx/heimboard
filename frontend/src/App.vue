@@ -9,7 +9,7 @@ import Usage from "./components/Usage.vue";
 import Services from "./components/Services.vue";
 import KVM from "./components/KVM.vue";
 import { fetchUptime, wakeOnLan, state } from "./utils/api.js";
-import { login, logout, initAuth, AuthState } from "./utils/useAuth0";
+import { login, logout, initAuth, AuthState, getUserPermissions } from "./utils/useAuth0";
 
 initAuth();
 
@@ -82,7 +82,7 @@ function changeTheme(newTheme) {
               </n-message-provider>
               <Usage />
               <Services />
-              <n-message-provider v-if="AuthState.user.permissions.indexOf('admin') !== -1">
+              <n-message-provider v-if="getUserPermissions(AuthState.user).indexOf('admin') !== -1">
                 <n-loading-bar-provider>
                   <KVM />
                 </n-loading-bar-provider>

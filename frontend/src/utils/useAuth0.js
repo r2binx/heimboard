@@ -53,3 +53,7 @@ export async function logout() {
 export async function getToken() {
     return await (await auth0Promise).getTokenSilently({ audience: config.audience });
 }
+
+export function getUserPermissions(user) {
+    return user["https://heim.blckct.io/permissions"];
+}
