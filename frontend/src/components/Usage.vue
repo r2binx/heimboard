@@ -1,7 +1,10 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, defineProps } from 'vue'
 import { NDivider, NSpace, NProgress } from 'naive-ui'
-import { getToken } from '../utils/useAuth0';
+
+const props = defineProps({
+    token: String
+});
 
 const cpuUsage = ref(0);
 const memUsage = ref(0);
@@ -9,7 +12,7 @@ const memUsage = ref(0);
 let old_tx = ref(null);
 const net_tx = ref(0);
 
-let connection = new WebSocket('wss://' + import.meta.env.VITE_APP_IDLEREPORTER + '/usage?rate=1&token=' + await getToken());
+let connection = new WebSocket('wss://' + import.meta.env.VITE_APP_IDLEREPORTER + '/usage?rate=1&token=' + props.token);
 connection.onmessage = function (event) {
     let data = JSON.parse(event.data)
     cpuUsage.value = data["cpu"];
@@ -27,7 +30,6 @@ connection.onopen = function () {
 </script>
 <template>
     <n-divider title-placement="left">USAGE</n-divider>
-
     <n-space justify="space-around">
         <n-space justify="center" align="center" :vertical="true">
             <n-progress type="circle" :percentage="cpuUsage" />CPU

@@ -1,5 +1,4 @@
 <script setup>
-import { ref } from "vue";
 import { useMessage, NButton, NSpace, NCollapse, NCollapseItem, NIcon, NPopconfirm } from "naive-ui";
 import { PowerOff, Spinner } from "@vicons/fa";
 import { state, reboot, shutdown } from "../utils/api.js";
