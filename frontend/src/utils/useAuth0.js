@@ -12,13 +12,14 @@ export const AuthState = reactive({
 
 const config = {
     domain: import.meta.env.VITE_AUTH0_DOMAIN,
-    client_id: import.meta.env.VITE_AUTH0_CLIENT_ID
+    client_id: import.meta.env.VITE_AUTH0_CLIENT_ID,
+    audience: import.meta.env.VITE_AUTH0_AUDIENCE,
 };
 
 async function handleStateChange() {
     const auth0 = (await auth0Promise);
-    AuthState.isAuthenticated = !!(await auth0.isAuthenticated());
-    AuthState.user = await auth0.getUser();
+    AuthState.user = await auth0.getUser({ audience: config.audience });
+    AuthState.isAuthenticated = !!(AuthState.user);
     AuthState.loading = false;
 }
 
@@ -36,7 +37,10 @@ export async function initAuth() {
 }
 
 export async function login() {
-    await (await auth0Promise).loginWithPopup({});
+    await (await auth0Promise).loginWithPopup({
+        scope: 'openid profile',
+        audience: config.audience
+    });
     await handleStateChange();
 }
 
@@ -47,5 +51,5 @@ export async function logout() {
 }
 
 export async function getToken() {
-    return await (await auth0Promise).getTokenSilently();
+    return await (await auth0Promise).getTokenSilently({ audience: config.audience });
 }

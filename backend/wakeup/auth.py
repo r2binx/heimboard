@@ -11,7 +11,7 @@ class JWTValidator():
         self.jwks_client = jwt.PyJWKClient(jwks_url)
         self.config = config
 
-    def verify(self):
+    def verify(self, role: str = None):
         token_extractor = HTTPBearer()
 
         async def jwt_extractor(request: Request):
@@ -37,6 +37,12 @@ class JWTValidator():
                     audience=self.config["API_AUDIENCE"],
                     # issuer=self.config["ISSUER"],
                 )
+                if role and not role in payload["roles"]:
+                    raise HTTPException(
+                        status_code=HTTP_403_FORBIDDEN,
+                        detail="Invalid role",
+                    )
+                return payload
             except Exception as e:
                 raise HTTPException(
                     status_code=HTTP_403_FORBIDDEN, detail=str(e)

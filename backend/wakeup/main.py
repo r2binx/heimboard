@@ -26,7 +26,7 @@ def ping():
 
 
 @app.get("/wakeup")
-def wake(jwt=Depends(jwt_validator.verify())):
+def wake(jwt=Depends(jwt_validator.verify(role='admin'))):
     cmd = subprocess.check_output("wakeonlan 00:1D:A5:1B:1C:1D",
                                   shell=True).strip()
     return cmd
