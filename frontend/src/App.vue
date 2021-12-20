@@ -82,7 +82,7 @@ function changeTheme(newTheme) {
               </n-message-provider>
               <Usage />
               <Services />
-              <n-message-provider v-if="AuthState.user.persmissions.indexOf('admin') !== -1">
+              <n-message-provider v-if="AuthState.user.permissions.indexOf('admin') !== -1">
                 <n-loading-bar-provider>
                   <KVM />
                 </n-loading-bar-provider>

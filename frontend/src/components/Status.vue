@@ -51,7 +51,7 @@ function rebootConfirm() {
                 <p v-else class="idle">OFFLINE</p>
             </template>
             <n-space
-                v-if="AuthState.user.persmissions.indexOf('admin') !== -1"
+                v-if="AuthState.user.permissions.indexOf('admin') !== -1"
                 justify="space-around"
                 size="large"
             >

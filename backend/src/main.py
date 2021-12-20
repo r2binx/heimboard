@@ -10,10 +10,10 @@ from datetime import datetime
 import time
 from configparser import ConfigParser
 from util.auth import JWTValidator
-#from util.jelly import Jelly
-#from util.kvm import KVM
-#from util.plex import Plex
-#from util.sabnzbd import Sabnzbd
+from util.jelly import Jelly
+from util.kvm import KVM
+from util.plex import Plex
+from util.sabnzbd import Sabnzbd
 
 app = FastAPI()
 
@@ -74,8 +74,8 @@ async def system_stats(websocket: WebSocket, rate: Optional[int] = 1, jwt=Depend
             await websocket.send_json({
                 "cpu": cpu_pct,
                 "net": {
-                    "in": 1,  # netio["enp5s0"].bytes_recv,
-                    "out": 2  # netio["enp5s0"].bytes_sent
+                    "in": netio["enp5s0"].bytes_recv,
+                    "out": netio["enp5s0"].bytes_sent
                 },
                 "memory": {
                     "total": total,
