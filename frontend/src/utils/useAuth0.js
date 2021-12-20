@@ -1,11 +1,13 @@
 import createAuth0Client from '@auth0/auth0-spa-js';
 import { reactive } from 'vue';
 
+let auth0Resolver;
+const auth0Promise = new Promise(resolve => auth0Resolver = resolve);
+
 export const AuthState = reactive({
     user: null,
     loading: false,
     isAuthenticated: false,
-    auth0: null,
 });
 
 const config = {
@@ -13,41 +15,37 @@ const config = {
     client_id: import.meta.env.VITE_AUTH0_CLIENT_ID
 };
 
-export const useAuth0 = (state) => {
-    const handleStateChange = async () => {
-        state.isAuthenticated = !!(await state.auth0.isAuthenticated());
-        state.user = await state.auth0.getUser();
-        state.loading = false;
-    }
+async function handleStateChange() {
+    const auth0 = (await auth0Promise);
+    AuthState.isAuthenticated = !!(await auth0.isAuthenticated());
+    AuthState.user = await auth0.getUser();
+    AuthState.loading = false;
+}
 
-    const initAuth = () => {
-        state.loading = true;
-        createAuth0Client({
-            domain: config.domain,
-            client_id: config.client_id,
-            cacheLocation: 'localstorage',
-            redirect_uri: window.location.origin
-        }).then(async auth => {
-            state.auth0 = auth;
-            await handleStateChange();
-        });
-    }
-
-    const login = async () => {
-        await state.auth0.loginWithPopup();
+export async function initAuth() {
+    AuthState.loading = true;
+    createAuth0Client({
+        domain: config.domain,
+        client_id: config.client_id,
+        cacheLocation: 'localstorage',
+        redirect_uri: window.location.origin
+    }).then(async auth => {
+        auth0Resolver(auth);
         await handleStateChange();
-    };
+    });
+}
 
-    const logout = async () => {
-        state.auth0.logout({
-            returnTo: window.location.origin,
-        });
-    }
+export async function login() {
+    await (await auth0Promise).loginWithPopup();
+    await handleStateChange();
+}
 
-    return {
-        login,
-        logout,
-        initAuth,
-    }
+export async function logout() {
+    await (await auth0Promise).logout({
+        returnTo: window.location.origin,
+    });
+}
 
+export async function getToken() {
+    return await (await auth0Promise).getTokenSilently();
 }

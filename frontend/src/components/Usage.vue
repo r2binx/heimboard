@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import { NDivider, NSpace, NProgress } from 'naive-ui'
+import { getToken } from '../utils/useAuth0';
 
 const cpuUsage = ref(0);
 const memUsage = ref(0);
@@ -20,8 +21,9 @@ connection.onmessage = function (event) {
     old_tx.value = data["net"]["out"];
 }
 
-connection.onopen = function () {
+connection.onopen = async function () {
     console.log("Successfully connected to the websocket server...")
+    connection.send(await getToken());
 }
 </script>
 <template>

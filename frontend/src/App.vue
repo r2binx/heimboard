@@ -1,7 +1,7 @@
 <script setup>
 // This starter template is using Vue 3 <script setup> SFCs
 // Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import { NConfigProvider, NMessageProvider, useOsTheme, darkTheme, NButton, NCard, NGlobalStyle, NIcon, NLoadingBarProvider } from "naive-ui";
 import { PowerOff } from "@vicons/fa";
 import Status from "./components/Status.vue";
@@ -9,8 +9,7 @@ import Usage from "./components/Usage.vue";
 import Services from "./components/Services.vue";
 import KVM from "./components/KVM.vue";
 import { fetchUptime, wakeOnLan, state } from "./utils/api.js";
-import { useAuth0, AuthState } from "./utils/useAuth0";
-const { login, logout, initAuth } = useAuth0(AuthState);
+import { login, logout, initAuth, AuthState } from "./utils/useAuth0";
 
 initAuth();
 
@@ -19,17 +18,20 @@ const theme = ref(osThemeRef.value === 'dark' ? darkTheme : null);
 const activeShade = ref(osThemeRef.value === 'dark' ? "#63e2b7" : "#18a058");
 const idleShade = ref(osThemeRef.value === 'dark' ? "#e88080" : "#d03050");
 
-fetchUptime().then(res => {
-  if (res.status == 200) {
-    state.uptime = res.data;
-    state.reachable = true;
-  } else {
+watch(() => AuthState.isAuthenticated, () => {
+  fetchUptime().then(res => {
+    if (res.status == 200) {
+      state.uptime = res.data;
+      state.reachable = true;
+    } else {
+      state.reachable = false;
+    }
+  }).catch(err => {
     state.reachable = false;
-  }
-}).catch(err => {
-  state.reachable = false;
-  console.log(err);
-});
+    console.log(err);
+  });
+})
+
 
 function handleWakeUp() {
   wakeOnLan().then(res => {
