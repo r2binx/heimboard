@@ -1,2 +1,4 @@
+psutil
+libvirt-python
 fastapi
-"uvicorn[standard]"
+uvicorn[standard]
