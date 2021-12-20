@@ -1,4 +1,4 @@
-from typing import List
+from typing import Dict, List
 import requests
 from datetime import datetime
 from dateutil import parser
@@ -20,7 +20,7 @@ class Jelly:
     IGNORED: List[str]
     JELLY_HEADERS = dict
 
-    def __init__(self, config: dict):
+    def __init__(self, config: Dict):
         self.config = config
         self.IGNORED = config["IGNORED"]
         self.JELLY_HEADERS = {
@@ -29,7 +29,7 @@ class Jelly:
             'Content-Type': 'application/json'
         }
 
-    def get_sessions(self) -> list[dict]:
+    def get_sessions(self) -> List[Dict]:
         try:
             url = self.config["HOST"] + "/Sessions?activeWithinSeconds=300"
 
@@ -40,7 +40,7 @@ class Jelly:
             print("Connection failed")
             return []
 
-    def get_active_sessions(self) -> list[dict]:
+    def get_active_sessions(self) -> List[Dict]:
         sessions = []
         for session in self.get_sessions():
             if self.active_session(session):
@@ -48,7 +48,7 @@ class Jelly:
 
         return sessions
 
-    def active_session(self, session: dict) -> bool:
+    def active_session(self, session: Dict) -> bool:
         last_activity = parser.parse(
             session['LastActivityDate']).replace(tzinfo=None)
         relative_activity = (datetime.utcnow() - last_activity).seconds
@@ -72,7 +72,8 @@ class Jelly:
 
             if session.get('NowPlayingItem') is not None:
                 paused = session.get('PlayState').get('IsPaused')
-                if paused: playing_paused.append(session)
+                if paused:
+                    playing_paused.append(session)
 
         return True if len(active_sessions) > 0 else False
 
@@ -83,7 +84,7 @@ class Jelly:
 if not __name__ == "__main__":
     print("jelly.py is imported")
 
-#else:
+# else:
 #    env = os.getenv("ENV", ".config")
 #    config = []
 #    if env == ".config":
