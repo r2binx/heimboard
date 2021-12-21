@@ -1,14 +1,8 @@
 import createAuth0Client from '@auth0/auth0-spa-js';
-import { reactive } from 'vue';
-
-let auth0Resolver;
-const auth0Promise = new Promise(resolve => auth0Resolver = resolve);
-
-export const AuthState = reactive({
-    user: null,
-    loading: false,
-    isAuthenticated: false,
-});
+import {
+    ref
+} from 'vue';
+import axios from "axios";
 
 const config = {
     domain: import.meta.env.VITE_AUTH0_DOMAIN,
@@ -16,46 +10,67 @@ const config = {
     audience: import.meta.env.VITE_AUTH0_AUDIENCE,
 };
 
-async function handleStateChange() {
-    const auth0 = (await auth0Promise);
-    AuthState.user = await auth0.getUser({ audience: config.audience });
-    AuthState.isAuthenticated = !!(AuthState.user);
-    AuthState.loading = false;
-}
+export class Auth {
+    constructor() {
+        this.loading = ref(true);
+        this.isAuthenticated = ref(false);
+        this.user = ref(null);
+        let auth0Resolver;
+        this.auth0Promise = new Promise(resolve => auth0Resolver = resolve);
+        createAuth0Client({
+            domain: config.domain,
+            client_id: config.client_id,
+            cacheLocation: 'localstorage',
+            redirect_uri: window.location.origin
+        }).then(async auth => {
+            auth0Resolver(auth);
+            await this.handleStateChange();
+        });
 
-export async function initAuth() {
-    AuthState.loading = true;
-    createAuth0Client({
-        domain: config.domain,
-        client_id: config.client_id,
-        cacheLocation: 'localstorage',
-        redirect_uri: window.location.origin
-    }).then(async auth => {
-        auth0Resolver(auth);
-        await handleStateChange();
-    });
-}
+        axios.interceptors.request.use(async (config) => {
+            const token = await this.getToken();
+            if (token) {
+                config.headers.Authorization = `Bearer ${token}`;
+            }
+            return config;
+        });
+    }
 
-export async function login() {
-    await (await auth0Promise).loginWithPopup({
-        scope: 'openid profile',
-        audience: config.audience
-    });
-    await handleStateChange();
-}
+    async handleStateChange() {
+        const auth0 = await this.auth0Promise;
+        const user = await auth0.getUser({
+            audience: config.audience
+        });
+        this.isAuthenticated.value = !!(user);
+        this.user.value = user;
+        this.loading.value = false;
+    }
 
-export async function logout() {
-    await (await auth0Promise).logout({
-        returnTo: window.location.origin,
-    });
-}
+    async login() {
+        await (await this.auth0Promise).loginWithPopup({
+            scope: 'openid profile',
+            audience: config.audience
+        });
+        await this.handleStateChange();
+    }
 
-export async function getToken() {
-    return await (await auth0Promise).getTokenSilently({ audience: config.audience });
-}
+    async logout() {
+        await (await this.auth0Promise).logout({
+            returnTo: window.location.origin,
+        });
+        this.isAuthenticated.value = false;
+        this.user.value = null;
+    }
 
-export function getUserPermissions(user) {
-    return user["https://heim.blckct.io/permissions"];
+    async getToken() {
+        return await (await this.auth0Promise).getTokenSilently({
+            audience: config.audience
+        });
+    }
+
+    hasPermission(permissions) {
+        return this.isAuthenticated.value && this.user.value["https://heim.blckct.io/permissions"].indexOf(permissions) > -1;
+    }
 }
 
 export async function checkUserPermission(permission) {
