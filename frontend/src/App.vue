@@ -123,12 +123,12 @@ function changeTheme(newTheme) {
 #app {
   /* font-family: Avenir, Helvetica, Arial, sans-serif; */
   font-family: "Fira Code", monospace;
-  font-weight: 600;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
 }
 * {
   text-transform: uppercase;
+  font-weight: 600;
 }
 </style>

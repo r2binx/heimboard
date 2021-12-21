@@ -63,7 +63,8 @@ function rebootConfirm() {
                             REBOOT
                         </n-button>
                     </template>
-                    Are you sure you want to reboot?
+                    <div v-if="state.idle.value">Are you sure you want to reboot?</div>
+                    <div v-else>System is active, are you sure?</div>
                 </n-popconfirm>
                 <n-popconfirm @positive-click="shutdownConfirm">
                     <template #trigger>
@@ -75,7 +76,8 @@ function rebootConfirm() {
                             </template>SHUTDOWN
                         </n-button>
                     </template>
-                    Are you sure you want to shutdown?
+                    <div v-if="state.idle.value">Are you sure you want to shutdown?</div>
+                    <div v-else>System is active, are you sure?</div>
                 </n-popconfirm>
             </n-space>
             <div v-else style="font-size: small;">NOTHING TO SEE HERE...</div>
