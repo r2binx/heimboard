@@ -8,7 +8,7 @@ import Status from "./components/Status.vue";
 import Usage from "./components/Usage.vue";
 import Services from "./components/Services.vue";
 import KVM from "./components/KVM.vue";
-import { fetchUptime, wakeOnLan, state } from "./utils/api.js";
+import { refreshState, wakeOnLan, state } from "./utils/api.js";
 import { login, logout, initAuth, AuthState, checkUserPermission, getToken } from "./utils/useAuth0";
 
 initAuth();
@@ -22,17 +22,7 @@ const token = ref(null)
 
 watch(() => AuthState.isAuthenticated, async () => {
   token.value = await getToken();
-  fetchUptime().then(res => {
-    if (res.status == 200) {
-      state.uptime = res.data;
-      state.reachable = true;
-    } else {
-      state.reachable = false;
-    }
-  }).catch(err => {
-    state.reachable = false;
-    console.log(err);
-  });
+  refreshState();
 })
 
 

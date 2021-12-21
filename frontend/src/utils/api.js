@@ -69,7 +69,31 @@ export function wakeOnLan() {
     return axios.get("https://" + import.meta.env.VITE_APP_WAKESERVER + "/wakeup");
 }
 
+export function refreshState() {
+    fetchUptime().then(res => {
+        if (res.status == 200) {
+            state.uptime = res.data;
+            state.reachable = true;
+
+            fetchIdle().then(idleres => {
+                state.idle = idleres.data.result
+                state.services = idleres.data.idle
+            });
+
+        } else {
+            state.reachable = false;
+        }
+    }).catch(err => {
+        state.reachable = false;
+        console.log(err);
+    });
+
+    return state;
+}
+
 export const state = reactive({
     uptime: 0,
     reachable: false,
-})
+    idle: true,
+    services: {}
+});

@@ -1,7 +1,7 @@
 <script setup>
 import { useMessage, NButton, NSpace, NCollapse, NCollapseItem, NIcon, NPopconfirm } from "naive-ui";
 import { PowerOff, Spinner } from "@vicons/fa";
-import { state, reboot, shutdown } from "../utils/api.js";
+import { reboot, shutdown, state } from "../utils/api.js";
 import { AuthState, getUserPermissions } from "../utils/useAuth0";
 
 const message = useMessage();
