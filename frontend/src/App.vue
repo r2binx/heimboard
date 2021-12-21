@@ -40,16 +40,16 @@ function changeTheme(newTheme) {
           >🌚</n-button>
           <n-button class="theme-toggle" size="large" circle v-else @click="changeTheme(null)">🌞</n-button>
         </template>
-        <div v-if="!auth.loading.value">
-          <div v-if="!auth.isAuthenticated.value">
-            <n-button size="large" type="primary" @click="auth.login()">LOGIN</n-button>
-          </div>
-          <Panel v-else />
-        </div>
 
+        <div v-if="!auth.loading.value">
+          <Panel v-if="auth.isAuthenticated.value" />
+          <div v-else>
+            <n-button size="large" type="primary" @click="auth.login()">Login</n-button>
+          </div>
+        </div>
         <div v-else>Loading ...</div>
-        <template v-if="auth.isAuthenticated.value" #action>
-          <n-button size="small" style="float: right;" @click="auth.logout()">LOGOUT</n-button>
+        <template v-if="auth.isAuthenticated.value">
+          <n-button size="small" style="float: right;" @click="auth.logout()">Logout</n-button>
         </template>
       </n-card>
     </div>
@@ -118,5 +118,8 @@ function changeTheme(newTheme) {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
+}
+* {
+    text-transform: uppercase;
 }
 </style>
