@@ -1,62 +1,33 @@
 <script setup>
 // This starter template is using Vue 3 <script setup> SFCs
 // Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
-import { ref, watch } from "vue";
-import { NConfigProvider, NMessageProvider, useOsTheme, darkTheme, NButton, NCard, NGlobalStyle, NIcon, NLoadingBarProvider } from "naive-ui";
-import { PowerOff } from "@vicons/fa";
-import Status from "./components/Status.vue";
-import Usage from "./components/Usage.vue";
-import Services from "./components/Services.vue";
-import KVM from "./components/KVM.vue";
-import { fetchUptime, wakeOnLan, state } from "./utils/api.js";
-import { login, logout, initAuth, AuthState, getUserPermissions, getToken } from "./utils/useAuth0";
+import { provide, ref } from "vue";
+import {
+  NConfigProvider,
+  useOsTheme,
+  darkTheme,
+  NButton,
+  NCard,
+  NGlobalStyle,
+  NSpin,
+  NSpace,
+} from "naive-ui";
+import Panel from "./components/Panel.vue";
+import { Auth } from "./utils/useAuth0";
 
-initAuth();
+const auth = new Auth();
+provide("auth", auth);
 
 const osThemeRef = useOsTheme();
-const theme = ref(osThemeRef.value === 'dark' ? darkTheme : null);
-const activeShade = ref(osThemeRef.value === 'dark' ? "#63e2b7" : "#18a058");
-const idleShade = ref(osThemeRef.value === 'dark' ? "#e88080" : "#d03050");
-
-const token = ref(0)
-
-watch(() => AuthState.isAuthenticated, async () => {
-  token.value = await getToken();
-  fetchUptime().then(res => {
-    if (res.status == 200) {
-      state.uptime = res.data;
-      state.reachable = true;
-    } else {
-      state.reachable = false;
-    }
-  }).catch(err => {
-    state.reachable = false;
-    console.log(err);
-  });
-})
-
-
-function handleWakeUp() {
-  wakeOnLan().then(res => {
-    if (res.data.success) {
-      console.success("Woke up!");
-    } else {
-      console.error(res.data.message);
-    }
-  }).catch(
-    err => {
-      console.error("Failed to wake up!");
-      console.log(err);
-    }
-  );
-}
+const theme = ref(osThemeRef.value === "dark" ? darkTheme : null);
+const activeShade = ref(osThemeRef.value === "dark" ? "#63e2b7" : "#18a058");
+const idleShade = ref(osThemeRef.value === "dark" ? "#e88080" : "#d03050");
 
 function changeTheme(newTheme) {
   theme.value = newTheme;
   activeShade.value = newTheme === darkTheme ? "#63e2b7" : "#18a058";
   idleShade.value = newTheme === darkTheme ? "#e88080" : "#d03050";
 }
-
 </script>
 
 <template>
@@ -73,40 +44,19 @@ function changeTheme(newTheme) {
           >🌚</n-button>
           <n-button class="theme-toggle" size="large" circle v-else @click="changeTheme(null)">🌞</n-button>
         </template>
-        <div v-if="!AuthState.loading">
-          <div v-if="!AuthState.isAuthenticated">
-            <n-button size="large" type="primary" @click="login()">LOGIN</n-button>
-          </div>
+
+        <div v-if="!auth.loading.value">
+          <Panel v-if="auth.isAuthenticated.value" />
           <div v-else>
-            <div v-if="state.reachable">
-              <n-message-provider>
-                <Status />
-              </n-message-provider>
-              <Usage :is="token.value" :token="token" />
-              <Services />
-              <n-message-provider v-if="getUserPermissions(AuthState.user).indexOf('admin') !== -1">
-                <n-loading-bar-provider>
-                  <KVM />
-                </n-loading-bar-provider>
-              </n-message-provider>
-            </div>
-            <div v-else-if="getUserPermissions(AuthState.user).indexOf('guest') !== -1">
-              <n-button @click="handleWakeUp" style="font-size: 72px;" circle :bordered="false">
-                <n-icon>
-                  <PowerOff />
-                </n-icon>
-              </n-button>
-              <p style="font-size: large;">WAKE UP</p>
-            </div>
-            <div v-else>
-              <p>You haven't been authorized yet to view this page.</p>
-            </div>
+            <n-button size="large" type="primary" @click="auth.login()">Login</n-button>
           </div>
         </div>
-
-        <div v-else>Loading ...</div>
-        <template v-if="AuthState.isAuthenticated" #action>
-          <n-button size="small" style="float: right;" @click="logout()">LOGOUT</n-button>
+        <n-space vertical justify="center" v-else>
+          <n-spin size="large" />
+          <p>Loading...</p>
+        </n-space>
+        <template v-if="auth.isAuthenticated.value" #action>
+          <n-button size="small" style="float: right" @click="auth.logout()">Logout</n-button>
         </template>
       </n-card>
     </div>
@@ -175,5 +125,8 @@ function changeTheme(newTheme) {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
+}
+* {
+  text-transform: uppercase;
 }
 </style>
