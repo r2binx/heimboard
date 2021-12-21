@@ -2,7 +2,17 @@
 // This starter template is using Vue 3 <script setup> SFCs
 // Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
 import { provide, ref, watch, watchEffect } from "vue";
-import { NConfigProvider, NMessageProvider, useOsTheme, darkTheme, NButton, NCard, NGlobalStyle, NIcon, NLoadingBarProvider } from "naive-ui";
+import {
+  NConfigProvider,
+  NMessageProvider,
+  useOsTheme,
+  darkTheme,
+  NButton,
+  NCard,
+  NGlobalStyle,
+  NIcon,
+  NLoadingBarProvider,
+} from "naive-ui";
 import { PowerOff } from "@vicons/fa";
 import Panel from "./components/Panel.vue";
 import { Auth } from "./utils/useAuth0";
@@ -11,19 +21,15 @@ const auth = new Auth();
 provide("auth", auth);
 
 const osThemeRef = useOsTheme();
-const theme = ref(osThemeRef.value === 'dark' ? darkTheme : null);
-const activeShade = ref(osThemeRef.value === 'dark' ? "#63e2b7" : "#18a058");
-const idleShade = ref(osThemeRef.value === 'dark' ? "#e88080" : "#d03050");
-
-
-
+const theme = ref(osThemeRef.value === "dark" ? darkTheme : null);
+const activeShade = ref(osThemeRef.value === "dark" ? "#63e2b7" : "#18a058");
+const idleShade = ref(osThemeRef.value === "dark" ? "#e88080" : "#d03050");
 
 function changeTheme(newTheme) {
   theme.value = newTheme;
   activeShade.value = newTheme === darkTheme ? "#63e2b7" : "#18a058";
   idleShade.value = newTheme === darkTheme ? "#e88080" : "#d03050";
 }
-
 </script>
 
 <template>
@@ -48,8 +54,8 @@ function changeTheme(newTheme) {
           </div>
         </div>
         <div v-else>Loading ...</div>
-        <template v-if="auth.isAuthenticated.value">
-          <n-button size="small" style="float: right;" @click="auth.logout()">Logout</n-button>
+        <template v-if="auth.isAuthenticated.value" #action>
+          <n-button size="small" style="float: right" @click="auth.logout()">Logout</n-button>
         </template>
       </n-card>
     </div>
@@ -120,6 +126,6 @@ function changeTheme(newTheme) {
   text-align: center;
 }
 * {
-    text-transform: uppercase;
+  text-transform: uppercase;
 }
 </style>
