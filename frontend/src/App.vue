@@ -18,7 +18,7 @@ const theme = ref(osThemeRef.value === 'dark' ? darkTheme : null);
 const activeShade = ref(osThemeRef.value === 'dark' ? "#63e2b7" : "#18a058");
 const idleShade = ref(osThemeRef.value === 'dark' ? "#e88080" : "#d03050");
 
-const token = ref(0)
+const token = ref(null)
 
 watch(() => AuthState.isAuthenticated, async () => {
   token.value = await getToken();
@@ -82,7 +82,7 @@ function changeTheme(newTheme) {
               <n-message-provider>
                 <Status />
               </n-message-provider>
-              <Usage :is="token.value" :token="token" />
+              <Usage v-show="token.value" :token="token" />
               <Services />
               <n-message-provider v-if="getUserPermissions(AuthState.user).indexOf('admin') !== -1">
                 <n-loading-bar-provider>
