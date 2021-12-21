@@ -56,7 +56,7 @@ function rebootConfirm() {
                     <template #trigger>
                         <n-button type="warning">
                             <template #icon>
-                                <n-icon color="#18181c">
+                                <n-icon>
                                     <spinner />
                                 </n-icon>
                             </template>
@@ -70,7 +70,7 @@ function rebootConfirm() {
                     <template #trigger>
                         <n-button type="error">
                             <template #icon>
-                                <n-icon color="#18181c">
+                                <n-icon>
                                     <power-off />
                                 </n-icon>
                             </template>SHUTDOWN

@@ -23,7 +23,7 @@ const state = inject('state');
                 <n-td>{{ service }}</n-td>
                 <n-td>
                     <div v-if="status" style="float: right;" class="idle">Idle</div>
-                    <div v-else style="float: right" class="active">Idle</div>
+                    <div v-else style="float: right" class="active">Active</div>
                 </n-td>
             </n-tr>
         </n-tbody>

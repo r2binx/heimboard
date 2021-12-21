@@ -11,6 +11,7 @@ import {
   NGlobalStyle,
   NSpin,
   NSpace,
+  NIcon,
 } from "naive-ui";
 import Panel from "./components/Panel.vue";
 import { Auth } from "./utils/useAuth0.js";
@@ -30,12 +31,15 @@ const osThemeRef = useOsTheme();
 const theme = ref(osThemeRef.value === "dark" ? darkTheme : null);
 const activeShade = ref(osThemeRef.value === "dark" ? "#63e2b7" : "#18a058");
 const idleShade = ref(osThemeRef.value === "dark" ? "#e88080" : "#d03050");
+const iconColor = ref(osThemeRef.value === "dark" ? "#e8e8e8" : "#1f2225");
 
 function changeTheme(newTheme) {
   theme.value = newTheme;
   activeShade.value = newTheme === darkTheme ? "#63e2b7" : "#18a058";
   idleShade.value = newTheme === darkTheme ? "#e88080" : "#d03050";
+  iconColor.value = newTheme === darkTheme ? "#e8e8e8" : "#1f2225";
 }
+
 </script>
 
 <template>
@@ -43,6 +47,22 @@ function changeTheme(newTheme) {
     <div class="center">
       <n-card :bordered="false" title="HEIMBOARD" size="huge" header-style="font-size: xx-large;">
         <template #header-extra>
+          <n-button style="margin-right: 10px" size="large" circle @click="state.refreshState()">
+            <template #icon>
+              <n-icon>
+                <!-- TODO properly import instead of shitty inline svg -->
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  xmlns:xlink="http://www.w3.org/1999/xlink"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M17.65 6.35A7.958 7.958 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0 1 12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"
+                  />
+                </svg>
+              </n-icon>
+            </template>
+          </n-button>
           <n-button
             class="theme-toggle"
             size="large"
@@ -73,6 +93,10 @@ function changeTheme(newTheme) {
 </template>
 
 <style>
+n-icon {
+  fill: v-bind(iconColor);
+}
+
 .idle {
   color: v-bind(idleShade);
 }
