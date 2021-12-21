@@ -9,6 +9,8 @@ import {
   NButton,
   NCard,
   NGlobalStyle,
+  NSpin,
+  NSpace,
 } from "naive-ui";
 import Panel from "./components/Panel.vue";
 import { Auth } from "./utils/useAuth0";
@@ -49,7 +51,10 @@ function changeTheme(newTheme) {
             <n-button size="large" type="primary" @click="auth.login()">Login</n-button>
           </div>
         </div>
-        <div v-else>Loading ...</div>
+        <n-space vertical justify="center" v-else>
+          <n-spin size="large" />
+          <p>Loading...</p>
+        </n-space>
         <template v-if="auth.isAuthenticated.value" #action>
           <n-button size="small" style="float: right" @click="auth.logout()">Logout</n-button>
         </template>
