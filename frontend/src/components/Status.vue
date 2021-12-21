@@ -2,10 +2,11 @@
 import { useMessage, NButton, NSpace, NCollapse, NCollapseItem, NIcon, NPopconfirm } from "naive-ui";
 import { PowerOff, Spinner } from "@vicons/fa";
 import { state, reboot, shutdown } from "../utils/api.js";
-import { AuthState, getUserPermissions } from "../utils/useAuth0";
+import { inject } from "@vue/runtime-core";
 
 const message = useMessage();
 
+const auth = inject("auth");
 
 function shutdownConfirm() {
     shutdown().then(res => {
@@ -50,7 +51,7 @@ function rebootConfirm() {
                 <p v-else class="idle">OFFLINE</p>
             </template>
             <n-space
-                v-if="getUserPermissions(AuthState.user).indexOf('admin') !== -1"
+                v-if="auth.hasPermission('admin')"
                 justify="space-around"
                 size="large"
             >

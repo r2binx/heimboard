@@ -1,10 +1,6 @@
 <script setup>
-import { ref, defineProps } from 'vue'
+import { ref, defineProps, inject, watchEffect } from 'vue'
 import { NDivider, NSpace, NProgress } from 'naive-ui'
-
-const props = defineProps({
-    token: String
-});
 
 const cpuUsage = ref(0);
 const memUsage = ref(0);
@@ -12,21 +8,32 @@ const memUsage = ref(0);
 let old_tx = ref(null);
 const net_tx = ref(0);
 
-let connection = new WebSocket('wss://' + import.meta.env.VITE_APP_IDLEREPORTER + '/usage?rate=1&token=' + props.token);
-connection.onmessage = function (event) {
-    let data = JSON.parse(event.data)
-    cpuUsage.value = data["cpu"];
-    memUsage.value = data["memory"]["used"];
-    if (old_tx) {
-        net_tx.value = ~~((data["net"]["out"] - old_tx.value) / 1024 / 1024 * 8);
+const auth = inject("auth");
+let connection = null;
+watchEffect(async () => {
+    if(connection) {
+        connection.close();
+        connection = null;
     }
+    if(auth.isAuthenticated.value) {
+        connection  = new WebSocket('wss://' + import.meta.env.VITE_APP_IDLEREPORTER + '/usage?rate=1&token=' + await auth.getToken());
+        connection.onmessage = function (event) {
+            let data = JSON.parse(event.data)
+            cpuUsage.value = data["cpu"];
+            memUsage.value = data["memory"]["used"];
+            if (old_tx) {
+                net_tx.value = ~~((data["net"]["out"] - old_tx.value) / 1024 / 1024 * 8);
+            }
 
-    old_tx.value = data["net"]["out"];
-}
+            old_tx.value = data["net"]["out"];
+        }
 
-connection.onopen = function () {
-    console.log("Successfully connected to the websocket server...")
-}
+        connection.onopen = function () {
+            console.log("Successfully connected to the websocket server...")
+        }
+    }
+});
+
 </script>
 <template>
     <n-divider title-placement="left">USAGE</n-divider>
