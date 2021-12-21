@@ -1,5 +1,5 @@
 <script setup>
-import { ref, defineProps, inject, watchEffect } from 'vue'
+import { ref, inject, watchEffect } from 'vue'
 import { NDivider, NSpace, NProgress } from 'naive-ui'
 
 const cpuUsage = ref(0);
@@ -11,12 +11,12 @@ const net_tx = ref(0);
 const auth = inject("auth");
 let connection = null;
 watchEffect(async () => {
-    if(connection) {
+    if (connection) {
         connection.close();
         connection = null;
     }
-    if(auth.isAuthenticated.value) {
-        connection  = new WebSocket('wss://' + import.meta.env.VITE_APP_IDLEREPORTER + '/usage?rate=1&token=' + await auth.getToken());
+    if (auth.isAuthenticated.value) {
+        connection = new WebSocket('wss://' + import.meta.env.VITE_APP_IDLEREPORTER + '/usage?rate=1&token=' + await auth.getToken());
         connection.onmessage = function (event) {
             let data = JSON.parse(event.data)
             cpuUsage.value = data["cpu"];

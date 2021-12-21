@@ -1,19 +1,15 @@
 <script setup>
 // This starter template is using Vue 3 <script setup> SFCs
 // Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
-import { provide, ref, watch, watchEffect } from "vue";
+import { provide, ref } from "vue";
 import {
   NConfigProvider,
-  NMessageProvider,
   useOsTheme,
   darkTheme,
   NButton,
   NCard,
   NGlobalStyle,
-  NIcon,
-  NLoadingBarProvider,
 } from "naive-ui";
-import { PowerOff } from "@vicons/fa";
 import Panel from "./components/Panel.vue";
 import { Auth } from "./utils/useAuth0";
 
