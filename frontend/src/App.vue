@@ -9,7 +9,7 @@ import Usage from "./components/Usage.vue";
 import Services from "./components/Services.vue";
 import KVM from "./components/KVM.vue";
 import { fetchUptime, wakeOnLan, state } from "./utils/api.js";
-import { login, logout, initAuth, AuthState, getUserPermissions, getToken } from "./utils/useAuth0";
+import { login, logout, initAuth, AuthState, checkUserPermission, getToken } from "./utils/useAuth0";
 
 initAuth();
 
@@ -84,13 +84,13 @@ function changeTheme(newTheme) {
               </n-message-provider>
               <Usage v-show="token.value" :token="token" />
               <Services />
-              <n-message-provider v-if="getUserPermissions(AuthState.user).indexOf('admin') !== -1">
+              <n-message-provider v-if="checkUserPermission('admin')">
                 <n-loading-bar-provider>
                   <KVM />
                 </n-loading-bar-provider>
               </n-message-provider>
             </div>
-            <div v-else-if="getUserPermissions(AuthState.user).indexOf('guest') !== -1">
+            <div v-else-if="checkUserPermission('guest')">
               <n-button @click="handleWakeUp" style="font-size: 72px;" circle :bordered="false">
                 <n-icon>
                   <PowerOff />

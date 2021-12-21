@@ -57,3 +57,8 @@ export async function getToken() {
 export function getUserPermissions(user) {
     return user["https://heim.blckct.io/permissions"];
 }
+
+export async function checkUserPermission(permission) {
+    const user = await (await auth0Promise).getUser({ audience: config.audience });
+    return getUserPermissions(user).includes(permission);
+}
