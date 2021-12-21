@@ -1,7 +1,7 @@
 <script setup>
 // This starter template is using Vue 3 <script setup> SFCs
 // Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
-import { provide, ref } from "vue";
+import { provide, ref, watch } from "vue";
 import {
   NConfigProvider,
   useOsTheme,
@@ -13,10 +13,18 @@ import {
   NSpace,
 } from "naive-ui";
 import Panel from "./components/Panel.vue";
-import { Auth } from "./utils/useAuth0";
+import { Auth } from "./utils/useAuth0.js";
+import { State } from "./utils/api";
 
 const auth = new Auth();
 provide("auth", auth);
+
+const state = new State();
+provide("state", state);
+
+watch(() => auth.isAuthenticated.value, () => {
+  state.refreshState();
+});
 
 const osThemeRef = useOsTheme();
 const theme = ref(osThemeRef.value === "dark" ? darkTheme : null);
@@ -65,12 +73,6 @@ function changeTheme(newTheme) {
 </template>
 
 <style>
-.theme-toggle {
-  position: absolute;
-  top: 8px;
-  right: 16px;
-}
-
 .idle {
   color: v-bind(idleShade);
 }

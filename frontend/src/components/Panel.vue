@@ -8,21 +8,10 @@ import Status from "./Status.vue";
 import Usage from "./Usage.vue";
 import Services from "./Services.vue";
 import KVM from "./KVM.vue";
-import { fetchUptime, wakeOnLan, state } from "../utils/api.js";
+import { wakeOnLan } from "../utils/api.js";
 
 const auth = inject("auth");
-
-fetchUptime().then(res => {
-    if (res.status == 200) {
-        state.uptime = res.data;
-        state.reachable = true;
-    } else {
-        state.reachable = false;
-    }
-}).catch(err => {
-    state.reachable = false;
-    console.log(err);
-});
+const state = inject("state");
 
 
 function handleWakeUp() {
@@ -45,7 +34,7 @@ function handleWakeUp() {
 
 <template>
     <div>
-        <div v-if="state.reachable">
+        <div v-if="state.reachable.value">
             <n-message-provider>
                 <Status />
             </n-message-provider>

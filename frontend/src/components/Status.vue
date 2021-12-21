@@ -1,12 +1,13 @@
 <script setup>
 import { useMessage, NButton, NSpace, NCollapse, NCollapseItem, NIcon, NPopconfirm } from "naive-ui";
 import { PowerOff, Spinner } from "@vicons/fa";
-import { state, reboot, shutdown } from "../utils/api.js";
+import { reboot, shutdown } from "../utils/api.js";
 import { inject } from "@vue/runtime-core";
 
 const message = useMessage();
 
 const auth = inject("auth");
+const state = inject("state");
 
 function shutdownConfirm() {
     shutdown().then(res => {
@@ -47,14 +48,10 @@ function rebootConfirm() {
     <n-collapse>
         <n-collapse-item style="font-size: xx-large !important;" title="STATUS">
             <template #header-extra>
-                <p v-if="state.reachable" class="active">ONLINE</p>
+                <p v-if="state.reachable.value" class="active">ONLINE</p>
                 <p v-else class="idle">OFFLINE</p>
             </template>
-            <n-space
-                v-if="auth.hasPermission('admin')"
-                justify="space-around"
-                size="large"
-            >
+            <n-space v-if="auth.hasPermission('admin')" justify="space-around" size="large">
                 <n-popconfirm @positive-click="rebootConfirm">
                     <template #trigger>
                         <n-button type="warning">

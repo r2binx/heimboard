@@ -1,7 +1,5 @@
 import createAuth0Client from '@auth0/auth0-spa-js';
-import {
-    ref
-} from 'vue';
+import { ref } from 'vue';
 import axios from "axios";
 
 const config = {
@@ -71,9 +69,4 @@ export class Auth {
     hasPermission(permissions) {
         return this.isAuthenticated.value && this.user.value["https://heim.blckct.io/permissions"].indexOf(permissions) > -1;
     }
-}
-
-export async function checkUserPermission(permission) {
-    const user = await (await auth0Promise).getUser({ audience: config.audience });
-    return getUserPermissions(user).includes(permission);
 }

@@ -1,5 +1,5 @@
 import axios from "axios";
-import { reactive } from "vue";
+import { ref } from "vue";
 
 const host = "https://" + import.meta.env.VITE_APP_IDLEREPORTER
 
@@ -60,31 +60,31 @@ export function wakeOnLan() {
     return axios.get("https://" + import.meta.env.VITE_APP_WAKESERVER + "/wakeup");
 }
 
-export function refreshState() {
-    fetchUptime().then(res => {
-        if (res.status == 200) {
-            state.uptime = res.data;
-            state.reachable = true;
+export class State {
+    constructor() {
+        this.reachable = ref(false);
+        this.idle = ref(false)
+        this.uptime = ref(0);
+        this.services = ref({});
+    }
 
-            fetchIdle().then(idleres => {
-                state.idle = idleres.data.result
-                state.services = idleres.data.idle
-            });
+    refreshState() {
+        fetchUptime().then(res => {
+            if (res.status == 200) {
+                this.uptime.value = res.data;
+                this.reachable.value = true;
 
-        } else {
-            state.reachable = false;
-        }
-    }).catch(err => {
-        state.reachable = false;
-        console.log(err);
-    });
+                fetchIdle().then(idleres => {
+                    this.idle.value = idleres.data.result
+                    this.services.value = idleres.data.idle
+                });
 
-    return state;
+            } else {
+                this.reachable.value = false;
+            }
+        }).catch(err => {
+            console.log(err);
+        });
+
+    }
 }
-
-export const state = reactive({
-    uptime: 0,
-    reachable: false,
-    idle: true,
-    services: {}
-});
