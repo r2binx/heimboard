@@ -1,6 +1,6 @@
 <script setup>
 import { inject } from 'vue';
-import { useMessage, useLoadingBar, NInputNumber, NPopconfirm, NDivider, NSpace, NButton, NCollapse, NCollapseItem, NTable, NTbody, NTr, NTd, NSelect } from 'naive-ui';
+import { useMessage, useLoadingBar, NPopconfirm, NDivider, NSpace, NButton, NCollapse, NCollapseItem, NTable, NTbody, NTr, NTd, NSelect } from 'naive-ui';
 import { startVm, stopVm, setVmMemory } from '../utils/api';
 
 const message = useMessage();
@@ -12,8 +12,6 @@ function handleVmStart(name) {
     loadingBar.start();
     startVm(name).then(res => {
         if (res.data.result.success) {
-            let index = state.vms.value.findIndex((vm) => vm.name == name)
-            state.vms.value[index].state = "running";
             message.success("Successfully started " + name);
             loadingBar.finish();
             state.refreshState()
@@ -34,8 +32,6 @@ function confirmShutdown(name) {
     loadingBar.start();
     stopVm(name).then(res => {
         if (res.data.result.success) {
-            let index = state.vms.value.findIndex((vm) => vm.name == name)
-            state.vms.value[index].state = "shutoff";
             message.success("Shutdown successfull " + name);
             loadingBar.finish();
             state.refreshState()
@@ -58,7 +54,6 @@ function handleMemoryEdit(name, value) {
             let index = state.vms.value.findIndex((vm) => vm.name == name)
             state.vms.value[index].current_memory = value * 1024 * 1024;
             message.success("Successfully set memory of " + name + " to " + value + "GB");
-            state.refreshState()
         } else {
             message.error(res.data.result.message);
         }

@@ -302,9 +302,8 @@ class KVM:
         return not self.is_active()
 
 
-if __name__ == "__main__":
+if not __name__ == "__main__":
+    print("kvm.py is imported")
+else:
     valueskvm_controller = KVM()
     print(valueskvm_controller.get_vms())
-
-else:
-    print("kvm.py is imported")
