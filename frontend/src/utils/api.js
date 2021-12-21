@@ -66,6 +66,7 @@ export class State {
         this.idle = ref(false)
         this.uptime = ref(0);
         this.services = ref({});
+        this.vms = ref([]);
     }
 
     refreshState() {
@@ -77,6 +78,12 @@ export class State {
                 fetchIdle().then(idleres => {
                     this.idle.value = idleres.data.result
                     this.services.value = idleres.data.idle
+                });
+
+                fetchAllVms().then(vmres => {
+                    if (vmres.status == 200) {
+                        this.vms.value = vmres.data.result;
+                    }
                 });
 
             } else {

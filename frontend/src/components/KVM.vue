@@ -1,33 +1,22 @@
 <script setup>
-import { ref } from 'vue';
+import { inject } from 'vue';
 import { useMessage, useLoadingBar, NInputNumber, NPopconfirm, NDivider, NSpace, NButton, NCollapse, NCollapseItem, NTable, NTbody, NTr, NTd } from 'naive-ui';
-import { fetchAllVms, startVm, stopVm, setVmMemory } from '../utils/api';
+import { startVm, stopVm, setVmMemory } from '../utils/api';
 
 const message = useMessage();
 const loadingBar = useLoadingBar();
-const vmList = ref([]);
 
-function refreshVms() {
-    fetchAllVms().then(res => {
-        if (res.status == 200) {
-            vmList.value = res.data.result;
-        }
-    }).catch(err => {
-        console.log(err);
-    });
-}
-
-refreshVms();
+const state = inject('state');
 
 function handleVmStart(name) {
     loadingBar.start();
     startVm(name).then(res => {
         if (res.data.result.success) {
-            let index = vmList.value.findIndex((vm) => vm.name == name)
-            vmList.value[index].state = "running";
+            let index = state.vms.value.findIndex((vm) => vm.name == name)
+            state.vms.value[index].state = "running";
             message.success("Successfully started " + name);
             loadingBar.finish();
-            refreshVms();
+            state.refreshState()
         } else {
             message.error(res.data.result.message);
             loadingBar.error()
@@ -45,11 +34,11 @@ function confirmShutdown(name) {
     loadingBar.start();
     stopVm(name).then(res => {
         if (res.data.result.success) {
-            let index = vmList.value.findIndex((vm) => vm.name == name)
-            vmList.value[index].state = "shutoff";
+            let index = state.vms.value.findIndex((vm) => vm.name == name)
+            state.vms.value[index].state = "shutoff";
             message.success("Shutdown successfull " + name);
             loadingBar.finish();
-            refreshVms();
+            state.refreshState()
         } else {
             message.error(res.data.result.message);
             loadingBar.error()
@@ -66,10 +55,10 @@ function confirmShutdown(name) {
 function handleMemoryEdit(name, value) {
     setVmMemory(name, value * 1024 * 1024).then(res => {
         if (res.data.result.success) {
-            let index = vmList.value.findIndex((vm) => vm.name == name)
-            vmList.value[index].current_memory = value * 1024 * 1024;
+            let index = state.vms.value.findIndex((vm) => vm.name == name)
+            state.vms.value[index].current_memory = value * 1024 * 1024;
             message.success("Successfully set memory of " + name + " to " + value + "GB");
-            refreshVms();
+            state.refreshState()
         } else {
             message.error(res.data.result.message);
         }
@@ -86,7 +75,7 @@ function handleMemoryEdit(name, value) {
     <n-divider title-placement="left">KVM</n-divider>
     <n-table :striped="true">
         <n-tbody>
-            <n-tr v-for="vm in vmList" :key="vm.name">
+            <n-tr v-for="vm in state.vms.value" :key="vm.name">
                 <n-td>
                     <n-collapse v-if="vm.state == 'running' && vm.mem_modifiable">
                         <n-collapse-item :title="vm.name.toUpperCase()" :key="vm.name">
