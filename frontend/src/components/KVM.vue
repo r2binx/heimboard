@@ -1,6 +1,6 @@
 <script setup>
 import { inject } from 'vue';
-import { useMessage, useLoadingBar, NInputNumber, NPopconfirm, NDivider, NSpace, NButton, NCollapse, NCollapseItem, NTable, NTbody, NTr, NTd } from 'naive-ui';
+import { useMessage, useLoadingBar, NInputNumber, NPopconfirm, NDivider, NSpace, NButton, NCollapse, NCollapseItem, NTable, NTbody, NTr, NTd, NSelect } from 'naive-ui';
 import { startVm, stopVm, setVmMemory } from '../utils/api';
 
 const message = useMessage();
@@ -70,6 +70,17 @@ function handleMemoryEdit(name, value) {
     );
 }
 
+function vmMemoryOptions(max_memory) {
+    let options = [];
+    for (let i = 1; i <= max_memory; i++) {
+        options.push({
+            value: i,
+            label: i + "GB"
+        })
+    }
+    return options;
+}
+
 </script>
 <template>
     <n-divider title-placement="left">KVM</n-divider>
@@ -81,11 +92,10 @@ function handleMemoryEdit(name, value) {
                         <n-collapse-item :title="vm.name.toUpperCase()" :key="vm.name">
                             <n-space style="width: max-content;">
                                 MEMORY:
-                                <n-input-number
+                                <n-select
                                     style="width: 150px; min-width: 30%; max-width: 80%;"
-                                    size="small"
-                                    :max="vm.max_memory / 1024 / 1024"
                                     :value="vm.current_memory / 1024 / 1024"
+                                    :options="vmMemoryOptions(vm.max_memory / 1024 / 1024)"
                                     @update:value="$event => handleMemoryEdit(vm.name, $event)"
                                 />
                             </n-space>
