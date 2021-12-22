@@ -1,7 +1,5 @@
 import createAuth0Client from '@auth0/auth0-spa-js';
-import {
-    ref
-} from 'vue';
+import { ref } from 'vue';
 import axios from "axios";
 
 const config = {

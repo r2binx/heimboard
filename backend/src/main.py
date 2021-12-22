@@ -101,22 +101,14 @@ def convert_to_mbit(value):
 
 @app.get("/shutdown")
 def shutdown(jwt=Depends(jwt_validator.verify(permission='admin'))):
-    idle = check_all_idle()
-    if idle[0]:
-        cmd = subprocess.check_output('sudo shutdown', shell=True).strip()
-        return {"success": True, "message": cmd}
-    else:
-        return {"success": False, "message": "System is not idle"}
+    cmd = subprocess.check_output('sudo shutdown', shell=True).strip()
+    return {"success": True, "message": cmd}
 
 
 @app.get("/reboot")
 def reboot(jwt=Depends(jwt_validator.verify(permission='admin'))):
-    idle = check_all_idle()
-    if idle[0]:
-        cmd = subprocess.check_output('sudo shutdown -r', shell=True).strip()
-        return {"success": True, "message": cmd}
-    else:
-        return {"success": False, "message": "System is not idle"}
+    cmd = subprocess.check_output('sudo shutdown -r', shell=True).strip()
+    return {"success": True, "message": cmd}
 
 
 @app.get("/vm/all")
