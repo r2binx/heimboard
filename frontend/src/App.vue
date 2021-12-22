@@ -112,7 +112,7 @@ n-icon {
   color: v-bind(activeShade);
 }
 
-@media only screen and (min-width: 593px) {
+@media only screen and (min-width: 721px) {
   .container {
     display: flex;
     align-items: center;
@@ -131,7 +131,7 @@ n-icon {
   }
 }
 
-@media (max-width: 592px) {
+@media (max-width: 720px) {
   #refresh-button {
     margin-right: 0px !important;
   }
