@@ -47,7 +47,14 @@ function changeTheme(newTheme) {
     <div class="center">
       <n-card :bordered="false" title="HEIMBOARD" size="huge" header-style="font-size: xx-large;">
         <template #header-extra>
-          <n-button style="margin-right: 10px" size="large" circle @click="state.refreshState()">
+          <n-button
+            id="refresh-button"
+            style="margin-right: 10px"
+            size="large"
+            circle
+            v-if="auth.isAuthenticated.value"
+            @click="state.refreshState()"
+          >
             <template #icon>
               <n-icon>
                 <!-- TODO properly import instead of shitty inline svg -->
@@ -125,6 +132,10 @@ n-icon {
 }
 
 @media (max-width: 592px) {
+  #refresh-button {
+    margin-right: 0px !important;
+  }
+
   .theme-toggle {
     display: none;
   }
