@@ -34,6 +34,6 @@ def ping():
 
 @app.get("/wakeup")
 def wake(jwt=Depends(jwt_validator.verify(permission='guest'))):
-    cmd = subprocess.check_output("wakeonlan " + config["BACKEND"]["WOL_MAC"],
-                                  shell=True).strip()
+    cmd = subprocess.check_output(["wakeonlan",
+                                   config["BACKEND"]["WOL_MAC"]]).strip()
     return cmd

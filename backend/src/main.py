@@ -101,13 +101,13 @@ def convert_to_mbit(value):
 
 @app.get("/shutdown")
 def shutdown(jwt=Depends(jwt_validator.verify(permission='admin'))):
-    cmd = subprocess.check_output('sudo shutdown', shell=True).strip()
+    cmd = subprocess.check_output(['sudo', 'shutdown']).strip()
     return {"success": True, "message": cmd}
 
 
 @app.get("/reboot")
 def reboot(jwt=Depends(jwt_validator.verify(permission='admin'))):
-    cmd = subprocess.check_output('sudo shutdown -r', shell=True).strip()
+    cmd = subprocess.check_output(['sudo', 'shutdown', '-r']).strip()
     return {"success": True, "message": cmd}
 
 
