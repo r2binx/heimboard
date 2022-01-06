@@ -5,13 +5,11 @@ import { NDivider, NSpace, NProgress } from 'naive-ui'
 const cpuUsage = ref(0);
 const memUsage = ref(0);
 
-let old_tx = ref(null);
-const net_tx = ref(0);
-
-
 const cpuData = ref([])
 const memData = ref([])
 
+let old_tx = null;
+const net_tx = ref(0);
 
 const auth = inject("auth");
 let connection = null;
@@ -29,13 +27,13 @@ watchEffect(async () => {
             cpuData.value = [...cpuData.value.slice(9), [Date.now(), ~~cpuUsage.value]]);
             
             memUsage.value = data["memory"]["used"];
-            memData.value = [...cpuData.value.slice(9), [Date.now(), ~~memUsage.value]]);
-            
+            memData.value = [...memData.value.slice(9), [Date.now(), ~~memUsage.value]]);
+
             if (old_tx) {
-                net_tx.value = ~~((data["net"]["out"] - old_tx.value) / 1024 / 1024 * 8);
+                net_tx.value = ~~((data["net"]["out"] - old_tx) / 1024 / 1024 * 8);
             }
 
-            old_tx.value = data["net"]["out"];
+            old_tx = data["net"]["out"];
         }
 
         connection.onopen = function () {
