@@ -7,7 +7,7 @@ import svgLoader from 'vite-svg-loader'
 export default defineConfig({
   plugins: [vue(),
   VitePWA({
-    mode: "development",
+    registerType: 'autoUpdate',
     base: "/",
     srcDir: "src",
     includeAssets: ['favicon.svg', 'favicon.ico', 'robots.txt', 'apple-touch-icon.png'],
