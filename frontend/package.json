@@ -8,8 +8,10 @@
   },
   "dependencies": {
     "@auth0/auth0-spa-js": "^1.19.3",
+    "apexcharts": "^3.32.1",
     "axios": "^0.24.0",
-    "vue": "^3.2.25"
+    "vue": "^3.2.25",
+    "vue3-apexcharts": "^1.4.1"
   },
   "devDependencies": {
     "@vicons/fa": "^0.11.0",

@@ -8,6 +8,14 @@ const memUsage = ref(0);
 let old_tx = ref(null);
 const net_tx = ref(0);
 
+
+const cpuData = ref([])
+const cpuSeries = ref([{ name: 'CPU', data: cpuData.value.length < 10 ? cpuData.value : cpuData.value.slice(-10) }])
+
+const memData = ref([])
+const memSeries = ref([{ name: 'MEMORY', data: memData.value.length < 10 ? memData.value : memData.value.slice(-10) }])
+
+
 const auth = inject("auth");
 let connection = null;
 watchEffect(async () => {
@@ -20,7 +28,10 @@ watchEffect(async () => {
         connection.onmessage = function (event) {
             let data = JSON.parse(event.data)
             cpuUsage.value = data["cpu"];
+            cpuData.value.push([Date.now(), ~~cpuUsage.value]);
+
             memUsage.value = data["memory"]["used"];
+            memData.value.push([Date.now(), ~~memUsage.value]);
             if (old_tx) {
                 net_tx.value = ~~((data["net"]["out"] - old_tx.value) / 1024 / 1024 * 8);
             }
@@ -33,10 +44,64 @@ watchEffect(async () => {
         }
     }
 });
+const chartOptions = {
+    chart: {
+        id: 'realtime',
+        height: 350,
+        type: 'line',
+        animations: {
+            enabled: true,
+            easing: 'linear',
+            dynamicAnimation: {
+                speed: 1000
+            }
+        },
+        toolbar: {
+            show: false
+        },
+        zoom: {
+            enabled: false
+        }
+    },
+    dataLabels: {
+        enabled: false
+    },
+    stroke: {
+        curve: 'smooth'
+    },
+    title: {
+        text: 'Dynamic Updating Chart',
+        align: 'left'
+    },
+    markers: {
+        size: 0
+    },
+    xaxis: {
+        crosshairs: { show: false },
+        tooltip: { enabled: false },
+        labels: {
+            show: false
+        }
+    },
+    yaxis: {
+        crosshairs: { show: false },
+        tooltip: { enabled: false },
+        max: 100,
+        labels: {
+            show: false
+        }
+    },
+    legend: {
+        show: false
+    }
+}
 
 </script>
 <template>
     <n-divider title-placement="left">USAGE</n-divider>
+    <apexchart type="line" :options="chartOptions" height="350" :series="cpuSeries"></apexchart>
+    <apexchart type="line" :options="chartOptions" height="350" :series="memSeries"></apexchart>
+
     <n-space justify="space-around">
         <n-space justify="center" align="center" :vertical="true">
             <n-progress type="circle" :percentage="cpuUsage" />CPU
