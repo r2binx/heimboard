@@ -10,10 +10,7 @@ const net_tx = ref(0);
 
 
 const cpuData = ref([])
-const cpuSeries = ref([{ name: 'CPU', data: cpuData.value.length < 10 ? cpuData.value : cpuData.value.slice(-10) }])
-
 const memData = ref([])
-const memSeries = ref([{ name: 'MEMORY', data: memData.value.length < 10 ? memData.value : memData.value.slice(-10) }])
 
 
 const auth = inject("auth");
@@ -27,11 +24,13 @@ watchEffect(async () => {
         connection = new WebSocket('wss://' + import.meta.env.VITE_APP_IDLEREPORTER + '/usage?rate=1&token=' + await auth.getToken());
         connection.onmessage = function (event) {
             let data = JSON.parse(event.data)
+            
             cpuUsage.value = data["cpu"];
-            cpuData.value.push([Date.now(), ~~cpuUsage.value]);
-
+            cpuData.value = [...cpuData.value.slice(9), [Date.now(), ~~cpuUsage.value]]);
+            
             memUsage.value = data["memory"]["used"];
-            memData.value.push([Date.now(), ~~memUsage.value]);
+            memData.value = [...cpuData.value.slice(9), [Date.now(), ~~memUsage.value]]);
+            
             if (old_tx) {
                 net_tx.value = ~~((data["net"]["out"] - old_tx.value) / 1024 / 1024 * 8);
             }
@@ -100,8 +99,8 @@ const chartOptions = {
 </script>
 <template>
     <n-divider title-placement="left">USAGE</n-divider>
-    <apexchart type="line" :options="chartOptions" height="350" :series="cpuSeries"></apexchart>
-    <apexchart type="line" :options="chartOptions" height="350" :series="memSeries"></apexchart>
+    <apexchart type="line" :options="chartOptions" height="350" :series="[{ name: 'CPU', data: cpuData.value }]"></apexchart>
+    <apexchart type="line" :options="chartOptions" height="350" :series="[{ name: 'MEMORY', data: memData.value }]"></apexchart>
 
     <n-space justify="space-around">
         <n-space justify="center" align="center" :vertical="true">
