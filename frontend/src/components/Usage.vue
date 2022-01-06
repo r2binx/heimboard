@@ -1,6 +1,7 @@
 <script setup>
 import { ref, inject, watchEffect } from 'vue'
 import { NDivider, NSpace, NProgress } from 'naive-ui'
+import RealtimeChart from './realtimeChart.vue'
 
 const cpuUsage = ref(0);
 const memUsage = ref(0);
@@ -10,11 +11,10 @@ const net_tx = ref(0);
 
 
 const cpuData = ref([])
-const cpuSeries = ref([{ name: 'CPU', data: cpuData.value.length < 10 ? cpuData.value : cpuData.value.slice(-10) }])
 
 const memData = ref([])
-const memSeries = ref([{ name: 'MEMORY', data: memData.value.length < 10 ? memData.value : memData.value.slice(-10) }])
 
+const netOut = ref([])
 
 const auth = inject("auth");
 let connection = null;
@@ -28,15 +28,17 @@ watchEffect(async () => {
         connection.onmessage = function (event) {
             let data = JSON.parse(event.data)
             cpuUsage.value = data["cpu"];
-            cpuData.value.push([Date.now(), ~~cpuUsage.value]);
+            cpuData.value.push([Date.now(), cpuUsage.value]);
 
             memUsage.value = data["memory"]["used"];
-            memData.value.push([Date.now(), ~~memUsage.value]);
+            memData.value.push([Date.now(), memUsage.value]);
             if (old_tx) {
                 net_tx.value = ~~((data["net"]["out"] - old_tx.value) / 1024 / 1024 * 8);
             }
 
+            if (net_tx.value < 50) { netOut.value.push([Date.now(), net_tx.value]) }
             old_tx.value = data["net"]["out"];
+
         }
 
         connection.onopen = function () {
@@ -44,64 +46,13 @@ watchEffect(async () => {
         }
     }
 });
-const chartOptions = {
-    chart: {
-        id: 'realtime',
-        height: 350,
-        type: 'line',
-        animations: {
-            enabled: true,
-            easing: 'linear',
-            dynamicAnimation: {
-                speed: 1000
-            }
-        },
-        toolbar: {
-            show: false
-        },
-        zoom: {
-            enabled: false
-        }
-    },
-    dataLabels: {
-        enabled: false
-    },
-    stroke: {
-        curve: 'smooth'
-    },
-    title: {
-        text: 'Dynamic Updating Chart',
-        align: 'left'
-    },
-    markers: {
-        size: 0
-    },
-    xaxis: {
-        crosshairs: { show: false },
-        tooltip: { enabled: false },
-        labels: {
-            show: false
-        }
-    },
-    yaxis: {
-        crosshairs: { show: false },
-        tooltip: { enabled: false },
-        max: 100,
-        min: 0,
-        labels: {
-            show: false
-        }
-    },
-    legend: {
-        show: false
-    }
-}
 
 </script>
 <template>
     <n-divider title-placement="left">USAGE</n-divider>
-    <apexchart type="line" :options="chartOptions" height="350" :series="cpuSeries"></apexchart>
-    <apexchart type="line" :options="chartOptions" height="350" :series="memSeries"></apexchart>
+    <realtime-chart title="CPU usage" :max="100" :data="cpuData" :length="10"></realtime-chart>
+    <realtime-chart title="Memory usage" :max="100" :data="memData" :length="100"></realtime-chart>
+    <realtime-chart title="Net out" :max="40" :data="netOut" :length="100"></realtime-chart>
 
     <n-space justify="space-around">
         <n-space justify="center" align="center" :vertical="true">

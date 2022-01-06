@@ -32,13 +32,13 @@ const osThemeRef = useOsTheme();
 const theme = ref(osThemeRef.value === "dark" ? darkTheme : null);
 const activeShade = ref(osThemeRef.value === "dark" ? "#63e2b7" : "#18a058");
 const idleShade = ref(osThemeRef.value === "dark" ? "#e88080" : "#d03050");
-const iconColor = ref(osThemeRef.value === "dark" ? "#e8e8e8" : "#1f2225");
+const fontColor = ref(osThemeRef.value === "dark" ? "#e8e8e8" : "#1f2225");
 
 function changeTheme(newTheme) {
   theme.value = newTheme;
   activeShade.value = newTheme === darkTheme ? "#63e2b7" : "#18a058";
   idleShade.value = newTheme === darkTheme ? "#e88080" : "#d03050";
-  iconColor.value = newTheme === darkTheme ? "#e8e8e8" : "#1f2225";
+  fontColor.value = newTheme === darkTheme ? "#e8e8e8" : "#1f2225";
 }
 
 </script>
@@ -93,7 +93,7 @@ function changeTheme(newTheme) {
 
 <style>
 n-icon {
-  fill: v-bind(iconColor);
+  fill: v-bind(fontColor);
 }
 
 .idle {
