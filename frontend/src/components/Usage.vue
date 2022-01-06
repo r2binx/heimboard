@@ -87,6 +87,7 @@ const chartOptions = {
         crosshairs: { show: false },
         tooltip: { enabled: false },
         max: 100,
+        min: 0,
         labels: {
             show: false
         }
