@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from websockets import ConnectionClosedOK
 from datetime import datetime
 from configparser import ConfigParser
-from modules.auth import JWTValidator
+from util.auth import JWTValidator
 from util.service import Service
 import uvicorn
 import multiprocessing
