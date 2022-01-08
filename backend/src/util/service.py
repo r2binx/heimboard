@@ -5,6 +5,7 @@ from typing import Dict, List, Optional, Tuple, Union
 from fastapi import Request, WebSocket, WebSocketDisconnect
 from websockets import ConnectionClosedOK
 from datetime import datetime
+from modules.fritz import Fritz
 from modules.jelly import Jelly
 from modules.kvm import KVM, State
 from modules.plex import Plex
@@ -17,6 +18,7 @@ class Service:
     jelly: Jelly
     plex: Plex
     nzb: Sabnzbd
+    fritz: Fritz
 
     def __init__(self, config) -> None:
         self.config = config
@@ -24,6 +26,7 @@ class Service:
         self.jelly = Jelly(config["JELLY"])
         self.plex = Plex(config["PLEX"])
         self.nzb = Sabnzbd(config["NZB"])
+        self.fritz = Fritz(config["FRITZ"])
 
     def idle(self) -> Dict[str, Union[bool, str, Dict]]:
         idle_check = self.check_all_idle()
@@ -37,7 +40,7 @@ class Service:
             (datetime.now() -
              datetime.fromtimestamp(psutil.boot_time())).total_seconds())
 
-    async def system_stats(self,
+    async def server_stats(self,
                            websocket: WebSocket,
                            rate: Optional[int] = 1):
         try:
@@ -58,6 +61,25 @@ class Service:
                         "used": used,
                         "free": available
                     }
+                })
+
+        except WebSocketDisconnect:
+            websocket.close()
+            print("WebSocket disconnected")
+        except ConnectionClosedOK:
+            print("WebSocket closed gracefully")
+
+    async def net_stats(self, websocket: WebSocket, rate: Optional[int] = 1):
+        try:
+            await websocket.accept()
+            while True:
+                await asyncio.sleep(rate)
+
+                await websocket.send_json({
+                    "in":
+                    self.fritz.get_current_bandwidth()[1],
+                    "out":
+                    self.fritz.get_current_bandwidth()[0]
                 })
 
         except WebSocketDisconnect:
@@ -150,3 +172,15 @@ class Service:
             "nzb": nzb_idle,
             "kvm": kvm_idle
         }
+
+    def get_external_ip(self) -> Dict[str, str]:
+        ext_ip = self.fritz.get_external_ip()
+        return {"result": {'v4': ext_ip[0], 'v6': ext_ip[1]}}
+
+    def get_max_bandwidth(self) -> Dict[str, str]:
+        bitrate = self.fritz.get_max_bandwidth()
+        return {"result": {'up': bitrate[0], 'down': bitrate[1]}}
+
+    def get_current_bandwidth(self) -> Dict[str, str]:
+        bitrate = self.fritz.get_current_bandwidth()
+        return {"result": {'up': bitrate[0], 'down': bitrate[1]}}

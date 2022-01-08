@@ -52,7 +52,15 @@ async def system_stats(websocket: WebSocket,
                        jwt=Depends(
                            jwt_validator.verify(permission='guest',
                                                 query=True))):
-    return await service.system_stats(websocket, rate)
+    return await service.server_stats(websocket, rate)
+
+
+@app.websocket("/net")
+async def net_stats(websocket: WebSocket,
+                    rate: Optional[int] = 1,
+                    jwt=Depends(
+                        jwt_validator.verify(permission='guest', query=True))):
+    return await service.net_stats(websocket, rate)
 
 
 @app.get("/shutdown")
