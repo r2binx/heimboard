@@ -5,6 +5,8 @@ from dateutil import parser
 import json
 import logging
 import http.client as http_client
+import os
+from configparser import ConfigParser
 
 # log requests as they happen
 # http_client.HTTPConnection.debuglevel = 1
@@ -36,7 +38,7 @@ class Jelly:
             response = requests.get(url, headers=self.JELLY_HEADERS)
 
             return json.loads(response.text)
-        except requests.Connection:
+        except requests.ConnectionError:
             print("Connection failed")
             return []
 
@@ -84,14 +86,14 @@ class Jelly:
 if not __name__ == "__main__":
     print("jelly.py is imported")
 
-# else:
-#    env = os.getenv("ENV", ".config")
-#    config = []
-#    if env == ".config":
-#        config = ConfigParser()
-#        config.read(".config")
-#        config = config["JELLY"]
-#
-#    jelly = Jelly(config)
-#    print(json.dumps(jelly.get_active_sessions(), indent=4))
-#    print(jelly.is_jelly_idle())
+else:
+    env = os.getenv("ENV", ".config")
+    config = []
+    if env == ".config":
+        config = ConfigParser()
+        config.read(".config")
+        config = config["JELLY"]
+
+    jelly = Jelly(config)
+    print(json.dumps(jelly.get_active_sessions(), indent=4))
+    print(jelly.is_jelly_idle())

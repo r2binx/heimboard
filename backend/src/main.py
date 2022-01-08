@@ -7,13 +7,14 @@ from fastapi import Request, FastAPI, WebSocket, WebSocketDisconnect, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from websockets import ConnectionClosedOK
 from datetime import datetime
-import time
 from configparser import ConfigParser
-from util.auth import JWTValidator
-from util.jelly import Jelly
-from util.kvm import KVM
-from util.plex import Plex
-from util.sabnzbd import Sabnzbd
+from modules.auth import JWTValidator
+from modules.jelly import Jelly
+from modules.kvm import KVM
+from modules.plex import Plex
+from modules.sabnzbd import Sabnzbd
+import uvicorn
+import multiprocessing
 
 app = FastAPI()
 
@@ -200,3 +201,11 @@ def check_all_idle() -> Tuple[bool, Dict[str, bool]]:
         "nzb": nzb_idle,
         "kvm": kvm_idle
     }
+
+
+if __name__ == "__main__":
+    multiprocessing.freeze_support()
+    uvicorn.run("main:app",
+                host=config["BACKEND"]["HOST"],
+                port=int(config["BACKEND"]["PORT"]),
+                reload=True)
