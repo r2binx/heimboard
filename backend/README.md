@@ -4,6 +4,9 @@
 - Tautulli for plex api
 - Sabnzbd api
 ## Usage
-- Install requirements
+- Install requirements: `make deps`
 - create `.config`
-- run `uvicorn main:app --reload --port 18500 --host 0.0.0.0`
+- run `make dev`
+
+## [WIP] Build
+Thanks to pyinstaller all you have to do to get a single binary file is to run `make build`
