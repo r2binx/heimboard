@@ -63,6 +63,11 @@ async def net_stats(websocket: WebSocket,
     return await service.net_stats(websocket, rate)
 
 
+@app.get("/fritz/info")
+def fritz_info(jwt=Depends(jwt_validator.verify(permission='guest'))):
+    return service.fritz_info()
+
+
 @app.get("/shutdown")
 def shutdown(jwt=Depends(jwt_validator.verify(permission='admin'))):
     return service.shutdown()
@@ -111,5 +116,4 @@ if __name__ == "__main__":
     multiprocessing.freeze_support()
     uvicorn.run("main:app",
                 host=config["BACKEND"]["HOST"],
-                port=int(config["BACKEND"]["PORT"]),
-                reload=True)
+                port=int(config["BACKEND"]["PORT"]))

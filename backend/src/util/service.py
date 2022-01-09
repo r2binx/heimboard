@@ -184,3 +184,20 @@ class Service:
     def get_current_bandwidth(self) -> Dict[str, str]:
         bitrate = self.fritz.get_current_bandwidth()
         return {"result": {'up': bitrate[0], 'down': bitrate[1]}}
+
+    def fritz_info(self) -> Dict[str, str]:
+        max_bandwidth = self.fritz.get_max_bandwidth()
+        ext_ip = self.fritz.get_external_ip()
+
+        return {
+            "result": {
+                "net": {
+                    "up": max_bandwidth[0],
+                    "down": max_bandwidth[1]
+                },
+                "ip": {
+                    "v4": ext_ip[0],
+                    "v6": ext_ip[1]
+                }
+            }
+        }
