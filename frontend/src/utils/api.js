@@ -3,6 +3,9 @@ import { ref } from "vue";
 
 const host = "https://" + import.meta.env.VITE_APP_IDLEREPORTER
 
+export function fritzInfo() {
+    return axios.get(host + "/fritz/info");
+}
 
 export function fetchIdle() {
     return axios.get(host + "/idle");
@@ -67,6 +70,7 @@ export class State {
         this.uptime = ref(0);
         this.services = ref({});
         this.vms = ref([]);
+        this.fritz = ref({});
     }
 
     refreshState() {
@@ -85,6 +89,12 @@ export class State {
                         this.vms.value = vmres.data.result;
                     }
                 });
+
+                fritzInfo().then(fritzres => {
+                    if (fritzres.status == 200) {
+                        this.fritz.value = fritzres.data.result;
+                    }
+                })
 
             } else {
                 this.reachable.value = false;

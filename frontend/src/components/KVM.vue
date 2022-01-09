@@ -85,10 +85,10 @@ function vmMemoryOptions(max_memory) {
                 <n-td>
                     <n-collapse v-if="vm.state == 'running' && vm.mem_modifiable">
                         <n-collapse-item :title="vm.name.toUpperCase()" :key="vm.name">
-                            <n-space style="width: max-content;">
+                            <n-space vertical style="width: max-content;">
                                 MEMORY:
                                 <n-select
-                                    style="width: 150px; min-width: 30%; max-width: 80%;"
+                                    style="width: 100px; min-width: 30%; max-width: 80%;"
                                     :value="vm.current_memory / 1024 / 1024"
                                     :options="vmMemoryOptions(vm.max_memory / 1024 / 1024)"
                                     @update:value="$event => handleMemoryEdit(vm.name, $event)"

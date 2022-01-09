@@ -34,6 +34,8 @@ const activeShade = ref(osThemeRef.value === "dark" ? "#63e2b7" : "#18a058");
 const idleShade = ref(osThemeRef.value === "dark" ? "#e88080" : "#d03050");
 const fontColor = ref(osThemeRef.value === "dark" ? "#e8e8e8" : "#1f2225");
 
+provide("fontColor", fontColor);
+
 function changeTheme(newTheme) {
   theme.value = newTheme;
   activeShade.value = newTheme === darkTheme ? "#63e2b7" : "#18a058";
