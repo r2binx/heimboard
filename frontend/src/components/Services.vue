@@ -22,8 +22,10 @@ const state = inject('state');
             <n-tr v-for="(status, service) in state.services.value" :key="service.name">
                 <n-td>{{ service }}</n-td>
                 <n-td>
-                    <div v-if="status" style="float: right;" class="idle">Idle</div>
-                    <div v-else style="float: right" class="active">Active</div>
+                    <div
+                        :class="status ? 'idle' : 'active'"
+                        style="float: right;"
+                    >{{ status ? "Idle" : "Active" }}</div>
                 </n-td>
             </n-tr>
         </n-tbody>

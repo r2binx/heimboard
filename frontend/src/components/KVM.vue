@@ -1,10 +1,14 @@
 <script setup>
-import { inject } from 'vue';
+import { inject, ref, onMounted, onUnmounted } from 'vue';
 import { useMessage, useLoadingBar, NPopconfirm, NDivider, NSpace, NButton, NCollapse, NCollapseItem, NTable, NTbody, NTr, NTd, NSelect } from 'naive-ui';
 import { startVm, stopVm, setVmMemory } from '../utils/api';
 
 const message = useMessage();
 const loadingBar = useLoadingBar();
+let windowWidth = ref(window.innerWidth)
+const onWidthChange = () => windowWidth.value = window.innerWidth
+onMounted(() => window.addEventListener('resize', onWidthChange))
+onUnmounted(() => window.removeEventListener('resize', onWidthChange))
 
 const state = inject('state');
 
@@ -85,7 +89,10 @@ function vmMemoryOptions(max_memory) {
                 <n-td>
                     <n-collapse v-if="vm.state == 'running' && vm.mem_modifiable">
                         <n-collapse-item :title="vm.name.toUpperCase()" :key="vm.name">
-                            <n-space vertical style="width: max-content;">
+                            <n-space
+                                :vertical="windowWidth > 720 ? false : true"
+                                style="width: max-content;"
+                            >
                                 MEMORY:
                                 <n-select
                                     style="width: 100px; min-width: 30%; max-width: 80%;"

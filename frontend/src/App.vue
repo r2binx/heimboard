@@ -119,9 +119,7 @@ n-icon {
   .center {
     align-items: center;
     justify-content: center;
-    width: 800px;
-    min-width: 30%;
-    max-width: 60%;
+    min-width: 50em;
   }
 }
 
@@ -138,14 +136,14 @@ n-icon {
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-top: 2ex;
+    margin: 0;
     flex-direction: row;
   }
 
   .center {
     align-items: center;
     justify-content: center;
-    width: 90%;
+    width: 100%;
   }
 }
 
