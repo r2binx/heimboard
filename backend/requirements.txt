@@ -3,3 +3,5 @@ libvirt-python
 fastapi
 uvicorn[standard]
 pyjwt[crypto]==2.3.0
+pyinstaller
+fritzconnection
