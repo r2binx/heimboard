@@ -1,7 +1,6 @@
 <script setup>
 import { ref, inject, watchEffect, watch } from 'vue'
-import { NDivider, NSpace, } from 'naive-ui'
-import RadialBar from './radialBar.vue'
+import { NDivider, NSpace, NProgress } from 'naive-ui'
 
 const auth = inject("auth");
 const state = inject("state");
@@ -90,17 +89,70 @@ watch(() => state.fritz.value, (fritz, prevFritzInfo) => {
     }
 });
 
+function circleColor(value, alpha = 'FF') {
+    if (value < 25) {
+        return '#87D4F9' + alpha;
+    } else if (value >= 25 && value < 40) {
+        return '#61DBC3' + alpha;
+    } else if (value >= 40 && value < 70) {
+        return '#95DA74' + alpha;
+    } else if (value >= 70 && value < 90) {
+        return '#FAD375' + alpha;
+    } else {
+        return '#D9534F' + alpha;
+    }
+}
 </script>
 <template>
     <n-divider title-placement="left">USAGE</n-divider>
     <n-space vertical>
-        <n-space justify="space-around" style="flex-flow: inherit;">
-            <radial-bar title="Upload" :data="netOutPct" />
-            <radial-bar title="Download" :data="netInPct" />
+        <n-space justify="space-around" style="flex-flow: inherit; margin-bottom: 3ex;">
+            <n-progress
+                type="circle"
+                :color="circleColor(netOutPct)"
+                :rail-color="circleColor(netOutPct, '33')"
+                :percentage="netOutPct"
+            >
+                <n-space vertical justify="center">
+                    <div style="font-size: x-large">{{ netOutPct }}%</div>
+                    <div>UP</div>
+                </n-space>
+            </n-progress>
+            <n-progress
+                type="circle"
+                :color="circleColor(netInPct)"
+                :rail-color="circleColor(netInPct, '33')"
+                :percentage="netInPct"
+            >
+                <n-space vertical justify="center">
+                    <div style="font-size: x-large">{{ netInPct }}%</div>
+                    <div>DOWN</div>
+                </n-space>
+            </n-progress>
         </n-space>
         <n-space justify="space-around" style="flex-flow: inherit;">
-            <radial-bar title="CPU" :data="cpuUsage"></radial-bar>
-            <radial-bar title="Memory" :data="memUsage" />
+            <n-progress
+                type="circle"
+                :color="circleColor(cpuUsage)"
+                :rail-color="circleColor(cpuUsage, '33')"
+                :percentage="cpuUsage"
+            >
+                <n-space vertical justify="center">
+                    <div style="font-size: x-large">{{ cpuUsage }}%</div>
+                    <div>CPU</div>
+                </n-space>
+            </n-progress>
+            <n-progress
+                type="circle"
+                :color="circleColor(memUsage)"
+                :rail-color="circleColor(memUsage, '33')"
+                :percentage="memUsage"
+            >
+                <n-space vertical justify="center">
+                    <div style="font-size: x-large">{{ memUsage }}%</div>
+                    <div>MEMORY</div>
+                </n-space>
+            </n-progress>
         </n-space>
     </n-space>
 </template>
