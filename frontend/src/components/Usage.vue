@@ -71,12 +71,20 @@ watch(() => state.fritz.value, (fritz, prevFritzInfo) => {
     <n-divider title-placement="left">USAGE</n-divider>
     <n-space vertical>
         <n-space justify="space-around" style="flex-flow: inherit; margin-bottom: 3ex;">
-            <progress-circle :percentage="netOutPct" :descriptor="upRate+'Mbit/s'" :title="'UP'"/>
-            <progress-circle :percentage="netInPct" :descriptor="downRate+'Mbit/s'" :title="'DOWN'"/>
+            <progress-circle :percentage="netOutPct" title="UP">
+                {{ upRate }}Mbit/s
+            </progress-circle>
+            <progress-circle :percentage="netInPct" title="DOWN">
+                {{ downRate }}Mbit/s
+            </progress-circle>
         </n-space>
         <n-space justify="space-around" style="flex-flow: inherit;">
-            <progress-circle :percentage="cpuUsage" :descriptor="~~cpuUsage+'%'" :title="'CPU'"/>
-            <progress-circle :percentage="memUsage" :descriptor="~~memUsage+'%'" :title="'MEMORY'"/>
+            <progress-circle :percentage="cpuUsage" title="CPU">
+                {{ ~~cpuUsage }}%
+            </progress-circle>
+            <progress-circle :percentage="memUsage" title="MEMORY">
+                {{ ~~memUsage }}%
+            </progress-circle>
         </n-space>
     </n-space>
 </template>
