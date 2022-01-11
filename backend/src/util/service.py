@@ -47,7 +47,7 @@ class Service:
             await websocket.accept()
             while True:
                 await asyncio.sleep(rate)
-                cpu_pct = psutil.cpu_percent()
+                cpu_pct = psutil.cpu_percent(interval=rate / 10)
                 total, available, used, *_ = psutil.virtual_memory()
                 netio = psutil.net_io_counters(pernic=True)
                 await websocket.send_json({
