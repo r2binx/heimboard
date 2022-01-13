@@ -1,8 +1,9 @@
 from typing import Optional
+
 import jwt
+from fastapi.exceptions import HTTPException
 from fastapi.security import HTTPBearer
 from starlette.requests import Request
-from fastapi.exceptions import HTTPException
 from starlette.status import HTTP_403_FORBIDDEN
 
 

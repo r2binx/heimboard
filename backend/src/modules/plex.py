@@ -1,7 +1,7 @@
-from typing import Dict
-import requests
 import json
-import logging
+from typing import Dict
+
+import requests
 
 # log requests as they happen
 # http_client.HTTPConnection.debuglevel = 1
@@ -26,9 +26,9 @@ class Plex:
 
     def get_activity(self) -> Dict:
         url = (
-            self.HOST +
-            "/api/v2?apikey={apikey}&cmd=get_activity&out_type=json").format(
-                apikey=self.API_KEY)
+                self.HOST +
+                "/api/v2?apikey={apikey}&cmd=get_activity&out_type=json").format(
+            apikey=self.API_KEY)
 
         response = requests.get(url, headers=HEADERS)
 
@@ -45,7 +45,7 @@ class Plex:
 
 if not __name__ == "__main__":
     print("plex.py is imported")
-#else:
+# else:
 #    env = os.getenv("ENV", ".config")
 #    config = []
 #    if env == ".config":

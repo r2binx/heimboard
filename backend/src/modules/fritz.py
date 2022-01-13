@@ -1,5 +1,7 @@
-from fritzconnection.lib.fritzstatus import FritzStatus
 from typing import Dict, Tuple
+
+from fritzconnection.lib.fritzstatus import FritzStatus
+
 
 # import os
 # from configparser import ConfigParser
