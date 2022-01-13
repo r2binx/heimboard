@@ -7,7 +7,7 @@ import psutil
 from fastapi import Request, WebSocket, WebSocketDisconnect
 from websockets import ConnectionClosedOK
 
-from src.modules.fritz import Fritz
+from src.modules.fritz import Fritz, FritzStats
 from src.modules.jelly import Jelly
 from src.modules.kvm import KVM, State
 from src.modules.plex import Plex
@@ -44,6 +44,7 @@ class Service:
     nzb: Sabnzbd
     fritz: Fritz
     system_stats: SystemStats
+    fritz_stats: FritzStats
 
     def __init__(self, config) -> None:
         self.config = config
@@ -53,6 +54,7 @@ class Service:
         self.nzb = Sabnzbd(config["NZB"])
         self.fritz = Fritz(config["FRITZ"])
         self.system_stats = SystemStats()
+        self.fritz_stats = FritzStats(self.fritz)
 
     def idle(self) -> Dict[str, Union[bool, str, Dict]]:
         idle_check = self.check_all_idle()
@@ -78,20 +80,18 @@ class Service:
             print("System stats WebSocket disconnected")
 
     async def net_stats(self, websocket: WebSocket, rate: Optional[int] = 1):
+        fritz_observer = Observer(self.fritz_stats)
         try:
             await websocket.accept()
             while True:
                 await asyncio.sleep(rate)
+                data = fritz_observer.value
 
-                await websocket.send_json({
-                    "in":
-                        self.fritz.get_current_bandwidth()[1],
-                    "out":
-                        self.fritz.get_current_bandwidth()[0]
-                })
+                await websocket.send_json(data)
 
         except (WebSocketDisconnect, ConnectionClosedOK):
             await websocket.close()
+            self.fritz_stats.unsubscribe(fritz_observer)
             print("Network stats WebSocket disconnected")
 
     def all_vms(self) -> Dict:
