@@ -1,13 +1,10 @@
 <script setup>
-import { NDivider, NTable, NTbody, NTr, NTd } from 'naive-ui';
-import { inject, ref, watch } from 'vue';
+import { NDivider, NTable, NTbody, NTd, NTr } from 'naive-ui';
+import { computed, inject } from 'vue';
 
 const state = inject('state');
-const activeServices = ref({});
+const activeServices = computed(() => Object.fromEntries(Object.entries(state.services.value).filter(([key, value]) => !value)))
 
-watch(() => state.services.value, (currentServices, oldServices) => {
-    activeServices.value = Object.fromEntries(Object.entries(currentServices).filter(([key, value]) => !value))
-});
 </script>
 <template>
     <n-divider title-placement="left">Services</n-divider>
