@@ -1,5 +1,4 @@
-import threading
-import time
+import asyncio
 
 import psutil
 
@@ -9,33 +8,32 @@ from src.util.observer import Observer
 
 class SystemStats(Observable):
     refresh: bool = False
+    task: asyncio.Task
 
     def subscribe(self, observer: Observer):
         if len(self._observers) == 0:
             self.start()
-
-        self._observers.append(observer)
+        super().subscribe(observer)
 
     def unsubscribe(self, observer: Observer):
-        self._observers.remove(observer)
+        super().unsubscribe(observer)
         if len(self._observers) == 0:
             self.stop()
 
     def start(self):
-        print('Starting')
+        print('Starting system stats')
         self.refresh = True
-        thread = threading.Thread(target=self.refresh_stats_periodically,
-                                  args=())
-        thread.start()
+        self.task = asyncio.create_task(self.refresh_stats_periodically())
 
     def stop(self):
-        print('Stopping')
+        print('Stopping system stats')
         self.refresh = False
+        self.task.cancel()
 
-    def refresh_stats_periodically(self, rate: int = 1):
+    async def refresh_stats_periodically(self, rate: int = 1):
         while self.refresh:
             self.notify_observers(data=get_system_stats())
-            time.sleep(rate)
+            await asyncio.sleep(rate)
 
 
 def get_system_stats():

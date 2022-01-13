@@ -16,3 +16,6 @@ class Observable:
 
     def unsubscribe(self, observer):
         self._observers.remove(observer)
+
+    def start(self):
+        pass
