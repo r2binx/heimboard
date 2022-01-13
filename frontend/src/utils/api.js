@@ -12,8 +12,8 @@ export function fetchIdle() {
 }
 
 /**
-returns a promise with uptime in seconds
-*/
+ returns a promise with uptime in seconds
+ */
 export function fetchUptime() {
     return axios.get(host + "/uptime");
 }
@@ -48,7 +48,7 @@ export function startVm(vmName) {
  * @param  {} vmName Name of the vm
  */
 export function destroyVm(vmName) {
-    return axios.put(host + "/vm/" + vmName, { state: "destroy" });
+    return axios.put(host + "/vm/" + vmName, {state: "destroy"});
 }
 
 /**
@@ -56,7 +56,7 @@ export function destroyVm(vmName) {
  * @param  {} memory Amount of memory in KiB
  */
 export function setVmMemory(vmName, memory) {
-    return axios.put(host + "/vm/" + vmName, { memory: memory });
+    return axios.put(host + "/vm/" + vmName, {memory: memory});
 }
 
 export function wakeOnLan() {
@@ -75,7 +75,7 @@ export class State {
 
     refreshState() {
         fetchUptime().then(res => {
-            if (res.status == 200) {
+            if (res.status === 200) {
                 this.uptime.value = res.data;
                 this.reachable.value = true;
 
@@ -85,13 +85,13 @@ export class State {
                 });
 
                 fetchAllVms().then(vmres => {
-                    if (vmres.status == 200) {
+                    if (vmres.status === 200) {
                         this.vms.value = vmres.data.result;
                     }
                 });
 
                 fritzInfo().then(fritzres => {
-                    if (fritzres.status == 200) {
+                    if (fritzres.status === 200) {
                         this.fritz.value = fritzres.data.result;
                     }
                 })
