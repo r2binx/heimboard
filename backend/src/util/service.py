@@ -43,6 +43,7 @@ class Service:
     plex: Plex
     nzb: Sabnzbd
     fritz: Fritz
+    system_stats: SystemStats
 
     def __init__(self, config) -> None:
         self.config = config
@@ -51,6 +52,7 @@ class Service:
         self.plex = Plex(config["PLEX"])
         self.nzb = Sabnzbd(config["NZB"])
         self.fritz = Fritz(config["FRITZ"])
+        self.system_stats = SystemStats()
 
     def idle(self) -> Dict[str, Union[bool, str, Dict]]:
         idle_check = self.check_all_idle()
@@ -62,31 +64,18 @@ class Service:
     async def server_stats(self,
                            websocket: WebSocket,
                            rate: Optional[int] = 1):
+        system_observer = Observer(self.system_stats)
         try:
             await websocket.accept()
             while True:
                 await asyncio.sleep(rate)
-                cpu_pct = psutil.cpu_percent(interval=rate / 10)
-                total, available, used, *_ = psutil.virtual_memory()
-                netio = psutil.net_io_counters(pernic=True)
-                await websocket.send_json({
-                    "cpu": cpu_pct,
-                    "net": {
-                        "in": netio["enp5s0"].bytes_recv,
-                        "out": netio["enp5s0"].bytes_sent
-                    },
-                    "memory": {
-                        "total": total,
-                        "used": used,
-                        "free": available
-                    }
-                })
+                data = system_observer.value
+                await websocket.send_json(data)
 
-        except WebSocketDisconnect:
-            websocket.close()
-            print("WebSocket disconnected")
-        except ConnectionClosedOK:
-            print("WebSocket closed gracefully")
+        except (WebSocketDisconnect, ConnectionClosedOK):
+            await websocket.close()
+            self.system_stats.unsubscribe(system_observer)
+            print("System stats WebSocket disconnected")
 
     async def net_stats(self, websocket: WebSocket, rate: Optional[int] = 1):
         try:
