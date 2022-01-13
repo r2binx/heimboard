@@ -12,5 +12,9 @@ The frontend is based on vue3+vite and uses auth0 for login
 The backend is written in python with fastapi
 
 ## Images
-<img src="https://user-images.githubusercontent.com/33635402/146831408-e16cfb5d-ca65-4d93-be12-d1b2cf5c487e.png" width="800" />
-<img src="https://user-images.githubusercontent.com/33635402/146831454-94e5884b-92bb-45e7-8586-042504d7399b.png" width="800" />
+<p align="center">
+<img src="https://user-images.githubusercontent.com/33635402/149412666-510569d2-83b0-41ca-9f39-1c51d6f4ff56.png" width="500" />
+</p>
+<p align="center">
+<img src="https://user-images.githubusercontent.com/33635402/146831454-94e5884b-92bb-45e7-8586-042504d7399b.png" width="500" />
+</p>
