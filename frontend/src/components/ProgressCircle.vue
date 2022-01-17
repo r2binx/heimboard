@@ -4,7 +4,6 @@ import { NSpace, NProgress } from 'naive-ui'
 const props = defineProps({
     percentage: Number,
     title: String,
-    descriptor: String
 })
 
 function circleColor(value, alpha = 'FF') {
@@ -31,7 +30,9 @@ function circleColor(value, alpha = 'FF') {
         style="width: 150px; "
     >
         <n-space vertical justify="center">
-            <div style="font-size: large">{{ props.descriptor }}</div>
+            <div style="font-size: large">
+                <slot></slot>
+            </div>
             <div>{{ props.title }}</div>
         </n-space>
     </n-progress>

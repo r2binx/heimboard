@@ -1,14 +1,15 @@
-import os
-from typing import Dict, Optional, Tuple
-from fastapi import Request, FastAPI, WebSocket, WebSocketDisconnect, Depends
-from fastapi.middleware.cors import CORSMiddleware
-from websockets import ConnectionClosedOK
-from datetime import datetime
-from configparser import ConfigParser
-from util.auth import JWTValidator
-from util.service import Service
-import uvicorn
 import multiprocessing
+import os
+from configparser import ConfigParser
+from datetime import datetime
+from typing import Optional, Dict, Union
+
+import uvicorn
+from fastapi import Request, FastAPI, WebSocket, Depends
+from fastapi.middleware.cors import CORSMiddleware
+
+import src.util.service as services
+from src.util.auth import JWTValidator
 
 env = os.getenv("ENV", ".config")
 config = []
@@ -16,7 +17,7 @@ if env == ".config":
     config = ConfigParser()
     config.read(".config")
 
-service = Service(config)
+service = services.Service(config)
 
 app = FastAPI()
 app.add_middleware(
@@ -36,14 +37,14 @@ def ping() -> str:
 
 
 @app.get("/idle")
-def idle(jwt=Depends(jwt_validator.verify(permission='guest'))):
+def idle(jwt=Depends(jwt_validator.verify(permission='guest'))) -> Dict[str, Union[bool, str, Dict]]:
     return service.idle()
 
 
 @app.get("/uptime")
 # returns uptime in in seconds
-def uptime(jwt=Depends(jwt_validator.verify(permission='guest'))):
-    return service.uptime()
+def uptime(jwt=Depends(jwt_validator.verify(permission='guest'))) -> int:
+    return services.uptime()
 
 
 @app.websocket("/usage")
@@ -70,12 +71,12 @@ def fritz_info(jwt=Depends(jwt_validator.verify(permission='guest'))):
 
 @app.get("/shutdown")
 def shutdown(jwt=Depends(jwt_validator.verify(permission='admin'))):
-    return service.shutdown()
+    return services.shutdown()
 
 
 @app.get("/reboot")
 def reboot(jwt=Depends(jwt_validator.verify(permission='admin'))):
-    return service.reboot()
+    return services.reboot()
 
 
 @app.get("/vm/all")

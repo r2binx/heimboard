@@ -1,7 +1,7 @@
-from typing import Dict
-import requests
 import json
-import logging
+from typing import Dict
+
+import requests
 
 # log requests as they happen
 # http_client.HTTPConnection.debuglevel = 1
@@ -26,7 +26,7 @@ class Sabnzbd:
     def get_queue(self) -> Dict:
         url = (self.HOST +
                "/api?mode=queue&limit=5&apikey={apikey}&output=json").format(
-                   apikey=self.API_KEY)
+            apikey=self.API_KEY)
 
         response = requests.get(url, headers=HEADERS)
 
@@ -44,7 +44,7 @@ class Sabnzbd:
 
 if not __name__ == "__main__":
     print("sabnzbd.py is imported")
-#else:
+# else:
 #    env = os.getenv("ENV", ".config")
 #    config = []
 #    if env == ".config":

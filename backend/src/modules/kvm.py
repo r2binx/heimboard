@@ -2,6 +2,7 @@ import sys
 from dataclasses import dataclass
 from typing import List, Tuple, Union, Dict
 from xml.dom import minidom
+
 import libvirt
 from libvirt import virConnect
 
@@ -218,10 +219,8 @@ class KVM:
                 else:
                     return State(
                         domain, {
-                            "success":
-                            success,
-                            "message":
-                            "Failed setting memory to {}KiB".format(size)
+                            "success": success,
+                            "message": "Failed setting memory to {}KiB".format(size)
                         })
 
             else:
@@ -234,10 +233,7 @@ class KVM:
             print('Failed to set active memory')
             sys.exit(1)
 
-    def get_active_memory(
-        self,
-        domain: str,
-    ) -> State:
+    def get_active_memory(self, domain: str) -> State:
         try:
             dom = self.conn.lookupByName(domain)
             if dom.isActive():
@@ -305,5 +301,5 @@ class KVM:
 if not __name__ == "__main__":
     print("kvm.py is imported")
 else:
-    valueskvm_controller = KVM()
-    print(valueskvm_controller.get_vms())
+    kvm_controller = KVM()
+    print(kvm_controller.get_vms())

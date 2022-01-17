@@ -1,12 +1,12 @@
-from typing import Dict, List
-import requests
-from datetime import datetime
-from dateutil import parser
 import json
-import logging
-import http.client as http_client
 import os
 from configparser import ConfigParser
+from datetime import datetime
+from typing import Dict, List
+
+import requests
+from dateutil import parser
+
 
 # log requests as they happen
 # http_client.HTTPConnection.debuglevel = 1
@@ -27,7 +27,7 @@ class Jelly:
         self.IGNORED = config["IGNORED"]
         self.JELLY_HEADERS = {
             'X-Emby-Authorization':
-            f'Emby Client=idlereporter, Device=heimboard, DeviceId=heimboard, Version=1, Token={config["TOKEN"]}',
+                f'Emby Client=idlereporter, Device=heimboard, DeviceId=heimboard, Version=1, Token={config["TOKEN"]}',
             'Content-Type': 'application/json'
         }
 

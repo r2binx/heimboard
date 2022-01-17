@@ -1,15 +1,39 @@
-import psutil
 import asyncio
 import subprocess
-from typing import Dict, List, Optional, Tuple, Union
+from datetime import datetime
+from typing import Dict, List, Optional, Tuple, Union, Any
+
+import psutil
 from fastapi import Request, WebSocket, WebSocketDisconnect
 from websockets import ConnectionClosedOK
-from datetime import datetime
-from modules.fritz import Fritz
-from modules.jelly import Jelly
-from modules.kvm import KVM, State
-from modules.plex import Plex
-from modules.sabnzbd import Sabnzbd
+
+from src.modules.fritz import Fritz, FritzStats
+from src.modules.jelly import Jelly
+from src.modules.kvm import KVM, State
+from src.modules.plex import Plex
+from src.modules.sabnzbd import Sabnzbd
+from src.modules.system import SystemStats
+from src.util.observer import Observer
+
+
+def uptime() -> int:
+    return round(
+        (datetime.now() -
+         datetime.fromtimestamp(psutil.boot_time())).total_seconds())
+
+
+def convert_to_mbit(value) -> int:
+    return value / 1024. / 1024. / 1024. * 8
+
+
+def shutdown() -> Dict[str, Union[bool, str]]:
+    cmd = subprocess.check_output(['sudo', 'shutdown']).strip()
+    return {"success": True, "message": cmd}
+
+
+def reboot() -> Dict[str, Union[bool, str]]:
+    cmd = subprocess.check_output(['sudo', 'shutdown', '-r']).strip()
+    return {"success": True, "message": cmd}
 
 
 class Service:
@@ -19,6 +43,8 @@ class Service:
     plex: Plex
     nzb: Sabnzbd
     fritz: Fritz
+    system_stats: SystemStats
+    fritz_stats: FritzStats
 
     def __init__(self, config) -> None:
         self.config = config
@@ -27,6 +53,8 @@ class Service:
         self.plex = Plex(config["PLEX"])
         self.nzb = Sabnzbd(config["NZB"])
         self.fritz = Fritz(config["FRITZ"])
+        self.system_stats = SystemStats()
+        self.fritz_stats = FritzStats(self.fritz)
 
     def idle(self) -> Dict[str, Union[bool, str, Dict]]:
         idle_check = self.check_all_idle()
@@ -35,69 +63,36 @@ class Service:
 
         return {"result": idle, "idle": details}
 
-    def uptime(self) -> int:
-        return round(
-            (datetime.now() -
-             datetime.fromtimestamp(psutil.boot_time())).total_seconds())
-
     async def server_stats(self,
                            websocket: WebSocket,
                            rate: Optional[int] = 1):
+        system_observer = Observer(self.system_stats)
         try:
             await websocket.accept()
             while True:
                 await asyncio.sleep(rate)
-                cpu_pct = psutil.cpu_percent()
-                total, available, used, *_ = psutil.virtual_memory()
-                netio = psutil.net_io_counters(pernic=True)
-                await websocket.send_json({
-                    "cpu": cpu_pct,
-                    "net": {
-                        "in": netio["enp5s0"].bytes_recv,
-                        "out": netio["enp5s0"].bytes_sent
-                    },
-                    "memory": {
-                        "total": total,
-                        "used": used,
-                        "free": available
-                    }
-                })
+                data = system_observer.value
+                await websocket.send_json(data)
 
-        except WebSocketDisconnect:
-            websocket.close()
-            print("WebSocket disconnected")
-        except ConnectionClosedOK:
-            print("WebSocket closed gracefully")
+        except (WebSocketDisconnect, ConnectionClosedOK):
+            await websocket.close()
+            self.system_stats.unsubscribe(system_observer)
+            print("System stats WebSocket disconnected")
 
     async def net_stats(self, websocket: WebSocket, rate: Optional[int] = 1):
+        fritz_observer = Observer(self.fritz_stats)
         try:
             await websocket.accept()
             while True:
                 await asyncio.sleep(rate)
+                data = fritz_observer.value
 
-                await websocket.send_json({
-                    "in":
-                    self.fritz.get_current_bandwidth()[1],
-                    "out":
-                    self.fritz.get_current_bandwidth()[0]
-                })
+                await websocket.send_json(data)
 
-        except WebSocketDisconnect:
-            websocket.close()
-            print("WebSocket disconnected")
-        except ConnectionClosedOK:
-            print("WebSocket closed gracefully")
-
-    def convert_to_mbit(value) -> int:
-        return value / 1024. / 1024. / 1024. * 8
-
-    def shutdown(self) -> Dict[str, Union[bool, str]]:
-        cmd = subprocess.check_output(['sudo', 'shutdown']).strip()
-        return {"success": True, "message": cmd}
-
-    def reboot(self) -> Dict[str, Union[bool, str]]:
-        cmd = subprocess.check_output(['sudo', 'shutdown', '-r']).strip()
-        return {"success": True, "message": cmd}
+        except (WebSocketDisconnect, ConnectionClosedOK):
+            await websocket.close()
+            self.fritz_stats.unsubscribe(fritz_observer)
+            print("Network stats WebSocket disconnected")
 
     def all_vms(self) -> Dict:
         vms = self.kvm.get_vms()
@@ -173,19 +168,19 @@ class Service:
             "kvm": kvm_idle
         }
 
-    def get_external_ip(self) -> Dict[str, str]:
+    def get_external_ip(self) -> Dict[str, Dict[str, int]]:
         ext_ip = self.fritz.get_external_ip()
         return {"result": {'v4': ext_ip[0], 'v6': ext_ip[1]}}
 
-    def get_max_bandwidth(self) -> Dict[str, str]:
+    def get_max_bandwidth(self) -> Dict[str, Dict[str, int]]:
         bitrate = self.fritz.get_max_bandwidth()
         return {"result": {'up': bitrate[0], 'down': bitrate[1]}}
 
-    def get_current_bandwidth(self) -> Dict[str, str]:
+    def get_current_bandwidth(self) -> Dict[str, Dict[str, int]]:
         bitrate = self.fritz.get_current_bandwidth()
         return {"result": {'up': bitrate[0], 'down': bitrate[1]}}
 
-    def fritz_info(self) -> Dict[str, str]:
+    def fritz_info(self) -> Dict[str, Any]:
         max_bandwidth = self.fritz.get_max_bandwidth()
         ext_ip = self.fritz.get_external_ip()
 

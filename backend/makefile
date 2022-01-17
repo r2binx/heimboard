@@ -1,8 +1,11 @@
 dev:
-	python3 src/main.py
+	python3 main.py
 
 build:
 	pyinstaller heimboard-backend.spec
+
+build-wakeup:
+	pyinstaller wakeup.spec
 
 clean:
 	rm -rf build dist
