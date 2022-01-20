@@ -15,7 +15,7 @@ export function fetchIdle() {
  returns a promise with uptime in seconds
  */
 export function fetchUptime() {
-    return axios.get(host + "/uptime");
+    return axios.get(host + "/uptime", {timeout: 1000});
 }
 
 export function reboot() {
@@ -61,6 +61,10 @@ export function setVmMemory(vmName, memory) {
 
 export function wakeOnLan() {
     return axios.get("https://" + import.meta.env.VITE_APP_WAKESERVER + "/wakeup");
+}
+
+export function fetchWakeAvail() {
+    return axios.get("https://" + import.meta.env.VITE_APP_WAKESERVER + "/ping", {timeout: 1000});
 }
 
 export class State {

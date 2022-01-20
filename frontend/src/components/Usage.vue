@@ -1,5 +1,5 @@
 <script setup>
-import { ref, inject, watchEffect, watch } from 'vue'
+import { computed, inject, ref, watchEffect } from 'vue'
 import { NDivider, NSpace } from 'naive-ui'
 import ProgressCircle from "./ProgressCircle.vue";
 
@@ -15,7 +15,11 @@ const netOutPct = ref(0)
 const downRate = ref(0)
 const netInPct = ref(0)
 
-const bandwidth = ref({})
+const bandwidth = computed(() => {
+    let fritz = state.fritz.value
+    return {"in": ~~(fritz.net.down / 1e6), "out": ~~(fritz.net.up / 1e6)};
+})
+
 
 let usage_connection = null;
 let net_connection = null;
@@ -57,12 +61,6 @@ watchEffect(async () => {
         net_connection.onopen = function () {
             console.log("Successfully connected to the fritz websocket server...")
         }
-    }
-});
-
-watch(() => state.fritz.value, (fritz, prevFritzInfo) => {
-    if (fritz) {
-        bandwidth.value = {"in": ~~(fritz.net.down / 1e6), "out": ~~(fritz.net.up / 1e6)};
     }
 });
 

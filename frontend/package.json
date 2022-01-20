@@ -7,20 +7,18 @@
     "serve": "vite preview --host --port 4000"
   },
   "dependencies": {
-    "@auth0/auth0-spa-js": "^1.19.3",
-    "apexcharts": "^3.32.1",
+    "@auth0/auth0-spa-js": "^1.19.4",
     "axios": "^0.24.0",
-    "vue": "^3.2.25",
-    "vue3-apexcharts": "^1.4.1"
+    "vue": "^3.2.27"
   },
   "devDependencies": {
     "@vicons/fa": "^0.11.0",
-    "@vitejs/plugin-vue": "^2.0.0",
-    "eslint": "^8.4.1",
-    "eslint-plugin-vue": "^8.2.0",
-    "naive-ui": "^2.21.5",
-    "vite": "^2.7.1",
-    "vite-plugin-pwa": "^0.11.12",
-    "vite-svg-loader": "^3.1.1"
+    "@vitejs/plugin-vue": "^2.0.1",
+    "eslint": "^8.7.0",
+    "eslint-plugin-vue": "^8.3.0",
+    "naive-ui": "^2.24.1",
+    "vite": "^2.7.12",
+    "vite-plugin-pwa": "^0.11.13",
+    "vite-svg-loader": "^3.1.2"
   }
 }
