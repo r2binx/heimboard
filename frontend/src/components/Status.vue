@@ -49,8 +49,7 @@ function timeToString(time) {
         return Math.floor(time / 60) + "m " + time % 60 + "s";
     } else if (time < 86400) {
         return Math.floor(time / 3600) + "h " + Math.floor(time % 3600 / 60) + "m " + time % 60 + "s";
-    }
-    else {
+    } else {
         return Math.floor(time / 86400) + "d " + Math.floor(time % 86400 / 3600) + "h " + Math.floor(time % 3600 / 60) + "m " + time % 60 + "s";
     }
 }
@@ -59,7 +58,7 @@ function timeToString(time) {
 
 <template>
     <n-collapse>
-        <n-collapse-item style="font-size: xx-large !important;" title="STATUS">
+        <n-collapse-item style="font-size: xx-large !important;" title="STATUS" name="status">
             <template #header-extra>
                 <p v-if="state.reachable.value" class="active">ONLINE</p>
                 <p v-else class="idle">OFFLINE</p>
@@ -85,7 +84,7 @@ function timeToString(time) {
                                     <n-button type="warning">
                                         <template #icon>
                                             <n-icon>
-                                                <spinner />
+                                                <spinner/>
                                             </n-icon>
                                         </template>
                                         REBOOT
@@ -101,9 +100,10 @@ function timeToString(time) {
                                     <n-button style="float: right;" type="error">
                                         <template #icon>
                                             <n-icon>
-                                                <power-off />
+                                                <power-off/>
                                             </n-icon>
-                                        </template>SHUTDOWN
+                                        </template>
+                                        SHUTDOWN
                                     </n-button>
                                 </template>
                                 <div v-if="state.idle.value">Are you sure you want to shutdown?</div>
