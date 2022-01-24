@@ -28,7 +28,7 @@ provide("state", state);
 watch(() => auth.isAuthenticated.value, () => state.refreshState());
 
 const keepAlive = () => {
-    if (document.hasFocus()) {
+    if (document.hasFocus() && auth.isAuthenticated.value) {
         state.refreshState()
     }
 }

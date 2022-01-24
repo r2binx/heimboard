@@ -1,8 +1,21 @@
 <script setup>
-import { NButton, NCollapse, NCollapseItem, NIcon, NPopconfirm, NTable, NTbody, NTd, NTr, useMessage } from "naive-ui";
+import {
+    NButton,
+    NCollapse,
+    NCollapseItem,
+    NDivider,
+    NIcon,
+    NPopconfirm,
+    NTable,
+    NTbody,
+    NTd,
+    NTr,
+    useMessage
+} from "naive-ui";
 import { PowerOff, Spinner } from "@vicons/fa";
 import { reboot, shutdown } from "../utils/api.js";
 import { inject } from "@vue/runtime-core";
+import BootTimePicker from "./BootTimePicker.vue";
 
 const message = useMessage();
 
@@ -54,6 +67,11 @@ function timeToString(time) {
     }
 }
 
+let scheduledBoot = $computed(() => {
+    let time = new Date(state.schedule.boot)
+    return ("0" + time.getHours()).slice(-2) + ":" + ("0" + time.getMinutes()).slice(-2)
+})
+
 </script>
 
 <template>
@@ -75,6 +93,12 @@ function timeToString(time) {
                         <n-td>UPTIME</n-td>
                         <n-td>
                             <div style="float:right">{{ timeToString(state.uptime) }}</div>
+                        </n-td>
+                    </n-tr>
+                    <n-tr v-if="state.schedule.boot">
+                        <n-td>SCHEDULED BOOT</n-td>
+                        <n-td>
+                            <div style="float:right">at {{ scheduledBoot }}</div>
                         </n-td>
                     </n-tr>
                     <n-tr v-if="auth.hasPermission('admin')">
@@ -113,6 +137,11 @@ function timeToString(time) {
                     </n-tr>
                 </n-tbody>
             </n-table>
+            <div v-if="auth.hasPermission('admin')" style="margin: 1em;">
+                <n-divider title-placement="left">SCHEDULE BOOT</n-divider>
+                <boot-time-picker/>
+            </div>
+
 
             <div v-else style="font-size: small;">NOTHING TO SEE HERE...</div>
         </n-collapse-item>

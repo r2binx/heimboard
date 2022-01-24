@@ -2,7 +2,7 @@
 // This starter template is using Vue 3 <script setup> SFCs
 // Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
 import { inject } from "vue";
-import { NButton, NIcon, NLoadingBarProvider, NMessageProvider, NResult } from "naive-ui";
+import { NSpace, NButton, NIcon, NLoadingBarProvider, NMessageProvider, NResult } from "naive-ui";
 import { PowerOff } from "@vicons/fa";
 import Status from "./Status.vue";
 import Usage from "./Usage.vue";
@@ -36,6 +36,11 @@ const netReachable = () => {
     })
 }
 
+let scheduledBoot = $computed(() => {
+    let time = new Date(state.schedule.boot)
+    return ("0" + time.getHours()).slice(-2) + ":" + ("0" + time.getMinutes()).slice(-2)
+})
+
 </script>
 
 <template>
@@ -53,14 +58,16 @@ const netReachable = () => {
             </n-message-provider>
         </div>
         <div v-else-if="auth.hasPermission('guest')">
-            <div v-if="netReachable">
+            <n-space vertical justify="center" v-if="netReachable">
+                <p>Scheduled boot is at: {{ scheduledBoot }} </p>
+                <br>
                 <n-button @click="handleWakeUp" style="font-size: 72px;" circle :bordered="false">
                     <n-icon>
                         <PowerOff/>
                     </n-icon>
                 </n-button>
                 <p style="font-size: large;">WAKE UP</p>
-            </div>
+            </n-space>
             <n-result v-else status="error" description="Seems like the network is unreachable"></n-result>
         </div>
         <div v-else>

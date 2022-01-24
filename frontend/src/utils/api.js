@@ -1,5 +1,5 @@
 import axios from "axios";
-import { reactive} from "vue";
+import { reactive } from "vue";
 
 const host = "https://" + import.meta.env.VITE_APP_IDLEREPORTER
 
@@ -24,6 +24,21 @@ export function reboot() {
 
 export function shutdown() {
     return axios.get(host + "/shutdown");
+}
+
+/**
+ * @param time unix timestamp of scheduled shutdown
+ */
+export function scheduleBoot(time) {
+    let data = {"schedule": time}
+    return axios.post("https://" + import.meta.env.VITE_APP_WAKESERVER + "/bootSchedule", data);
+}
+
+/**
+ *
+ */
+export function fetchScheduledBoot() {
+    return axios.get("https://" + import.meta.env.VITE_APP_WAKESERVER + "/bootSchedule");
 }
 
 export function fetchAllVms() {
@@ -75,6 +90,7 @@ export class State {
         this.services = {};
         this.vms = [];
         this.fritz = {};
+        this.schedule = {}
 
         return reactive(this)
     }
@@ -99,6 +115,16 @@ export class State {
                 fritzInfo().then(fritzres => {
                     if (fritzres.status === 200) {
                         this.fritz = fritzres.data.result;
+                    }
+                })
+
+                fetchScheduledBoot().then(schedres => {
+                    if (schedres.status === 200) {
+                        let schedule = schedres.data.time
+                        if (schedule) {
+                            // python uses seconds for timestamps
+                            this.schedule.boot = schedres.data.time * 1000
+                        }
                     }
                 })
 
