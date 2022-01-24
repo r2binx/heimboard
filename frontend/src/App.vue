@@ -2,7 +2,7 @@
 // This starter template is using Vue 3 <script setup> SFCs
 // Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
 import RefreshOutlined from "./assets/RefreshOutlined.svg"
-import { onMounted, provide, watch } from "vue";
+import { onBeforeUnmount, onMounted, provide, watch } from "vue";
 // import doesn't work with vite dev server
 // import { $ref } from 'vue/macros'
 import { darkTheme, NButton, NCard, NConfigProvider, NGlobalStyle, NIcon, NSpace, NSpin, useOsTheme } from "naive-ui";
@@ -10,13 +10,6 @@ import Panel from "./components/Panel.vue";
 import { Auth } from "./utils/useAuth0.js";
 import { State } from "./utils/api";
 import { registerSW } from 'virtual:pwa-register'
-
-onMounted(async () => {
-    registerSW({
-        immediate: true,
-        onNeedRefresh: () => console.log('The PWA will update automagically')
-    })
-});
 
 const osThemeRef = $(useOsTheme());
 let theme = $ref(osThemeRef === "dark" ? darkTheme : null);
@@ -33,6 +26,24 @@ const state = new State();
 provide("state", state);
 
 watch(() => auth.isAuthenticated.value, () => state.refreshState());
+
+const keepAlive = () => {
+    if (document.hasFocus()) {
+        state.refreshState()
+    }
+}
+
+const intervalFocusHandler = setInterval(keepAlive, 30000)
+
+onBeforeUnmount(() => clearInterval(intervalFocusHandler))
+
+onMounted(async () => {
+    registerSW({
+        immediate: true,
+        onNeedRefresh: () => console.log('The PWA will update automagically')
+    })
+});
+
 
 function changeTheme(newTheme) {
     theme = newTheme;
