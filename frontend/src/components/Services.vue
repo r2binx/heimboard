@@ -3,12 +3,12 @@ import { NDivider, NTable, NTbody, NTd, NTr } from 'naive-ui';
 import { computed, inject } from 'vue';
 
 const state = inject('state');
-const activeServices = computed(() => Object.fromEntries(Object.entries(state.services.value).filter(([key, value]) => !value)))
+const activeServices = computed(() => Object.fromEntries(Object.entries(state.services).filter(([key, value]) => !value)))
 
 </script>
 <template>
     <n-divider title-placement="left">Services</n-divider>
-    <n-table v-if="state.idle.value" :striped="true">
+    <n-table v-if="state.idle" :striped="true">
         <n-tbody>
             <n-tr>
                 <n-td>System</n-td>

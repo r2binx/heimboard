@@ -40,7 +40,7 @@ const netReachable = () => {
 
 <template>
     <div>
-        <div v-if="state.reachable.value">
+        <div v-if="state.reachable">
             <n-message-provider>
                 <Status/>
             </n-message-provider>

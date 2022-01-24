@@ -1,5 +1,5 @@
 <script setup>
-import { useMessage, NButton, NSpace, NCollapse, NCollapseItem, NIcon, NPopconfirm, NTable, NTbody, NTr, NTd } from "naive-ui";
+import { NButton, NCollapse, NCollapseItem, NIcon, NPopconfirm, NTable, NTbody, NTd, NTr, useMessage } from "naive-ui";
 import { PowerOff, Spinner } from "@vicons/fa";
 import { reboot, shutdown } from "../utils/api.js";
 import { inject } from "@vue/runtime-core";
@@ -60,7 +60,7 @@ function timeToString(time) {
     <n-collapse>
         <n-collapse-item style="font-size: xx-large !important;" title="STATUS" name="status">
             <template #header-extra>
-                <p v-if="state.reachable.value" class="active">ONLINE</p>
+                <p v-if="state.reachable" class="active">ONLINE</p>
                 <p v-else class="idle">OFFLINE</p>
             </template>
             <n-table striped v-if="auth.hasPermission('guest')">
@@ -68,13 +68,13 @@ function timeToString(time) {
                     <n-tr>
                         <n-td>External IPv4</n-td>
                         <n-td>
-                            <div style="float: right;">{{ state.fritz.value.ip.v4 }}</div>
+                            <div style="float: right;">{{ state.fritz.ip.v4 }}</div>
                         </n-td>
                     </n-tr>
                     <n-tr>
                         <n-td>UPTIME</n-td>
                         <n-td>
-                            <div style="float:right">{{ timeToString(state.uptime.value) }}</div>
+                            <div style="float:right">{{ timeToString(state.uptime) }}</div>
                         </n-td>
                     </n-tr>
                     <n-tr v-if="auth.hasPermission('admin')">
@@ -90,7 +90,7 @@ function timeToString(time) {
                                         REBOOT
                                     </n-button>
                                 </template>
-                                <div v-if="state.idle.value">Are you sure you want to reboot?</div>
+                                <div v-if="state.idle">Are you sure you want to reboot?</div>
                                 <div v-else>System is active, are you sure?</div>
                             </n-popconfirm>
                         </n-td>
@@ -106,7 +106,7 @@ function timeToString(time) {
                                         SHUTDOWN
                                     </n-button>
                                 </template>
-                                <div v-if="state.idle.value">Are you sure you want to shutdown?</div>
+                                <div v-if="state.idle">Are you sure you want to shutdown?</div>
                                 <div v-else>System is active, are you sure?</div>
                             </n-popconfirm>
                         </n-td>

@@ -70,8 +70,8 @@ function confirmShutdown(name) {
 function handleMemoryEdit(name, value) {
     setVmMemory(name, value * 1024 * 1024).then(res => {
         if (res.data.result.success) {
-            let index = state.vms.value.findIndex((vm) => vm.name === name)
-            state.vms.value[index].current_memory = value * 1024 * 1024;
+            let index = state.vms.findIndex((vm) => vm.name === name)
+            state.vms[index].current_memory = value * 1024 * 1024;
             message.success("Successfully set memory of " + name + " to " + value + "GB");
         } else {
             message.error(res.data.result.message);
@@ -100,7 +100,7 @@ function vmMemoryOptions(max_memory) {
     <n-divider title-placement="left">KVM</n-divider>
     <n-table :striped="true">
         <n-tbody>
-            <n-tr v-for="vm in state.vms.value" :key="vm.name">
+            <n-tr v-for="vm in state.vms" :key="vm.name">
                 <n-td>
                     <n-collapse v-if="vm.state === 'running' && vm.mem_modifiable">
                         <n-collapse-item :title="vm.name.toUpperCase()" :key="vm.name">

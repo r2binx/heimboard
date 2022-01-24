@@ -17,7 +17,7 @@ let downRate = $ref(0)
 let netInPct = $ref(0)
 
 let bandwidth = $computed(() => {
-    let fritz = state.fritz.value
+    let fritz = state.fritz
     return {"in": ~~(fritz.net.down / 1e6), "out": ~~(fritz.net.up / 1e6)};
 })
 

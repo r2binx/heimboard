@@ -1,5 +1,5 @@
 import axios from "axios";
-import { ref } from "vue";
+import { reactive} from "vue";
 
 const host = "https://" + import.meta.env.VITE_APP_IDLEREPORTER
 
@@ -69,39 +69,41 @@ export function fetchWakeAvail() {
 
 export class State {
     constructor() {
-        this.reachable = ref(false);
-        this.idle = ref(false)
-        this.uptime = ref(0);
-        this.services = ref({});
-        this.vms = ref([]);
-        this.fritz = ref({});
+        this.reachable = false;
+        this.idle = false;
+        this.uptime = 0;
+        this.services = {};
+        this.vms = [];
+        this.fritz = {};
+
+        return reactive(this)
     }
 
     refreshState() {
         fetchUptime().then(res => {
             if (res.status === 200) {
-                this.uptime.value = res.data;
-                this.reachable.value = true;
+                this.uptime = res.data;
+                this.reachable = true;
 
                 fetchIdle().then(idleres => {
-                    this.idle.value = idleres.data.result
-                    this.services.value = idleres.data.idle
+                    this.idle = idleres.data.result
+                    this.services = idleres.data.idle
                 });
 
                 fetchAllVms().then(vmres => {
                     if (vmres.status === 200) {
-                        this.vms.value = vmres.data.result;
+                        this.vms = vmres.data.result;
                     }
                 });
 
                 fritzInfo().then(fritzres => {
                     if (fritzres.status === 200) {
-                        this.fritz.value = fritzres.data.result;
+                        this.fritz = fritzres.data.result;
                     }
                 })
 
             } else {
-                this.reachable.value = false;
+                this.reachable = false;
             }
         }).catch(err => {
             console.log(err);
