@@ -60,7 +60,7 @@ export function setVmMemory(vmName, memory) {
 }
 
 export function wakeOnLan() {
-    return axios.get("https://" + import.meta.env.VITE_APP_WAKESERVER + "/wakeup");
+    return axios.get("https://" + import.meta.env.VITE_APP_WAKESERVER + "/wakeup", {timeout: 1000});
 }
 
 export function fetchWakeAvail() {

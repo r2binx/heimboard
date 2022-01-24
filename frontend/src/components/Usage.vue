@@ -1,21 +1,22 @@
 <script setup>
-import { computed, inject, ref, watchEffect } from 'vue'
+import { inject, watchEffect } from 'vue'
+// import { $computed, $ref } from 'vue/macros'
 import { NDivider, NSpace } from 'naive-ui'
 import ProgressCircle from "./ProgressCircle.vue";
 
 const auth = inject("auth");
 const state = inject("state");
 
-const cpuUsage = ref(0);
-const memUsage = ref(0);
+let cpuUsage = $ref(0);
+let memUsage = $ref(0);
 
-const upRate = ref(0)
-const netOutPct = ref(0)
+let upRate = $ref(0)
+let netOutPct = $ref(0)
 
-const downRate = ref(0)
-const netInPct = ref(0)
+let downRate = $ref(0)
+let netInPct = $ref(0)
 
-const bandwidth = computed(() => {
+let bandwidth = $computed(() => {
     let fritz = state.fritz.value
     return {"in": ~~(fritz.net.down / 1e6), "out": ~~(fritz.net.up / 1e6)};
 })
@@ -39,8 +40,8 @@ watchEffect(async () => {
         usage_connection = new WebSocket('wss://' + import.meta.env.VITE_APP_IDLEREPORTER + '/usage?rate=1&token=' + await auth.getToken());
         usage_connection.onmessage = function (event) {
             let data = JSON.parse(event.data)
-            cpuUsage.value = data["cpu"];
-            memUsage.value = data["memory"]["used"];
+            cpuUsage = data["cpu"];
+            memUsage = data["memory"]["used"];
         }
 
         usage_connection.onopen = function () {
@@ -50,11 +51,11 @@ watchEffect(async () => {
         net_connection = new WebSocket('wss://' + import.meta.env.VITE_APP_IDLEREPORTER + '/net?rate=1&token=' + await auth.getToken());
         net_connection.onmessage = function (event) {
             let data = JSON.parse(event.data);
-            downRate.value = ~~(data["in"] / 125000);
-            upRate.value = ~~(data["out"] / 125000);
+            downRate = ~~(data["in"] / 125000);
+            upRate = ~~(data["out"] / 125000);
 
-            netOutPct.value = (upRate.value / bandwidth.value.out * 100);
-            netInPct.value = (downRate.value / bandwidth.value.in * 100);
+            netOutPct = (upRate / bandwidth.out * 100);
+            netInPct = (downRate / bandwidth.in * 100);
 
         }
 

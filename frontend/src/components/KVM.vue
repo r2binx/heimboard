@@ -1,12 +1,27 @@
 <script setup>
-import { inject, ref, onMounted, onUnmounted } from 'vue';
-import { useMessage, useLoadingBar, NPopconfirm, NDivider, NSpace, NButton, NCollapse, NCollapseItem, NTable, NTbody, NTr, NTd, NSelect } from 'naive-ui';
-import { startVm, stopVm, setVmMemory } from '../utils/api';
+import { inject, onMounted, onUnmounted } from 'vue';
+// import { $ref } from 'vue/macros'
+import {
+    NButton,
+    NCollapse,
+    NCollapseItem,
+    NDivider,
+    NPopconfirm,
+    NSelect,
+    NSpace,
+    NTable,
+    NTbody,
+    NTd,
+    NTr,
+    useLoadingBar,
+    useMessage
+} from 'naive-ui';
+import { setVmMemory, startVm, stopVm } from '../utils/api';
 
 const message = useMessage();
 const loadingBar = useLoadingBar();
-let windowWidth = ref(window.innerWidth)
-const onWidthChange = () => windowWidth.value = window.innerWidth
+let windowWidth = $ref(window.innerWidth)
+const onWidthChange = () => windowWidth = window.innerWidth
 onMounted(() => window.addEventListener('resize', onWidthChange))
 onUnmounted(() => window.removeEventListener('resize', onWidthChange))
 
@@ -55,7 +70,7 @@ function confirmShutdown(name) {
 function handleMemoryEdit(name, value) {
     setVmMemory(name, value * 1024 * 1024).then(res => {
         if (res.data.result.success) {
-            let index = state.vms.value.findIndex((vm) => vm.name == name)
+            let index = state.vms.value.findIndex((vm) => vm.name === name)
             state.vms.value[index].current_memory = value * 1024 * 1024;
             message.success("Successfully set memory of " + name + " to " + value + "GB");
         } else {
@@ -87,10 +102,10 @@ function vmMemoryOptions(max_memory) {
         <n-tbody>
             <n-tr v-for="vm in state.vms.value" :key="vm.name">
                 <n-td>
-                    <n-collapse v-if="vm.state == 'running' && vm.mem_modifiable">
+                    <n-collapse v-if="vm.state === 'running' && vm.mem_modifiable">
                         <n-collapse-item :title="vm.name.toUpperCase()" :key="vm.name">
                             <n-space
-                                :vertical="windowWidth > 720 ? false : true"
+                                :vertical="windowWidth<=720"
                                 style="width: max-content;"
                             >
                                 MEMORY:
@@ -106,7 +121,7 @@ function vmMemoryOptions(max_memory) {
                     <div v-else>{{ vm.name.toUpperCase() }}</div>
                 </n-td>
                 <n-td>
-                    <n-space style="float: right;" v-if="vm.state == 'running'">
+                    <n-space style="float: right;" v-if="vm.state === 'running'">
                         <n-popconfirm @positive-click="confirmShutdown(vm.name)">
                             <template #trigger>
                                 <n-button type="error">SHUTDOWN</n-button>
@@ -117,10 +132,11 @@ function vmMemoryOptions(max_memory) {
                     <n-button
                         style="float: right;"
                         type="primary"
-                        v-else-if="vm.state == 'shutoff'"
+                        v-else-if="vm.state === 'shutoff'"
                         @click="handleVmStart(vm.name)"
-                    >START</n-button>
-                    <div style="float: right;" v-else>{{ vm.sate.toUpperCase() }}</div>
+                    >START
+                    </n-button>
+                    <div style="float: right;" v-else>{{ vm.state.toUpperCase() }}</div>
                 </n-td>
             </n-tr>
         </n-tbody>

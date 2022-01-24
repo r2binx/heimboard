@@ -2,7 +2,9 @@
 // This starter template is using Vue 3 <script setup> SFCs
 // Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
 import RefreshOutlined from "./assets/RefreshOutlined.svg"
-import { onMounted, provide, ref, watch } from "vue";
+import { onMounted, provide, watch } from "vue";
+// import doesn't work with vite dev server
+// import { $ref } from 'vue/macros'
 import { darkTheme, NButton, NCard, NConfigProvider, NGlobalStyle, NIcon, NSpace, NSpin, useOsTheme } from "naive-ui";
 import Panel from "./components/Panel.vue";
 import { Auth } from "./utils/useAuth0.js";
@@ -16,12 +18,12 @@ onMounted(async () => {
     })
 });
 
-const osThemeRef = useOsTheme();
-const theme = ref(osThemeRef.value === "dark" ? darkTheme : null);
-const activeShade = ref(osThemeRef.value === "dark" ? "#63e2b7" : "#18a058");
-const idleShade = ref(osThemeRef.value === "dark" ? "#e88080" : "#d03050");
+const osThemeRef = $(useOsTheme());
+let theme = $ref(osThemeRef === "dark" ? darkTheme : null);
+let activeShade = $ref(osThemeRef === "dark" ? "#63e2b7" : "#18a058");
+let idleShade = $ref(osThemeRef === "dark" ? "#e88080" : "#d03050");
 
-const fontColor = ref(osThemeRef.value === "dark" ? "#e8e8e8" : "#1f2225");
+let fontColor = $ref(osThemeRef === "dark" ? "#e8e8e8" : "#1f2225");
 provide("fontColor", fontColor);
 
 const auth = new Auth();
@@ -33,10 +35,10 @@ provide("state", state);
 watch(() => auth.isAuthenticated.value, () => state.refreshState());
 
 function changeTheme(newTheme) {
-    theme.value = newTheme;
-    activeShade.value = newTheme === darkTheme ? "#63e2b7" : "#18a058";
-    idleShade.value = newTheme === darkTheme ? "#e88080" : "#d03050";
-    fontColor.value = newTheme === darkTheme ? "#e8e8e8" : "#1f2225";
+    theme = newTheme;
+    activeShade = newTheme === darkTheme ? "#63e2b7" : "#18a058";
+    idleShade = newTheme === darkTheme ? "#e88080" : "#d03050";
+    fontColor = newTheme === darkTheme ? "#e8e8e8" : "#1f2225";
 }
 
 </script>
@@ -146,7 +148,6 @@ n-icon {
 }
 
 #app {
-    /* font-family: Avenir, Helvetica, Arial, sans-serif; */
     font-family: "Fira Code", monospace;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
