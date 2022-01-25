@@ -113,6 +113,11 @@ def stop_vm(domain: str,
     return service.stop_vm(domain)
 
 
+@app.get("/storage/usage")
+def storage_usage(jwt=Depends(jwt_validator.verify(permission='guest'))):
+    return service.storage_usage()
+
+
 if __name__ == "__main__":
     multiprocessing.freeze_support()
     uvicorn.run("main:app",

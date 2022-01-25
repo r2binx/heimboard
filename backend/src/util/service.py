@@ -12,6 +12,7 @@ from src.modules.jelly import Jelly
 from src.modules.kvm import KVM, State
 from src.modules.plex import Plex
 from src.modules.sabnzbd import Sabnzbd
+from src.modules.storage import Storage
 from src.modules.system import SystemStats
 from src.util.observer import Observer
 
@@ -45,6 +46,7 @@ class Service:
     fritz: Fritz
     system_stats: SystemStats
     fritz_stats: FritzStats
+    storage: Storage
 
     def __init__(self, config) -> None:
         self.config = config
@@ -55,6 +57,7 @@ class Service:
         self.fritz = Fritz(config["FRITZ"])
         self.system_stats = SystemStats()
         self.fritz_stats = FritzStats(self.fritz)
+        self.storage = Storage(config["STORAGE"])
 
     def idle(self) -> Dict[str, Union[bool, str, Dict]]:
         idle_check = self.check_all_idle()
@@ -196,3 +199,8 @@ class Service:
                 }
             }
         }
+
+    def storage_usage(self) -> Dict[str, List[Dict[str, Any]]]:
+        usage = self.storage.get_usage()
+
+        return {"result": usage}
