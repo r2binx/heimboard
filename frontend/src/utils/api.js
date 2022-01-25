@@ -1,5 +1,5 @@
 import axios from "axios";
-import { ref } from "vue";
+import { reactive } from "vue";
 
 const host = "https://" + import.meta.env.VITE_APP_IDLEREPORTER
 
@@ -24,6 +24,21 @@ export function reboot() {
 
 export function shutdown() {
     return axios.get(host + "/shutdown");
+}
+
+/**
+ * @param time unix timestamp of scheduled shutdown
+ */
+export function scheduleBoot(time) {
+    let data = {"schedule": time}
+    return axios.post("https://" + import.meta.env.VITE_APP_WAKESERVER + "/bootSchedule", data);
+}
+
+/**
+ *
+ */
+export function fetchScheduledBoot() {
+    return axios.get("https://" + import.meta.env.VITE_APP_WAKESERVER + "/bootSchedule");
 }
 
 export function fetchAllVms() {
@@ -60,52 +75,84 @@ export function setVmMemory(vmName, memory) {
 }
 
 export function wakeOnLan() {
-    return axios.get("https://" + import.meta.env.VITE_APP_WAKESERVER + "/wakeup");
+    return axios.get("https://" + import.meta.env.VITE_APP_WAKESERVER + "/wakeup", {timeout: 1000});
 }
 
 export function fetchWakeAvail() {
     return axios.get("https://" + import.meta.env.VITE_APP_WAKESERVER + "/ping", {timeout: 1000});
 }
 
+export function fetchStorageUsage() {
+    return axios.get(host + "/storage/usage", {timeout: 1000});
+}
+
 export class State {
     constructor() {
-        this.reachable = ref(false);
-        this.idle = ref(false)
-        this.uptime = ref(0);
-        this.services = ref({});
-        this.vms = ref([]);
-        this.fritz = ref({});
+        this.reachable = false;
+        this.idle = false;
+        this.uptime = 0;
+        this.services = {};
+        this.vms = [];
+        this.fritz = {};
+        this.schedule = {}
+        this.net_reachable = false
+
+        return reactive(this)
     }
 
     refreshState() {
         fetchUptime().then(res => {
             if (res.status === 200) {
-                this.uptime.value = res.data;
-                this.reachable.value = true;
+                this.uptime = res.data;
+                this.reachable = true
 
                 fetchIdle().then(idleres => {
-                    this.idle.value = idleres.data.result
-                    this.services.value = idleres.data.idle
+                    this.idle = idleres.data.result
+                    this.services = idleres.data.idle
                 });
 
                 fetchAllVms().then(vmres => {
                     if (vmres.status === 200) {
-                        this.vms.value = vmres.data.result;
+                        this.vms = vmres.data.result;
                     }
                 });
 
                 fritzInfo().then(fritzres => {
                     if (fritzres.status === 200) {
-                        this.fritz.value = fritzres.data.result;
+                        this.fritz = fritzres.data.result;
                     }
                 })
-
-            } else {
-                this.reachable.value = false;
             }
         }).catch(err => {
-            console.log(err);
-        });
+            if (!!err.isAxiosError && !err.response) {
+                console.log("Server unreachable")
+                console.debug(err)
+            } else {
+                console.log(err)
+            }
+        })
 
+        fetchWakeAvail().then(res => {
+            if (res.status === 200) {
+                this.net_reachable = true
+
+                fetchScheduledBoot().then(schedres => {
+                    if (schedres.status === 200) {
+                        let schedule = schedres.data.time
+                        if (schedule) {
+                            // python uses seconds for timestamps
+                            this.schedule.boot = schedres.data.time * 1000
+                        }
+                    }
+                }).catch(err => {
+                    if (!!err.isAxiosError && !err.response) {
+                        console.log("Network unreachable")
+                        console.debug(err)
+                    } else {
+                        console.log(err)
+                    }
+                })
+            }
+        })
     }
 }

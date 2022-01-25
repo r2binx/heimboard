@@ -1,24 +1,24 @@
 {
   "name": "heimboard",
-  "version": "0.9.0",
+  "version": "0.9.5",
   "scripts": {
     "dev": "vite --port 4000",
     "build": "vite build",
     "serve": "vite preview --host --port 4000"
   },
   "dependencies": {
-    "@auth0/auth0-spa-js": "^1.19.4",
-    "axios": "^0.24.0",
-    "vue": "^3.2.27"
+    "@auth0/auth0-spa-js": "1.19.4",
+    "axios": "0.25.0",
+    "vue": "3.2.29"
   },
   "devDependencies": {
-    "@vicons/fa": "^0.11.0",
-    "@vitejs/plugin-vue": "^2.0.1",
+    "@vicons/fa": "0.11.0",
+    "@vitejs/plugin-vue": "2.1.0",
     "eslint": "^8.7.0",
     "eslint-plugin-vue": "^8.3.0",
-    "naive-ui": "^2.24.1",
-    "vite": "^2.7.12",
-    "vite-plugin-pwa": "^0.11.13",
-    "vite-svg-loader": "^3.1.2"
+    "naive-ui": "2.24.4",
+    "vite": "2.7.13",
+    "vite-plugin-pwa": "0.11.13",
+    "vite-svg-loader": "3.1.2"
   }
 }

@@ -314,6 +314,7 @@ MANIFEST
 *.manifest
 *.spec
 !heimboard-backend.spec
+!wakeup.spec
 
 # Installer logs
 pip-log.txt
