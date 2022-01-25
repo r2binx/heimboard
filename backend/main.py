@@ -1,3 +1,4 @@
+import ast
 import multiprocessing
 import os
 from configparser import ConfigParser
@@ -22,7 +23,7 @@ service = services.Service(config)
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=config["BACKEND"]["ORIGINS"],
+    allow_origins=ast.literal_eval(config["BACKEND"]["ORIGINS"]),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -122,4 +123,5 @@ if __name__ == "__main__":
     multiprocessing.freeze_support()
     uvicorn.run("main:app",
                 host=config["BACKEND"]["HOST"],
-                port=int(config["BACKEND"]["PORT"]))
+                port=int(config["BACKEND"]["PORT"]),
+                reload=True)

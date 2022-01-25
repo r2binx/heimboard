@@ -1,3 +1,4 @@
+import ast
 import json
 import os
 from configparser import ConfigParser
@@ -24,7 +25,8 @@ class Jelly:
 
     def __init__(self, config: Dict):
         self.config = config
-        self.IGNORED = config["IGNORED"]
+        self.IGNORED = ast.literal_eval(config["IGNORED"])
+
         self.JELLY_HEADERS = {
             'X-Emby-Authorization':
                 f'Emby Client=idlereporter, Device=heimboard, DeviceId=heimboard, Version=1, Token={config["TOKEN"]}',

@@ -1,3 +1,4 @@
+import ast
 import json
 import multiprocessing
 import os
@@ -28,7 +29,7 @@ if env == ".config":
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=config["BACKEND"]["ORIGINS"],
+    allow_origins=ast.literal_eval(config["BACKEND"]["ORIGINS"]),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
