@@ -26,6 +26,31 @@ else
   PYINSTALLER_COMPILE_BOOTLOADER=1 pip3 install pyinstaller
 fi
 
-pyinstaller wakeup.spec
+hidden_imports="--hidden-import uvicorn \
+  --hidden-import uvicorn.logging \
+  --hidden-import uvicorn.loops \
+  --hidden-import uvicorn.loops.auto \
+  --hidden-import uvicorn.protocols \
+  --hidden-import uvicorn.protocols.http \
+  --hidden-import uvicorn.protocols.http.auto \
+  --hidden-import uvicorn.protocols.websockets \
+  --hidden-import uvicorn.protocols.websockets.auto \
+  --hidden-import uvicorn.lifespan \
+  --hidden-import uvicorn.lifespan.on
+"
+
+echo "Building wakeup server"
+pyinstaller --onefile \
+  $hidden_imports \
+  --hidden-import wakeup \
+  -n "wakeup.linux-$(uname -m)" \
+  src/wakeup.py
+
+echo "Building backend"
+pyinstaller --onefile \
+  $hidden_imports \
+  --hidden-import main \
+  -n "heimboard-backend.linux-$(uname -m)" \
+  main.py
 
 echo "Compiling successful"
