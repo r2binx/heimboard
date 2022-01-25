@@ -7,6 +7,9 @@ on:
 jobs:
   build-linux:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend
 
     steps:
       - name: Checkout
@@ -20,7 +23,7 @@ jobs:
           curl -L -o /tmp/hydrun https://github.com/pojntfx/hydrun/releases/latest/download/hydrun.linux-$(uname -m)
           sudo install /tmp/hydrun /usr/local/bin
       - name: Build with hydrun
-        run: hydrun -a amd64,arm64,arm/v7 -o debian:buster backend/Hydrunfile
+        run: hydrun -a amd64,arm64,arm/v7 -o debian:buster ./Hydrunfile
       - name: Publish to GitHub releases
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: marvinpinto/action-automatic-releases@latest
@@ -29,4 +32,4 @@ jobs:
           automatic_release_tag: "latest"
           prerelease: false
           files: |
-            *.linux*
+            ./backend/build/*.linux*
