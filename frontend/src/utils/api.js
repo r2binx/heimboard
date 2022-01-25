@@ -91,6 +91,7 @@ export class State {
         this.vms = [];
         this.fritz = {};
         this.schedule = {}
+        this.net_reachable = false
 
         return reactive(this)
     }
@@ -99,7 +100,7 @@ export class State {
         fetchUptime().then(res => {
             if (res.status === 200) {
                 this.uptime = res.data;
-                this.reachable = true;
+                this.reachable = true
 
                 fetchIdle().then(idleres => {
                     this.idle = idleres.data.result
@@ -117,6 +118,19 @@ export class State {
                         this.fritz = fritzres.data.result;
                     }
                 })
+            }
+        }).catch(err => {
+            if (!!err.isAxiosError && !err.response) {
+                console.log("Server unreachable")
+                console.debug(err)
+            } else {
+                console.log(err)
+            }
+        })
+
+        fetchWakeAvail().then(res => {
+            if (res.status === 200) {
+                this.net_reachable = true
 
                 fetchScheduledBoot().then(schedres => {
                     if (schedres.status === 200) {
@@ -126,14 +140,15 @@ export class State {
                             this.schedule.boot = schedres.data.time * 1000
                         }
                     }
+                }).catch(err => {
+                    if (!!err.isAxiosError && !err.response) {
+                        console.log("Network unreachable")
+                        console.debug(err)
+                    } else {
+                        console.log(err)
+                    }
                 })
-
-            } else {
-                this.reachable = false;
             }
-        }).catch(err => {
-            console.log(err);
-        });
-
+        })
     }
 }

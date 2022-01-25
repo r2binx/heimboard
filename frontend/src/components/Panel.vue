@@ -2,13 +2,13 @@
 // This starter template is using Vue 3 <script setup> SFCs
 // Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
 import { inject } from "vue";
-import { NSpace, NButton, NIcon, NLoadingBarProvider, NMessageProvider, NResult } from "naive-ui";
+import { NButton, NIcon, NLoadingBarProvider, NMessageProvider, NResult, NSpace } from "naive-ui";
 import { PowerOff } from "@vicons/fa";
 import Status from "./Status.vue";
 import Usage from "./Usage.vue";
 import Services from "./Services.vue";
 import KVM from "./KVM.vue";
-import { fetchWakeAvail, wakeOnLan } from "../utils/api.js";
+import { wakeOnLan } from "../utils/api.js";
 
 const auth = inject("auth");
 const state = inject("state");
@@ -28,18 +28,11 @@ function handleWakeUp() {
     );
 }
 
-const netReachable = () => {
-    fetchWakeAvail().then(res => {
-        return res.status === 200
-    }).catch(() => {
-        return false
-    })
-}
-
 let scheduledBoot = $computed(() => {
     let time = new Date(state.schedule.boot)
     return ("0" + time.getHours()).slice(-2) + ":" + ("0" + time.getMinutes()).slice(-2)
 })
+
 
 </script>
 
@@ -58,7 +51,7 @@ let scheduledBoot = $computed(() => {
             </n-message-provider>
         </div>
         <div v-else-if="auth.hasPermission('guest')">
-            <n-space vertical justify="center" v-if="netReachable">
+            <n-space vertical justify="center" v-if="state.net_reachable">
                 <p>Scheduled boot is at: {{ scheduledBoot }} </p>
                 <br>
                 <n-button @click="handleWakeUp" style="font-size: 72px;" circle :bordered="false">
