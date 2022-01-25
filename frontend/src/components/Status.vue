@@ -14,10 +14,13 @@ import {
 } from "naive-ui";
 import { PowerOff, Spinner } from "@vicons/fa";
 import { reboot, shutdown } from "../utils/api.js";
-import { inject } from "@vue/runtime-core";
 import BootTimePicker from "./BootTimePicker.vue";
-import { onBeforeUnmount } from "vue";
+import { inject, onBeforeUnmount } from "vue";
+import { timeToString } from "../utils/misc.js";
 
+const props = defineProps({
+    scheduledBoot: String,
+})
 const message = useMessage();
 
 const auth = inject("auth");
@@ -56,22 +59,6 @@ function rebootConfirm() {
 
 }
 
-function timeToString(time) {
-    if (time < 120) {
-        return time + "s";
-    } else if (time < 3600) {
-        return Math.floor(time / 60) + "m " + time % 60 + "s";
-    } else if (time < 86400) {
-        return Math.floor(time / 3600) + "h " + Math.floor(time % 3600 / 60) + "m " + time % 60 + "s";
-    } else {
-        return Math.floor(time / 86400) + "d " + Math.floor(time % 86400 / 3600) + "h " + Math.floor(time % 3600 / 60) + "m " + time % 60 + "s";
-    }
-}
-
-let scheduledBoot = $computed(() => {
-    let time = new Date(state.schedule.boot)
-    return ("0" + time.getHours()).slice(-2) + ":" + ("0" + time.getMinutes()).slice(-2)
-})
 
 let uptimeStr = $computed({get: () => timeToString(state.uptime), set: (val) => timeToString(val)})
 const interval = setInterval(() => uptimeStr = state.uptime++, 1000)
@@ -100,10 +87,10 @@ onBeforeUnmount(() => clearInterval(interval))
                             <div style="float:right">{{ uptimeStr }}</div>
                         </n-td>
                     </n-tr>
-                    <n-tr v-if="state.schedule.boot">
+                    <n-tr v-if="props.scheduledBoot">
                         <n-td>SCHEDULED BOOT</n-td>
                         <n-td>
-                            <div style="float:right">at {{ scheduledBoot }}</div>
+                            <div style="float:right">at {{ props.scheduledBoot }}</div>
                         </n-td>
                     </n-tr>
                     <n-tr v-if="auth.hasPermission('admin')">

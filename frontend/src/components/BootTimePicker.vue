@@ -1,7 +1,7 @@
 <script setup>
 import { NTimePicker } from "naive-ui";
 import { scheduleBoot, } from "../utils/api"
-import { inject } from "@vue/runtime-core";
+import { inject } from "vue";
 
 const state = inject('state');
 

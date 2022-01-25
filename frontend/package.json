@@ -1,6 +1,6 @@
 {
   "name": "heimboard",
-  "version": "0.9.0",
+  "version": "0.9.5",
   "scripts": {
     "dev": "vite --port 4000",
     "build": "vite build",

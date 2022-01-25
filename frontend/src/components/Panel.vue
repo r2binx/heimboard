@@ -8,7 +8,9 @@ import Status from "./Status.vue";
 import Usage from "./Usage.vue";
 import Services from "./Services.vue";
 import KVM from "./KVM.vue";
+import Storage from "./Storage.vue"
 import { wakeOnLan } from "../utils/api.js";
+import { readableTime } from "../utils/misc";
 
 const auth = inject("auth");
 const state = inject("state");
@@ -28,29 +30,26 @@ function handleWakeUp() {
     );
 }
 
-let scheduledBoot = $computed(() => {
-    let time = new Date(state.schedule.boot)
-    return ("0" + time.getHours()).slice(-2) + ":" + ("0" + time.getMinutes()).slice(-2)
-})
-
+let scheduledBoot = $computed(() => readableTime(state.schedule.boot))
 
 </script>
 
 <template>
-    <div>
+    <div v-if="auth.hasPermission('guest')">
         <div v-if="state.reachable">
             <n-message-provider>
-                <Status/>
+                <Status :scheduledBoot="scheduledBoot"/>
             </n-message-provider>
             <Usage/>
             <Services/>
+            <Storage/>
             <n-message-provider v-if="auth.hasPermission('admin')">
                 <n-loading-bar-provider>
                     <KVM/>
                 </n-loading-bar-provider>
             </n-message-provider>
         </div>
-        <div v-else-if="auth.hasPermission('guest')">
+        <div v-else>
             <n-space vertical justify="center" v-if="state.net_reachable">
                 <p>Scheduled boot is at: {{ scheduledBoot }} </p>
                 <br>
@@ -63,8 +62,8 @@ let scheduledBoot = $computed(() => {
             </n-space>
             <n-result v-else status="error" description="Seems like the network is unreachable"></n-result>
         </div>
-        <div v-else>
-            <p>You haven't been authorized yet to view this page.</p>
-        </div>
+    </div>
+    <div v-else>
+        <p>You haven't been authorized yet to view this page.</p>
     </div>
 </template>
