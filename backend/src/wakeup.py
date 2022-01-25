@@ -1,11 +1,12 @@
 import ast
+import asyncio
 import json
 import multiprocessing
 import os
 import subprocess
 from configparser import ConfigParser
 from datetime import datetime
-from typing import Union
+from typing import Union, Dict
 
 import uvicorn
 from fastapi import FastAPI, Depends
@@ -14,19 +15,29 @@ from pydantic import BaseModel
 
 from util.auth import JWTValidator
 
-
-class ScheduledTime(BaseModel):
-    schedule: Union[int, None]
-
-
-app = FastAPI()
-
 env = os.getenv("ENV", ".config")
 config = []
 if env == ".config":
     config = ConfigParser()
     config.read(".config")
 
+server_ip = config["BACKEND"]["LOCAL_IP"]
+server_mac = config["BACKEND"]["WOL_MAC"]
+
+
+def get_schedule() -> Dict[str, Union[str, int]]:
+    if os.path.exists("schedule.json"):
+        with open("schedule.json", "r") as f:
+            return json.loads(f.read())
+    else:
+        schedule = {"time": "", "action": "boot"}
+        with open("schedule.json", "w") as f:
+            f.write(json.dumps(schedule))
+
+        return schedule
+
+
+app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=ast.literal_eval(config["BACKEND"]["ORIGINS"]),
@@ -38,6 +49,53 @@ app.add_middleware(
 jwt_validator = JWTValidator(config=config["AUTH0"])
 
 
+def wol(mac):
+    print(f"Waking up {mac}")
+    cmd = subprocess.check_output(["wakeonlan", mac]).strip()
+    return cmd
+
+
+class ScheduledTime(BaseModel):
+    schedule: Union[int, None]
+
+
+class ScheduleService:
+    loop: asyncio.AbstractEventLoop = asyncio.get_event_loop()
+    task: asyncio.Task
+
+    def __init__(self):
+        self.task = self.loop.create_task(self.run_schedule())
+
+    def ping(self, ip):
+        try:
+            subprocess.check_output(["ping", "-c", "1", ip])
+            return True
+        except subprocess.CalledProcessError:
+            return False
+
+    async def run_schedule(self):
+        while True:
+            curr_schedule = get_schedule().get("time")
+            if curr_schedule is not None and curr_schedule != "":
+                ts = datetime.fromtimestamp(int(curr_schedule))
+                now = datetime.now()
+                scheduled_boot = now.replace(hour=ts.hour, minute=ts.minute)
+
+                # if the scheduled time is in the past, check if the server is up
+                # else boot the server
+                if scheduled_boot.time() < now.time():
+                    online = self.ping(server_ip)
+                    if not online:
+                        wol(server_mac)
+                        # give it some time to boot
+                        await asyncio.sleep(120)
+
+            await asyncio.sleep(60)
+
+
+schedule_service = ScheduleService()
+
+
 @app.get("/ping")
 def ping():
     return datetime.now().isoformat()
@@ -45,37 +103,26 @@ def ping():
 
 @app.get("/wakeup")
 def wake(jwt=Depends(jwt_validator.verify(permission='guest'))):
-    cmd = subprocess.check_output(["wakeonlan",
-                                   config["BACKEND"]["WOL_MAC"]]).strip()
-    return cmd
+    return wol(config["BACKEND"]["WOL_MAC"])
 
 
 @app.post("/bootSchedule")
 def schedule_boot(data: ScheduledTime, jwt=Depends(jwt_validator.verify(permission='admin'))):
-    print(data)
     if data.schedule is None:
+        new_schedule = {"time": "", "action": "boot"}
         with open("schedule.json", "w") as f:
-            f.write(json.dumps({"time": "", "action": "boot"}))
+            f.write(json.dumps(new_schedule))
     else:
         ts = datetime.fromtimestamp(data.schedule / 1e3)
-        now = datetime.now()
-        scheduled_boot = now.replace(hour=ts.hour, minute=ts.minute)
 
+        new_schedule = {"time": f"{int(ts.timestamp())}", "action": "boot"}
         with open("schedule.json", "w") as f:
-            f.write(json.dumps({"time": f"{int(scheduled_boot.timestamp())}", "action": "boot"}))
-
-        if scheduled_boot.time() < now.time():
-            print("is after schedule:", scheduled_boot)
-        else:
-            print("is before schedule:", scheduled_boot)
+            f.write(json.dumps(new_schedule))
 
 
 @app.get("/bootSchedule")
 def get_boot_schedule(jwt=Depends(jwt_validator.verify(permission='guest'))):
-    if os.path.exists("schedule.json"):
-        with open("schedule.json", "r") as f:
-            schedule = json.loads(f.read())
-            return schedule
+    return get_schedule()
 
 
 if __name__ == "__main__":
