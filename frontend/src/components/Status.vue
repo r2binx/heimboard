@@ -16,6 +16,7 @@ import { PowerOff, Spinner } from "@vicons/fa";
 import { reboot, shutdown } from "../utils/api.js";
 import { inject } from "@vue/runtime-core";
 import BootTimePicker from "./BootTimePicker.vue";
+import { onBeforeUnmount } from "vue";
 
 const message = useMessage();
 
@@ -72,6 +73,10 @@ let scheduledBoot = $computed(() => {
     return ("0" + time.getHours()).slice(-2) + ":" + ("0" + time.getMinutes()).slice(-2)
 })
 
+let uptimeStr = $computed({get: () => timeToString(state.uptime), set: (val) => timeToString(val)})
+const interval = setInterval(() => uptimeStr = state.uptime++, 1000)
+onBeforeUnmount(() => clearInterval(interval))
+
 </script>
 
 <template>
@@ -92,7 +97,7 @@ let scheduledBoot = $computed(() => {
                     <n-tr>
                         <n-td>UPTIME</n-td>
                         <n-td>
-                            <div style="float:right">{{ timeToString(state.uptime) }}</div>
+                            <div style="float:right">{{ uptimeStr }}</div>
                         </n-td>
                     </n-tr>
                     <n-tr v-if="state.schedule.boot">
