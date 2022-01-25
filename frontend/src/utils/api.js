@@ -86,10 +86,6 @@ export function fetchStorageUsage() {
     return axios.get(host + "/storage/usage", {timeout: 1000});
 }
 
-export function fetchWakeAvail() {
-    return axios.get("https://" + import.meta.env.VITE_APP_WAKESERVER + "/ping", {timeout: 1000});
-}
-
 export class State {
     constructor() {
         this.reachable = false;
