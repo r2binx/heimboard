@@ -313,8 +313,6 @@ MANIFEST
 #  before PyInstaller builds the exe, so as to inject date/other infos into it.
 *.manifest
 *.spec
-!heimboard-backend.spec
-!wakeup.spec
 
 # Installer logs
 pip-log.txt
