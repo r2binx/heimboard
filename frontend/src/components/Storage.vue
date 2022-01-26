@@ -1,8 +1,9 @@
 <script setup>
-import { NDivider, NProgress, NTable, NTbody, NTd, NTr } from 'naive-ui';
+import { NDivider, NIcon, NList, NListItem, NProgress, NThing } from 'naive-ui';
 import { inject, watchEffect } from 'vue';
-import { fetchStorageUsage } from "../utils/api";
+import { Save } from "@vicons/fa";
 import { formatBytes, progressColor } from '../utils/misc.js'
+import { fetchStorageUsage } from "../utils/api";
 
 const state = inject('state');
 
@@ -21,21 +22,29 @@ watchEffect(async () => {
 </script>
 <template>
     <n-divider title-placement="left">Storage</n-divider>
-    <n-table :striped="true">
-        <n-tbody>
-            <n-tr v-for="mount in storage" :key="mount.name">
-                <n-td style="width: 120px; overflow: hidden">{{ mount.name }}</n-td>
-                <n-td>
-                    <n-progress type="line" :percentage="mount.usage.percent"
-                                :color="progressColor(mount.usage.percent)"
-                                :rail-color="progressColor(mount.usage.percent, '33')"
-                                :indicator-placement="'inside'" :height="20"
-                    >
-                        <!-- slot with indicator-placement='inside' currently not supported-->
-                        {{ formatBytes(mount.usage.free) }}/{{ formatBytes(mount.usage.total) }}
-                    </n-progress>
-                </n-td>
-            </n-tr>
-        </n-tbody>
-    </n-table>
+    <n-list bordered>
+        <n-list-item v-for="(mount, index) in storage" :key="index">
+            <n-thing>
+                <template #avatar>
+                    <n-icon size="1.7rem">
+                        <save/>
+                    </n-icon>
+                </template>
+                <template #header>{{ mount.name }}</template>
+                <template #description>
+                    <span style="float: left">{{ formatBytes(mount.usage.free, 1) }} of {{
+                            formatBytes(mount.usage.total, 1)
+                        }} left</span>
+                </template>
+                <n-progress type="line" :percentage="mount.usage.percent"
+                            :color="progressColor(mount.usage.percent)"
+                            :rail-color="progressColor(mount.usage.percent, '33')"
+                            :show-indicator="false" :height="20"/>
+
+
+            </n-thing>
+        </n-list-item>
+    </n-list>
+
+
 </template>
