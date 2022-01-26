@@ -1,14 +1,23 @@
+hidden_imports = --hidden-import uvicorn --hidden-import uvicorn.logging --hidden-import uvicorn.loops --hidden-import uvicorn.loops.auto --hidden-import uvicorn.protocols --hidden-import uvicorn.protocols.http --hidden-import uvicorn.protocols.http.auto --hidden-import uvicorn.protocols.websockets --hidden-import uvicorn.protocols.websockets.auto --hidden-import uvicorn.lifespan --hidden-import uvicorn.lifespan.on
+arch = $(shell uname -m)
+
 dev:
-	python3 main.py
+	python3 main.py reload
 
 build:
-	pyinstaller heimboard-backend.spec
+	pyinstaller --onefile $(hidden_imports) \
+		--hidden-import main \
+		-n "heimboard-backend.linux-$(arch)" \
+		main.py
 
 build-wakeup:
-	pyinstaller wakeup.spec
+	pyinstaller --onefile $(hidden_imports) \
+		--hidden-import wakeup \
+		-n "wakeup.linux-$(arch)" \
+		src/wakeup.py
 
 clean:
-	rm -rf build dist
+	rm -rf build dist *.spec
 	find . -type d -name __pycache__ -exec rm -r {} \+
 	
 deps:

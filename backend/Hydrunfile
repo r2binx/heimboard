@@ -1,9 +1,10 @@
 #!/bin/bash
 echo "Installing dependencies..."
-apt update && apt install python3 python3-dev python3-pip build-essential upx-ucl libssl-dev libffi-dev libvirt-dev curl zlib1g-dev -y
+apt update && apt install python3 python3-dev python3-pip git build-essential upx-ucl libssl-dev libffi-dev libvirt-dev curl zlib1g-dev -y
 
 echo "Installing latest version of rust"
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+curl -O https://curl.se/ca/cacert.pem
+curl --cacert cacert.pem --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 
 echo "Activating rust"
 export PATH="~/.cargo/bin:$PATH"
@@ -18,39 +19,25 @@ extra-index-url=https://www.piwheels.org/simple
 EOL
 
 pip3 install -r requirements.txt
-if [ $(uname -m) == "armv7l" ]; then
-  echo "Installing armv7l pyinstaller for rpi3 compatibility"
-  PYINSTALLER_COMPILE_BOOTLOADER=1 pip3 install "https://github.com/pyinstaller/pyinstaller/releases/download/v4.3/pyinstaller-4.3-py3-none-linux_armv7l.whl"
-else
-  echo "Installing pyinstaller"
-  PYINSTALLER_COMPILE_BOOTLOADER=1 pip3 install pyinstaller
-fi
 
-hidden_imports="--hidden-import uvicorn \
-  --hidden-import uvicorn.logging \
-  --hidden-import uvicorn.loops \
-  --hidden-import uvicorn.loops.auto \
-  --hidden-import uvicorn.protocols \
-  --hidden-import uvicorn.protocols.http \
-  --hidden-import uvicorn.protocols.http.auto \
-  --hidden-import uvicorn.protocols.websockets \
-  --hidden-import uvicorn.protocols.websockets.auto \
-  --hidden-import uvicorn.lifespan \
-  --hidden-import uvicorn.lifespan.on
-"
+echo "Installing pyinstaller"
+git clone https://github.com/pyinstaller/pyinstaller
+cd pyinstaller
+git checkout v4.8
+cd bootloader && python3 ./waf distclean all
+cd ..
+python3 setup.py install
+cd ..
 
 echo "Building wakeup server"
-pyinstaller --onefile \
-  $hidden_imports \
-  --hidden-import wakeup \
-  -n "wakeup.linux-$(uname -m)" \
-  src/wakeup.py
+mkdir ../out
+make build-wakeup
+cp dist/wakeup.linux* ../out/
+
+make clean
 
 echo "Building backend"
-pyinstaller --onefile \
-  $hidden_imports \
-  --hidden-import main \
-  -n "heimboard-backend.linux-$(uname -m)" \
-  main.py
+make build
+cp dist/heimboard-backend.linux* ../out/
 
 echo "Compiling successful"

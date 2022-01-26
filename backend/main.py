@@ -1,6 +1,7 @@
 import ast
 import multiprocessing
 import os
+import sys
 from configparser import ConfigParser
 from datetime import datetime
 from typing import Optional, Dict, Union
@@ -121,7 +122,8 @@ def storage_usage(jwt=Depends(jwt_validator.verify(permission='guest'))):
 
 if __name__ == "__main__":
     multiprocessing.freeze_support()
+    reload = True if len(sys.argv) > 1 and sys.argv[1] == "reload" else False
     uvicorn.run("main:app",
                 host=config["BACKEND"]["HOST"],
                 port=int(config["BACKEND"]["PORT"]),
-                reload=True)
+                reload=reload)

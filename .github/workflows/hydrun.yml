@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./backend
+        working-directory: backend
 
     steps:
       - name: Checkout
@@ -32,4 +32,4 @@ jobs:
           automatic_release_tag: "latest"
           prerelease: false
           files: |
-            ./backend/build/*.linux*
+            out/*
