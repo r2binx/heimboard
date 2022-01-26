@@ -2,7 +2,7 @@
 // This starter template is using Vue 3 <script setup> SFCs
 // Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
 import RefreshOutlined from "./assets/RefreshOutlined.svg"
-import { onBeforeUnmount, onMounted, provide, watch } from "vue";
+import { onBeforeUnmount, onMounted, onUnmounted, provide, watch } from "vue";
 // import doesn't work with vite dev server
 // import { $ref } from 'vue/macros'
 import { darkTheme, NButton, NCard, NConfigProvider, NGlobalStyle, NIcon, NSpace, NSpin, useOsTheme } from "naive-ui";
@@ -10,6 +10,12 @@ import Panel from "./components/Panel.vue";
 import { Auth } from "./utils/useAuth0.js";
 import { State } from "./utils/api";
 import { registerSW } from 'virtual:pwa-register'
+
+let windowWidth = $ref(window.innerWidth)
+const onWidthChange = () => windowWidth = window.innerWidth
+onMounted(() => window.addEventListener('resize', onWidthChange))
+onUnmounted(() => window.removeEventListener('resize', onWidthChange))
+provide("windowWidth", $$(windowWidth))
 
 const osThemeRef = $(useOsTheme());
 let theme = $ref(osThemeRef === "dark" ? darkTheme : null);

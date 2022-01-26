@@ -1,5 +1,5 @@
 <script setup>
-import { inject, onMounted, onUnmounted } from 'vue';
+import { inject } from 'vue';
 // import { $ref } from 'vue/macros'
 import {
     NButton,
@@ -20,10 +20,7 @@ import { setVmMemory, startVm, stopVm } from '../utils/api';
 
 const message = useMessage();
 const loadingBar = useLoadingBar();
-let windowWidth = $ref(window.innerWidth)
-const onWidthChange = () => windowWidth = window.innerWidth
-onMounted(() => window.addEventListener('resize', onWidthChange))
-onUnmounted(() => window.removeEventListener('resize', onWidthChange))
+const windowWidth = inject('windowWidth')
 
 const state = inject('state');
 

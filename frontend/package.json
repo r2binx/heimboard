@@ -1,10 +1,11 @@
 {
   "name": "heimboard",
-  "version": "0.9.6",
+  "version": "0.9.7",
   "scripts": {
     "dev": "vite --port 4000",
     "build": "vite build",
-    "serve": "vite preview --host --port 4000"
+    "serve": "vite preview --host --port 4000",
+    "preview": "npm run build && npm run serve"
   },
   "dependencies": {
     "@auth0/auth0-spa-js": "1.19.4",
