@@ -4,6 +4,9 @@ arch = $(shell uname -m)
 dev:
 	python3 main.py reload
 
+dev-wakeup:
+	python3 src/wakeup.py reload
+
 build:
 	pyinstaller --onefile $(hidden_imports) \
 		--hidden-import main \
