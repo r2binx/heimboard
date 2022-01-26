@@ -104,7 +104,7 @@ class KVM:
 
         return False
 
-    def get_vms(self) -> list[Dict[str, any]]:
+    def get_vms(self) -> List[Dict[str, any]]:
         try:
             vm_list = []
             for d in self.conn.listAllDomains():

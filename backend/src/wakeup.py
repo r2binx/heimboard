@@ -3,6 +3,7 @@ import asyncio
 import json
 import multiprocessing
 import os
+import sys
 import subprocess
 from configparser import ConfigParser
 from datetime import datetime
@@ -103,7 +104,7 @@ def ping():
 
 @app.get("/wakeup")
 def wake(jwt=Depends(jwt_validator.verify(permission='guest'))):
-    return wol(config["BACKEND"]["WOL_MAC"])
+    return wol(server_mac)
 
 
 @app.post("/bootSchedule")
@@ -127,4 +128,5 @@ def get_boot_schedule(jwt=Depends(jwt_validator.verify(permission='guest'))):
 
 if __name__ == "__main__":
     multiprocessing.freeze_support()
-    uvicorn.run("wakeup:app", host="0.0.0.0", port=15050)
+    reload = True if len(sys.argv) > 1 and sys.argv[1] == "reload" else False
+    uvicorn.run("wakeup:app", host="0.0.0.0", port=15050, reload=reload)
