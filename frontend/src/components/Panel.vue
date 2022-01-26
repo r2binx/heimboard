@@ -5,7 +5,8 @@ import { inject } from "vue";
 import { NButton, NIcon, NLoadingBarProvider, NMessageProvider, NResult, NSpace } from "naive-ui";
 import { PowerOff } from "@vicons/fa";
 import Status from "./Status.vue";
-import Usage from "./Usage.vue";
+import SystemUsage from "./SystemUsage.vue";
+import NetworkUsage from "./NetworkUsage.vue";
 import Services from "./Services.vue";
 import KVM from "./KVM.vue";
 import Storage from "./Storage.vue"
@@ -40,7 +41,8 @@ let scheduledBoot = $computed(() => readableTime(state.schedule.boot))
             <n-message-provider>
                 <Status :scheduledBoot="scheduledBoot"/>
             </n-message-provider>
-            <Usage/>
+            <SystemUsage/>
+            <NetworkUsage/>
             <Services/>
             <Storage/>
             <n-message-provider v-if="auth.hasPermission('admin')">
