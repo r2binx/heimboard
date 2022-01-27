@@ -10,15 +10,15 @@ There are two ways of running the backend. Either by downloading the prebuilt bi
 The first thing to do is to get and setup [.config](https://github.com/r2binx/heimboard/blob/main/backend/.config) according to your neeeds.
 
 ### Prebuilt
-- download the binary for you architecture e.g.: `wget https://github.com/r2binx/heimboard/releases/download/latest/heimboard-backend.linux-$(uname -m)`
-- make sure it's executable `chmod +x heimboard-backend.linux-$(uname-m)`
-- run it `./heimboard-backend.linux-$(uname-m)`
-- make sure `.config` is in the same directory
+- Download the binary for you architecture e.g.: `wget https://github.com/r2binx/heimboard/releases/download/latest/heimboard-backend.linux-$(uname -m)`
+- Make sure it's executable `chmod +x heimboard-backend.linux-$(uname-m)`
+- Mun it `./heimboard-backend.linux-$(uname-m)`
+- Make sure `.config` is in the same directory
 
 ### Manually
-- configure `.config`
+- Configure `.config`
 - Install dependencies: `make deps`
-- run `make dev`
+- Run `make dev`
 
 -----
 ### Wakeup server
@@ -28,6 +28,6 @@ Everything here applies to it as well. To set it up simply replace `heimboard-ba
 
 
 ## Build
-- install [pyinstaller](https://github.com/pyinstaller/pyinstaller) either
+- Install [pyinstaller](https://github.com/pyinstaller/pyinstaller) e.g. by running `pip3 install pyinstaller`  
 - Make sure your dependencies are installed (`make deps `) 
-- run `make build`
+- Run `make build`
