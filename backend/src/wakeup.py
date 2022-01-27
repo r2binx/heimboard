@@ -129,4 +129,7 @@ def get_boot_schedule(jwt=Depends(jwt_validator.verify(permission='guest'))):
 if __name__ == "__main__":
     multiprocessing.freeze_support()
     reload = True if len(sys.argv) > 1 and sys.argv[1] == "reload" else False
-    uvicorn.run("wakeup:app", host="0.0.0.0", port=15050, reload=reload)
+    uvicorn.run("wakeup:app",
+                host="0.0.0.0",
+                port=int(config["BACKEND"]["WAKEUP_PORT"]),
+                reload=reload)
