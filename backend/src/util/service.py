@@ -1,7 +1,7 @@
 import asyncio
 import subprocess
 from datetime import datetime
-from typing import Dict, List, Optional, Tuple, Union, Any
+from typing import Dict, List, Optional, Union, Any, Tuple
 
 import psutil
 from fastapi import Request, WebSocket, WebSocketDisconnect
@@ -64,7 +64,11 @@ class Service:
         active = active_check[0]
         details = active_check[1]
 
-        return {"result": active, "active": details}
+        response = {"result": active}
+        if active:
+            response["active"] = details
+
+        return response
 
     async def server_stats(self,
                            websocket: WebSocket,
@@ -159,16 +163,18 @@ class Service:
         return {"result": result.status}
 
     def check_active(self) -> Tuple[bool, Dict[str, bool]]:
-        jelly_active = self.jelly.is_active()
-        plex_active = self.plex.is_active()
-        kvm_active = self.kvm.is_active()
-        nzb_active = self.nzb.is_active()
-        return (jelly_active and plex_active and kvm_active and nzb_active), {
-            "jelly": jelly_active,
-            "plex": plex_active,
-            "nzb": nzb_active,
-            "kvm": kvm_active
-        }
+        services = [
+            ("jelly", self.jelly.is_active()),
+            ("plex", self.plex.is_active()),
+            ("kvm", self.kvm.is_active()),
+            ("nzb", self.nzb.is_active()),
+        ]
+        active_services = [s for s in services if s[1]]
+
+        if len(active_services) > 0:
+            return True, dict(active_services)
+        else:
+            return False, dict()
 
     def get_external_ip(self) -> Dict[str, Dict[str, int]]:
         ext_ip = self.fritz.get_external_ip()

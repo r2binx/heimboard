@@ -80,7 +80,6 @@ class KVM:
                         name = d.name()
                         state = DomainState.get_state(d.state()[0])
                         active_domains.append((name, state))
-                        print(f"'{name}' is currently {state}")
 
             return active_domains
 
