@@ -81,9 +81,6 @@ class Jelly:
 
         return True if len(active_sessions) > 0 else False
 
-    def is_jelly_idle(self) -> bool:
-        return not self.is_active()
-
 
 if not __name__ == "__main__":
     print("jelly.py is imported")
@@ -98,4 +95,3 @@ else:
 
     jelly = Jelly(config)
     print(json.dumps(jelly.get_active_sessions(), indent=4))
-    print(jelly.is_jelly_idle())

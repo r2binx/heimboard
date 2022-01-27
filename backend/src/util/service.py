@@ -1,7 +1,7 @@
 import asyncio
 import subprocess
 from datetime import datetime
-from typing import Dict, List, Optional, Tuple, Union, Any
+from typing import Dict, List, Optional, Union, Any, Tuple
 
 import psutil
 from fastapi import Request, WebSocket, WebSocketDisconnect
@@ -59,12 +59,16 @@ class Service:
         self.fritz_stats = FritzStats(self.fritz)
         self.storage = Storage(config["STORAGE"])
 
-    def idle(self) -> Dict[str, Union[bool, str, Dict]]:
-        idle_check = self.check_all_idle()
-        idle = idle_check[0]
-        details = idle_check[1]
+    def active_services(self) -> Dict[str, Union[bool, str, Dict]]:
+        active_check = self.check_active()
+        active = active_check[0]
+        details = active_check[1]
 
-        return {"result": idle, "idle": details}
+        response = {"result": active}
+        if active:
+            response["active"] = details
+
+        return response
 
     async def server_stats(self,
                            websocket: WebSocket,
@@ -158,18 +162,19 @@ class Service:
 
         return {"result": result.status}
 
-    def check_all_idle(self) -> Tuple[bool, Dict[str, bool]]:
-        jelly_idle = self.jelly.is_jelly_idle()
-        plex_idle = self.plex.is_plex_idle()
-        kvm_idle = self.kvm.is_kvm_idle()
-        nzb_idle = self.nzb.is_nzb_idle()
+    def check_active(self) -> Tuple[bool, Dict[str, bool]]:
+        services = [
+            ("jelly", self.jelly.is_active()),
+            ("plex", self.plex.is_active()),
+            ("kvm", self.kvm.is_active()),
+            ("nzb", self.nzb.is_active()),
+        ]
+        active_services = [s for s in services if s[1]]
 
-        return (jelly_idle and plex_idle and kvm_idle and nzb_idle), {
-            "jelly": jelly_idle,
-            "plex": plex_idle,
-            "nzb": nzb_idle,
-            "kvm": kvm_idle
-        }
+        if len(active_services) > 0:
+            return True, dict(active_services)
+        else:
+            return False, dict()
 
     def get_external_ip(self) -> Dict[str, Dict[str, int]]:
         ext_ip = self.fritz.get_external_ip()

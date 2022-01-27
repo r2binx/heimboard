@@ -38,9 +38,9 @@ def ping() -> str:
     return datetime.now().isoformat()
 
 
-@app.get("/idle")
+@app.get("/active")
 def idle(jwt=Depends(jwt_validator.verify(permission='guest'))) -> Dict[str, Union[bool, str, Dict]]:
-    return service.idle()
+    return service.active_services()
 
 
 @app.get("/uptime")
