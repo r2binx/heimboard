@@ -15,11 +15,16 @@ function handleBoot(value) {
 
 </script>
 <template>
-    <n-time-picker clearable format="HH:mm" :value="scheduledBoot" placeholder="No time set"
-                   size="large"
-                   :minutes="15"
-                   @update:value="handleBoot"/>
+    <n-time-picker
+        clearable
+        format="HH:mm"
+        :value="scheduledBoot"
+        placeholder="No time set"
+        size="large"
+        :minutes="15"
+        style="width: max-content;"
+        @update:value="handleBoot"
+    />
 </template>
 <style>
-
 </style>

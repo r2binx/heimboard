@@ -68,78 +68,86 @@ onBeforeUnmount(() => clearInterval(interval))
 
 <template>
     <n-collapse>
-        <n-collapse-item style="font-size: xx-large !important;" title="STATUS" name="status">
+        <n-collapse-item title="STATUS" name="status">
             <template #header-extra>
                 <p v-if="state.reachable" class="active">ONLINE</p>
                 <p v-else class="idle">OFFLINE</p>
             </template>
-            <n-table striped v-if="auth.hasPermission('guest')">
-                <n-tbody>
-                    <n-tr>
-                        <n-td>External IPv4</n-td>
-                        <n-td>
-                            <div style="float: right;">{{ state.fritz.ip.v4 }}</div>
-                        </n-td>
-                    </n-tr>
-                    <n-tr>
-                        <n-td>UPTIME</n-td>
-                        <n-td>
-                            <div style="float:right">{{ uptimeStr }}</div>
-                        </n-td>
-                    </n-tr>
-                    <n-tr v-if="props.scheduledBoot">
-                        <n-td>SCHEDULED BOOT</n-td>
-                        <n-td>
-                            <div style="float:right">at {{ props.scheduledBoot }}</div>
-                        </n-td>
-                    </n-tr>
-                    <n-tr v-if="auth.hasPermission('admin')">
-                        <n-td>
-                            <n-popconfirm @positive-click="rebootConfirm">
-                                <template #trigger>
-                                    <n-button type="warning">
-                                        <template #icon>
-                                            <n-icon>
-                                                <spinner/>
-                                            </n-icon>
-                                        </template>
-                                        REBOOT
-                                    </n-button>
-                                </template>
-                                <div v-if="state.idle">Are you sure you want to reboot?</div>
-                                <div v-else>System is active, are you sure?</div>
-                            </n-popconfirm>
-                        </n-td>
-                        <n-td>
-                            <n-popconfirm @positive-click="shutdownConfirm">
-                                <template #trigger>
-                                    <n-button style="float: right;" type="error">
-                                        <template #icon>
-                                            <n-icon>
-                                                <power-off/>
-                                            </n-icon>
-                                        </template>
-                                        SHUTDOWN
-                                    </n-button>
-                                </template>
-                                <div v-if="state.idle">Are you sure you want to shutdown?</div>
-                                <div v-else>System is active, are you sure?</div>
-                            </n-popconfirm>
-                        </n-td>
-                    </n-tr>
-                </n-tbody>
-            </n-table>
-            <div v-if="auth.hasPermission('admin')" style="margin: 1em;">
-                <n-divider title-placement="left">SCHEDULE BOOT</n-divider>
-                <boot-time-picker/>
-            </div>
-
-
+            <n-space vertical v-if="auth.hasPermission('guest')">
+                <n-table striped>
+                    <n-tbody>
+                        <n-tr>
+                            <n-td>External IPv4</n-td>
+                            <n-td>
+                                <div style="float: right;">{{ state.fritz.ip.v4 }}</div>
+                            </n-td>
+                        </n-tr>
+                        <n-tr>
+                            <n-td>UPTIME</n-td>
+                            <n-td>
+                                <div style="float:right">{{ uptimeStr }}</div>
+                            </n-td>
+                        </n-tr>
+                        <n-tr v-if="props.scheduledBoot">
+                            <n-td>SCHEDULED BOOT</n-td>
+                            <n-td>
+                                <div style="float:right">at {{ props.scheduledBoot }}</div>
+                            </n-td>
+                        </n-tr>
+                        <n-tr v-if="auth.hasPermission('admin')">
+                            <n-td>
+                                <n-popconfirm @positive-click="rebootConfirm">
+                                    <template #trigger>
+                                        <n-button type="warning">
+                                            <template #icon>
+                                                <n-icon>
+                                                    <spinner/>
+                                                </n-icon>
+                                            </template>
+                                            REBOOT
+                                        </n-button>
+                                    </template>
+                                    <div v-if="state.idle">Are you sure you want to reboot?</div>
+                                    <div v-else>System is active, are you sure?</div>
+                                </n-popconfirm>
+                            </n-td>
+                            <n-td>
+                                <n-popconfirm @positive-click="shutdownConfirm">
+                                    <template #trigger>
+                                        <n-button style="float: right;" type="error">
+                                            <template #icon>
+                                                <n-icon>
+                                                    <power-off/>
+                                                </n-icon>
+                                            </template>
+                                            SHUTDOWN
+                                        </n-button>
+                                    </template>
+                                    <div v-if="state.idle">Are you sure you want to shutdown?</div>
+                                    <div v-else>System is active, are you sure?</div>
+                                </n-popconfirm>
+                            </n-td>
+                        </n-tr>
+                    </n-tbody>
+                </n-table>
+                <n-collapse v-if="auth.hasPermission('admin')">
+                    <n-collapse-item
+                        title="schedule boot"
+                        name="schedule"
+                        style="margin: 1em 0 !important"
+                    >
+                        <boot-time-picker/>
+                    </n-collapse-item>
+                </n-collapse>
+            </n-space>
             <div v-else style="font-size: small;">NOTHING TO SEE HERE...</div>
         </n-collapse-item>
     </n-collapse>
 </template>
 
 <style>
+.n-collapse-item__header-main {
+    font-size: 16px;
+}
 </style>
 

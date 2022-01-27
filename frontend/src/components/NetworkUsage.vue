@@ -51,10 +51,10 @@ watchEffect(async () => {
 <template>
     <n-divider title-placement="left">Network</n-divider>
     <n-space justify="space-around">
-        <progress-circle :percentage="netOutPct" title="UP">
+        <progress-circle :percentage="netOutPct" title="OUT">
             {{ upRate }}Mbit/s
         </progress-circle>
-        <progress-circle :percentage="netInPct" title="DOWN">
+        <progress-circle :percentage="netInPct" title="IN">
             {{ downRate }}Mbit/s
         </progress-circle>
     </n-space>

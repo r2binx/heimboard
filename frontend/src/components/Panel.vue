@@ -44,17 +44,17 @@ let scheduledBoot = $computed(() => readableTime(state.schedule.boot))
             <SystemUsage/>
             <NetworkUsage/>
             <Services/>
-            <Storage/>
             <n-message-provider v-if="auth.hasPermission('admin')">
                 <n-loading-bar-provider>
                     <KVM/>
                 </n-loading-bar-provider>
             </n-message-provider>
+            <Storage/>
         </div>
         <div v-else>
             <n-space vertical justify="center" v-if="state.net_reachable">
-                <p>Scheduled boot is at: {{ scheduledBoot }} </p>
-                <br>
+                <p>Scheduled boot is at: {{ scheduledBoot }}</p>
+                <br/>
                 <n-button @click="handleWakeUp" style="font-size: 72px;" circle :bordered="false">
                     <n-icon>
                         <PowerOff/>

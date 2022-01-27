@@ -26,25 +26,29 @@ watchEffect(async () => {
         <n-list-item v-for="(mount, index) in storage" :key="index">
             <n-thing>
                 <template #avatar>
-                    <n-icon size="1.7rem">
+                    <n-icon size="1.5rem">
                         <save/>
                     </n-icon>
                 </template>
-                <template #header>{{ mount.name }}</template>
-                <template #description>
-                    <span style="float: left">{{ formatBytes(mount.usage.free, 1) }} of {{
-                            formatBytes(mount.usage.total, 1)
-                        }} left</span>
+                <template #header>
+                    <div style="font-size: 14px;">{{ mount.name }}</div>
                 </template>
-                <n-progress type="line" :percentage="mount.usage.percent"
-                            :color="progressColor(mount.usage.percent)"
-                            :rail-color="progressColor(mount.usage.percent, '33')"
-                            :show-indicator="false" :height="20"/>
-
-
+                <template #description>
+                    <span style="float: left; font-size: 12px">
+                        {{ formatBytes(mount.usage.free, 1) }} of {{
+                            formatBytes(mount.usage.total, 1)
+                        }} left
+                    </span>
+                </template>
+                <n-progress
+                    type="line"
+                    :percentage="mount.usage.percent"
+                    :color="progressColor(mount.usage.percent)"
+                    :rail-color="progressColor(mount.usage.percent, '33')"
+                    :show-indicator="false"
+                    :height="16"
+                />
             </n-thing>
         </n-list-item>
     </n-list>
-
-
 </template>
