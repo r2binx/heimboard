@@ -7,8 +7,8 @@ export function fritzInfo() {
     return axios.get(host + "/fritz/info");
 }
 
-export function fetchIdle() {
-    return axios.get(host + "/idle");
+export function fetchActive() {
+    return axios.get(host + "/active");
 }
 
 /**
@@ -89,7 +89,7 @@ export function fetchStorageUsage() {
 export class State {
     constructor() {
         this.reachable = false;
-        this.idle = false;
+        this.active = false;
         this.uptime = 0;
         this.services = {};
         this.vms = [];
@@ -106,9 +106,11 @@ export class State {
                 this.uptime = res.data;
                 this.reachable = true
 
-                fetchIdle().then(idleres => {
-                    this.idle = idleres.data.result
-                    this.services = idleres.data.idle
+                fetchActive().then(ares => {
+                    this.active = ares.data.result
+                    if (this.active) {
+                        this.services = ares.data.active
+                    }
                 });
 
                 fetchAllVms().then(vmres => {

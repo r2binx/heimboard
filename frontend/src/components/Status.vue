@@ -3,9 +3,9 @@ import {
     NButton,
     NCollapse,
     NCollapseItem,
-    NDivider,
     NIcon,
     NPopconfirm,
+    NSpace,
     NTable,
     NTbody,
     NTd,
@@ -107,8 +107,8 @@ onBeforeUnmount(() => clearInterval(interval))
                                             REBOOT
                                         </n-button>
                                     </template>
-                                    <div v-if="state.idle">Are you sure you want to reboot?</div>
-                                    <div v-else>System is active, are you sure?</div>
+                                    <div v-if="state.active">System is active, are you sure?</div>
+                                    <div v-else>Are you sure you want to reboot?</div>
                                 </n-popconfirm>
                             </n-td>
                             <n-td>
@@ -123,8 +123,8 @@ onBeforeUnmount(() => clearInterval(interval))
                                             SHUTDOWN
                                         </n-button>
                                     </template>
-                                    <div v-if="state.idle">Are you sure you want to shutdown?</div>
-                                    <div v-else>System is active, are you sure?</div>
+                                    <div v-if="state.active">System is active, are you sure?</div>
+                                    <div v-else>Are you sure you want to shutdown?</div>
                                 </n-popconfirm>
                             </n-td>
                         </n-tr>
