@@ -1,4 +1,5 @@
 psutil
+requests
 python-dateutil
 libvirt-python
 fastapi

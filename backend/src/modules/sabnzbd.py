@@ -35,15 +35,11 @@ class Sabnzbd:
     def is_active(self) -> bool:
         return True if self.get_queue().get('status') == "Downloading" else False
 
-    def is_nzb_idle(self) -> bool:
-        active = self.is_active()
-
-        return not active
-
 
 if not __name__ == "__main__":
     print("sabnzbd.py is imported")
-# else:
+
+#else:
 #    env = os.getenv("ENV", ".config")
 #    config = []
 #    if env == ".config":

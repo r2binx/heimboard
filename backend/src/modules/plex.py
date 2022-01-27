@@ -34,17 +34,14 @@ class Plex:
 
         return json.loads(response.text)['response']
 
-    def is_active(self, data: Dict) -> bool:
+    def is_active(self) -> bool:
+        data = self.get_activity().get('data')
         return True if int(data.get('stream_count')) > 0 else False
-
-    def is_plex_idle(self) -> bool:
-        active = self.is_active(self.get_activity().get('data'))
-
-        return not active
 
 
 if not __name__ == "__main__":
     print("plex.py is imported")
+
 # else:
 #    env = os.getenv("ENV", ".config")
 #    config = []
