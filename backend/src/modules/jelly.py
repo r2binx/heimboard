@@ -9,15 +9,6 @@ import requests
 from dateutil import parser
 
 
-# log requests as they happen
-# http_client.HTTPConnection.debuglevel = 1
-# logging.basicConfig()
-# logging.getLogger().setLevel(logging.DEBUG)
-# requests_log = logging.getLogger("requests.packages.urllib3")
-# requests_log.setLevel(logging.DEBUG)
-# requests_log.propagate = True
-
-
 class Jelly:
     config: dict
     IGNORED: List[str]
@@ -29,7 +20,7 @@ class Jelly:
 
         self.JELLY_HEADERS = {
             'X-Emby-Authorization':
-                f'Emby Client=idlereporter, Device=heimboard, DeviceId=heimboard, Version=1, Token={config["TOKEN"]}',
+            f'Emby Client=idlereporter, Device=heimboard, DeviceId=heimboard, Version=1, Token={config["TOKEN"]}',
             'Content-Type': 'application/json'
         }
 

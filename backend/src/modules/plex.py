@@ -3,15 +3,6 @@ from typing import Dict
 
 import requests
 
-# log requests as they happen
-# http_client.HTTPConnection.debuglevel = 1
-
-# logging.basicConfig()
-# logging.getLogger().setLevel(logging.DEBUG)
-# requests_log = logging.getLogger("requests.packages.urllib3")
-# requests_log.setLevel(logging.DEBUG)
-# requests_log.propagate = True
-
 HEADERS = {'Content-Type': 'application/json'}
 
 
@@ -26,9 +17,9 @@ class Plex:
 
     def get_activity(self) -> Dict:
         url = (
-                self.HOST +
-                "/api/v2?apikey={apikey}&cmd=get_activity&out_type=json").format(
-            apikey=self.API_KEY)
+            self.HOST +
+            "/api/v2?apikey={apikey}&cmd=get_activity&out_type=json").format(
+                apikey=self.API_KEY)
 
         response = requests.get(url, headers=HEADERS)
 
