@@ -22,7 +22,11 @@ echo "Installing pyinstaller"
 git clone https://github.com/pyinstaller/pyinstaller
 cd pyinstaller
 git checkout v4.8
-cd bootloader && python3 ./waf distclean all
+cd bootloader
+if [ -z $1 ] && [ $(uname -m) = "armv7l" ]; then
+  sed -i 's/-m32/-mbe32/g' wscript
+fi
+python3 ./waf distclean all
 cd ..
 python3 setup.py install
 cd ..

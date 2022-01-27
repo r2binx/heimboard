@@ -41,7 +41,7 @@ jobs:
         run: hydrun -a amd64,arm64,arm/v7 ./Hydrunfile
       - name: Build for Pi 3 with hydrun
         working-directory: backend
-        run: hydrun -a arm/v7 -o balenalib/raspberrypi3 ./Hydrunfile pi3
+        run: hydrun -a arm/v7 -o balenalib/raspberrypi3:stretch ./Hydrunfile pi3
       - name: Publish to GitHub releases
         uses: marvinpinto/action-automatic-releases@latest
         with:

@@ -171,10 +171,7 @@ class Service:
         ]
         active_services = [s for s in services if s[1]]
 
-        if len(active_services) > 0:
-            return True, dict(active_services)
-        else:
-            return False, dict()
+        return len(active_services) > 0, dict(active_services)
 
     def get_external_ip(self) -> Dict[str, Dict[str, int]]:
         ext_ip = self.fritz.get_external_ip()
