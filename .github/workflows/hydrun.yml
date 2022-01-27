@@ -8,7 +8,7 @@ jobs:
   check:
     name: Check changed files
     outputs:
-      run_job: ${{ steps.check_files.outputs.run_backend_build }}
+      run_backend_build: ${{ steps.check_files.outputs.run_backend_build }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
