@@ -7,7 +7,7 @@ from starlette.requests import Request
 from starlette.status import HTTP_403_FORBIDDEN
 
 
-class JWTValidator():
+class JWTValidator:
     def __init__(self, config):
         jwks_url = f'{config["URL"]}.well-known/jwks.json'
         self.jwks_client = jwt.PyJWKClient(jwks_url)

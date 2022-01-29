@@ -15,7 +15,7 @@ export function fetchActive() {
  returns a promise with uptime in seconds
  */
 export function fetchUptime() {
-    return axios.get(host + "/uptime", {timeout: 1000});
+    return axios.get(host + "/uptime", { timeout: 1000 });
 }
 
 export function reboot() {
@@ -30,15 +30,15 @@ export function shutdown() {
  * @param time unix timestamp of scheduled shutdown
  */
 export function scheduleBoot(time) {
-    let data = {"schedule": time}
-    return axios.post("https://" + import.meta.env.VITE_APP_WAKESERVER + "/bootSchedule", data);
+    let data = { "time": time, "action": "boot" };
+    return axios.post("https://" + import.meta.env.VITE_APP_WAKESERVER + "/boot-schedule", data);
 }
 
 /**
  *
  */
 export function fetchScheduledBoot() {
-    return axios.get("https://" + import.meta.env.VITE_APP_WAKESERVER + "/bootSchedule");
+    return axios.get("https://" + import.meta.env.VITE_APP_WAKESERVER + "/boot-schedule");
 }
 
 export function fetchAllVms() {
@@ -63,7 +63,7 @@ export function startVm(vmName) {
  * @param  {} vmName Name of the vm
  */
 export function destroyVm(vmName) {
-    return axios.put(host + "/vm/" + vmName, {state: "destroy"});
+    return axios.put(host + "/vm/" + vmName, { state: "destroy" });
 }
 
 /**
@@ -71,19 +71,19 @@ export function destroyVm(vmName) {
  * @param  {} memory Amount of memory in KiB
  */
 export function setVmMemory(vmName, memory) {
-    return axios.put(host + "/vm/" + vmName, {memory: memory});
+    return axios.put(host + "/vm/" + vmName, { memory: memory });
 }
 
 export function wakeOnLan() {
-    return axios.get("https://" + import.meta.env.VITE_APP_WAKESERVER + "/wakeup", {timeout: 1000});
+    return axios.get("https://" + import.meta.env.VITE_APP_WAKESERVER + "/wakeup", { timeout: 1000 });
 }
 
 export function fetchWakeAvail() {
-    return axios.get("https://" + import.meta.env.VITE_APP_WAKESERVER + "/ping", {timeout: 1000});
+    return axios.get("https://" + import.meta.env.VITE_APP_WAKESERVER + "/ping", { timeout: 1000 });
 }
 
 export function fetchStorageUsage() {
-    return axios.get(host + "/storage/usage", {timeout: 1000});
+    return axios.get(host + "/storage/usage", { timeout: 1000 });
 }
 
 export class State {
@@ -142,8 +142,7 @@ export class State {
                     if (schedres.status === 200) {
                         let schedule = schedres.data.time
                         if (schedule) {
-                            // python uses seconds for timestamps
-                            this.schedule.boot = schedres.data.time * 1000
+                            this.schedule.boot = schedres.data.time
                         }
                     }
                 }).catch(err => {

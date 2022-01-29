@@ -29,7 +29,10 @@ server_mac = config["BACKEND"]["WOL_MAC"]
 def get_schedule() -> Dict[str, Union[str, int]]:
     if os.path.exists("schedule.json"):
         with open("schedule.json", "r") as f:
-            return json.loads(f.read())
+            sched = json.load(f.read())
+            # convert to millis
+            sched["time"] = sched["time"] * 1000
+            return sched
     else:
         schedule = {"time": "", "action": "boot"}
         with open("schedule.json", "w") as f:
@@ -57,7 +60,8 @@ def wol(mac):
 
 
 class ScheduledTime(BaseModel):
-    schedule: Union[int, None]
+    time: Union[int, None]
+    action: str
 
 
 class ScheduleService:
@@ -107,21 +111,21 @@ def wake(jwt=Depends(jwt_validator.verify(permission='guest'))):
     return wol(server_mac)
 
 
-@app.post("/bootSchedule")
+@app.post("/boot-schedule")
 def schedule_boot(data: ScheduledTime, jwt=Depends(jwt_validator.verify(permission='admin'))):
-    if data.schedule is None:
-        new_schedule = {"time": "", "action": "boot"}
+    if data.time is None:
+        new_schedule = {"time": 0, "action": "boot"}
         with open("schedule.json", "w") as f:
             f.write(json.dumps(new_schedule))
     else:
-        ts = datetime.fromtimestamp(data.schedule / 1e3)
+        ts = datetime.fromtimestamp(data.time / 1e3)
 
-        new_schedule = {"time": f"{int(ts.timestamp())}", "action": "boot"}
+        new_schedule = {"time": {int(ts.timestamp() * 1000)}, "action": "boot"}
         with open("schedule.json", "w") as f:
             f.write(json.dumps(new_schedule))
 
 
-@app.get("/bootSchedule")
+@app.get("/boot-schedule")
 def get_boot_schedule(jwt=Depends(jwt_validator.verify(permission='guest'))):
     return get_schedule()
 
