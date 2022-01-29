@@ -11,8 +11,8 @@ class Storage:
     MOUNTPOINTS: List[str]
 
     def __init__(self, config: Dict):
-        self.DISKS = ast.literal_eval(config['DISKS'])
-        self.MOUNTPOINTS = ast.literal_eval(config['MOUNTS'])
+        self.DISKS = list(ast.literal_eval(config['DISKS']))
+        self.MOUNTPOINTS = list(ast.literal_eval(config['MOUNTS']))
 
     def get_usage(self) -> List[Dict[str, Any]]:
         usage = []

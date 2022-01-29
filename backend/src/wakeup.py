@@ -22,8 +22,8 @@ if env == ".config":
     config = ConfigParser()
     config.read(".config")
 
-server_ip = config["BACKEND"]["LOCAL_IP"]
-server_mac = config["BACKEND"]["WOL_MAC"]
+server_ip = config["WAKEUP"]["BACKEND_IP"]
+server_mac = config["WAKEUP"]["WOL_MAC"]
 
 
 def get_schedule() -> Dict[str, Union[str, int]]:
@@ -135,5 +135,5 @@ if __name__ == "__main__":
     reload = True if len(sys.argv) > 1 and sys.argv[1] == "reload" else False
     uvicorn.run("wakeup:app",
                 host="0.0.0.0",
-                port=int(config["BACKEND"]["WAKEUP_PORT"]),
+                port=int(config["WAKEUP"]["WAKEUP_PORT"]),
                 reload=reload)

@@ -24,7 +24,7 @@ service = services.Service(config)
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=ast.literal_eval(config["BACKEND"]["ORIGINS"]),
+    allow_origins=list(ast.literal_eval(config["BACKEND"]["ORIGINS"])),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -124,6 +124,6 @@ if __name__ == "__main__":
     multiprocessing.freeze_support()
     reload = True if len(sys.argv) > 1 and sys.argv[1] == "reload" else False
     uvicorn.run("main:app",
-                host=config["BACKEND"]["HOST"],
+                host="0.0.0.0",
                 port=int(config["BACKEND"]["PORT"]),
                 reload=reload)
