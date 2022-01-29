@@ -26,6 +26,8 @@ The wakeup server is optional and is supposed to run on a different machine in y
 
 Everything here applies to it as well. To set it up simply replace `heimboard-backend` by `wakeup` in the commands.
 
+**I reimplemented it in Go to improve compatibility and efficiency. You'll find releases available [here](https://github.com/r2binx/heimboard-wakeup-go) soon.**
+
 
 ## Build
 - Install [pyinstaller](https://github.com/pyinstaller/pyinstaller) e.g. by running `pip3 install pyinstaller`  

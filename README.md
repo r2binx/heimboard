@@ -12,7 +12,7 @@ Manage your homeserver.
 
 ## Overview
 This project was started to better manage my homeserver and turn it on/off remotely as well as start my VMs.
-It's possible to to boot it with a tiny backend on a seperate macheine (Pi3 in my case) to send the [Wake-on-LAN](https://en.wikipedia.org/wiki/Wake-on-LAN) signal to the server.
+It's possible to boot it running a server on a seperate machine (Pi3 in my case) to send the [Wake-on-LAN](https://en.wikipedia.org/wiki/Wake-on-LAN) signal to the main server.
 
 Because my _desktop_ is basically just a VM thanks to vfio I needed a simpler way to manage them from my phone or other remote devices.
 This milestone is reached and I am expanding it in the future to make it more generic & configurable for other users.
