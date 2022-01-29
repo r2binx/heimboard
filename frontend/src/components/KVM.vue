@@ -17,8 +17,9 @@ import {
     useMessage
 } from 'naive-ui';
 import Pause from "../assets/Pause.svg";
+import RefreshOutlined from "../assets/RefreshOutlined.svg";
 import { PowerOff, Skull } from "@vicons/fa";
-import { destroyVm, setVmMemory, startVm, stopVm, suspendVm } from '../utils/api';
+import { destroyVm, resumeVm, setVmMemory, startVm, stopVm, suspendVm } from '../utils/api';
 
 const message = useMessage();
 const loadingBar = useLoadingBar();
@@ -128,6 +129,29 @@ function confirmSuspend(name) {
     );
 }
 
+function confirmResume(name) {
+    loadingBar.start();
+    buttonLoading[name] = true;
+    resumeVm(name).then(res => {
+        if (res.data.result.success) {
+            message.success("Resume successful " + name);
+            loadingBar.finish();
+            state.refreshState()
+        } else {
+            message.error(res.data.result.message);
+            loadingBar.error()
+        }
+        buttonLoading[name] = false;
+    }).catch(
+        err => {
+            message.error("Failed to suspend" + name);
+            console.log(err);
+            buttonLoading[name] = false;
+            loadingBar.error()
+        }
+    );
+}
+
 function confirmDestroy(name) {
     loadingBar.start();
     buttonLoading[name] = true;
@@ -157,12 +181,9 @@ function confirmDestroy(name) {
         <n-tbody>
             <n-tr v-for="vm in state.vms" :key="vm.name">
                 <n-td>
-                    <n-collapse @item-header-click="expandHandler" v-if="vm.state === 'running' && vm.mem_modifiable">
+                    <n-collapse @item-header-click="expandHandler" v-if="vm.state !== 'shutoff'">
                         <n-collapse-item :title="vm.name.toUpperCase()" :key="vm.name" :name="vm.name">
-                            <n-space
-                                :vertical="windowWidth<=720"
-                                style="width: max-content;"
-                            >
+                            <n-space v-if="vm.mem_modifiable" :vertical="windowWidth<=720" style="width: max-content;">
                                 MEMORY:
                                 <n-select
                                     style="width: 100px; min-width: 30%; max-width: 80%;"
@@ -176,46 +197,64 @@ function confirmDestroy(name) {
                     <div v-else>{{ vm.name.toUpperCase() }}</div>
                 </n-td>
                 <n-td>
-                    <n-space :vertical="windowWidth <= 720" style="float: right;" v-if="vm.state === 'running'">
-                        <n-popconfirm v-if="expandedItems[vm.name]" @positive-click="confirmSuspend(vm.name)">
-                            <template #trigger>
-                                <n-button tertiary circle size="large" type="info" :loading="buttonLoading[vm.name]">
-                                    <template #icon>
-                                        <Pause/>
-                                    </template>
-                                </n-button>
-                            </template>
-                            Suspend {{ vm.name }}?
-                        </n-popconfirm>
-                        <n-popconfirm @positive-click="confirmShutdown(vm.name)">
-                            <template #trigger>
-                                <n-button tertiary circle size="large" type="warning" :loading="buttonLoading[vm.name]">
-                                    <template #icon>
-                                        <PowerOff/>
-                                    </template>
-                                </n-button>
-                            </template>
-                            Shutdown {{ vm.name }}?
-                        </n-popconfirm>
-                        <n-popconfirm v-if="expandedItems[vm.name]" @positive-click="confirmDestroy(vm.name)">
-                            <template #trigger>
-                                <n-button tertiary circle size="large" type="error" :loading="buttonLoading[vm.name]">
-                                    <template #icon>
-                                        <Skull/>
-                                    </template>
-                                </n-button>
-                            </template>
-                            Destroy {{ vm.name }}!?
-                        </n-popconfirm>
-                    </n-space>
-                    <n-button v-else-if="vm.state === 'shutoff'" tertiary circle size="large" style="float: right;"
+                    <n-button v-if="vm.state === 'shutoff'" tertiary circle size="large" style="float: right;"
                               type="primary"
                               :loading="buttonLoading[vm.name]" @click="handleVmStart(vm.name)">
                         <template #icon>
                             <PowerOff/>
                         </template>
                     </n-button>
-                    <div style="float: right;" v-else>{{ vm.state.toUpperCase() }}</div>
+                    <template v-else>
+                        <n-space :vertical="windowWidth <= 720" style="float: right;">
+                            <n-popconfirm v-if="expandedItems[vm.name] && vm.state !== 'paused'"
+                                          @positive-click="confirmSuspend(vm.name)">
+                                <template #trigger>
+                                    <n-button tertiary circle size="large" type="info"
+                                              :loading="buttonLoading[vm.name]">
+                                        <template #icon>
+                                            <Pause/>
+                                        </template>
+                                    </n-button>
+                                </template>
+                                Suspend {{ vm.name }}?
+                            </n-popconfirm>
+                            <n-popconfirm v-if="vm.state === 'paused'"
+                                          @positive-click="confirmResume(vm.name)">
+                                <template #trigger>
+                                    <n-button tertiary circle size="large" type="info"
+                                              :loading="buttonLoading[vm.name]">
+                                        <template #icon>
+                                            <RefreshOutlined/>
+                                        </template>
+                                    </n-button>
+                                </template>
+                                Resume {{ vm.name }}?
+                            </n-popconfirm>
+                            <n-popconfirm v-if="vm.state !== 'paused'"
+                                          @positive-click="confirmShutdown(vm.name)">
+                                <template #trigger>
+                                    <n-button tertiary circle size="large" type="warning"
+                                              :loading="buttonLoading[vm.name]">
+                                        <template #icon>
+                                            <PowerOff/>
+                                        </template>
+                                    </n-button>
+                                </template>
+                                Shutdown {{ vm.name }}?
+                            </n-popconfirm>
+                            <n-popconfirm v-if="expandedItems[vm.name]" @positive-click="confirmDestroy(vm.name)">
+                                <template #trigger>
+                                    <n-button tertiary circle size="large" type="error"
+                                              :loading="buttonLoading[vm.name]">
+                                        <template #icon>
+                                            <Skull/>
+                                        </template>
+                                    </n-button>
+                                </template>
+                                Destroy {{ vm.name }}!?
+                            </n-popconfirm>
+                        </n-space>
+                    </template>
                 </n-td>
             </n-tr>
         </n-tbody>

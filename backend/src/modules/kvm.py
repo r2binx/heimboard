@@ -51,6 +51,22 @@ def inactive_domain(domain: str) -> State:
     })
 
 
+def shutdown_vm(domain: virDomain) -> bool:
+    return True if domain.shutdown() == 0 else False
+
+
+def destroy_vm(domain: virDomain) -> bool:
+    return True if domain.destroy() == 0 else False
+
+
+def pause_vm(domain: virDomain) -> bool:
+    return True if domain.suspend() == 0 else False
+
+
+def resume_vm(domain: virDomain) -> bool:
+    return True if domain.resume() == 0 else False
+
+
 class KVM:
     conn: virConnect
 
@@ -158,67 +174,33 @@ class KVM:
             print(f"Failed to boot domain: {domain}")
             sys.exit(1)
 
-    def shutdown_vm(self, domain: str) -> State:
+    def change_vm_state(self, domain: str, state: str) -> State:
         try:
-            if self.get_domain_running(domain):
-                dom = self.conn.lookupByName(domain)
-                success = True if dom.shutdown() == 0 else False
-
-                if success:
-                    return State(domain, {
-                        "success": success,
-                        "message": "Shutdown successful"
-                    })
-                else:
-                    return State(domain, {
-                        "success": success,
-                        "message": "Failed to shutdown"
-                    })
-            else:
-                return inactive_domain(domain)
-
-        except libvirt.libvirtError:
-            print('Failed to find active domains')
-            sys.exit(1)
-
-    def destroy_vm(self, domain: str) -> State:
-        try:
+            success = False
             dom = self.get_active_domain(domain)
             if dom is not None:
-                success = True if dom.destroy() == 0 else False
-
-                if success:
+                if state == 'shutdown' or state == 'stop':
+                    success = shutdown_vm(dom)
+                elif state == 'destroy':
+                    success = destroy_vm(dom)
+                elif state == 'pause' or state == 'suspend':
+                    success = pause_vm(dom)
+                elif state == 'resume':
+                    success = resume_vm(dom)
+                else:
+                    return State(domain, {
+                        "success": False,
+                        "message": "Invalid state"
+                    })
+                if not success:
                     return State(domain, {
                         "success": success,
-                        "message": "Destroy successful"
+                        "message": f"Failed to change state: {state}"
                     })
                 else:
                     return State(domain, {
                         "success": success,
-                        "message": "Failed to destroy"
-                    })
-            else:
-                return inactive_domain(domain)
-
-        except libvirt.libvirtError:
-            print('Failed to find active domains')
-            sys.exit(1)
-
-    def pause_vm(self, domain: str) -> State:
-        try:
-            dom = self.get_active_domain(domain)
-            if dom is not None:
-                success = True if dom.suspend() == 0 else False
-
-                if success:
-                    return State(domain, {
-                        "success": success,
-                        "message": "Suspend successful"
-                    })
-                else:
-                    return State(domain, {
-                        "success": success,
-                        "message": "Failed to suspend"
+                        "message": f"Successfully changed state to: {state}"
                     })
             else:
                 return inactive_domain(domain)

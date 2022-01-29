@@ -60,7 +60,7 @@ function rebootConfirm() {
 }
 
 
-let uptimeStr = $computed({get: () => timeToString(state.uptime), set: (val) => timeToString(val)})
+let uptimeStr = $computed({ get: () => timeToString(state.uptime), set: (val) => timeToString(val) })
 const interval = setInterval(() => uptimeStr = state.uptime++, 1000)
 onBeforeUnmount(() => clearInterval(interval))
 
@@ -68,7 +68,7 @@ onBeforeUnmount(() => clearInterval(interval))
 
 <template>
     <n-collapse>
-        <n-collapse-item title="STATUS" name="status">
+        <n-collapse-item class="status-collapse" title="STATUS" name="status">
             <template #header-extra>
                 <p v-if="state.reachable" class="active">ONLINE</p>
                 <p v-else class="idle">OFFLINE</p>
@@ -146,7 +146,7 @@ onBeforeUnmount(() => clearInterval(interval))
 </template>
 
 <style>
-.n-collapse-item__header-main {
+.status-collapse * {
     font-size: 16px;
 }
 </style>

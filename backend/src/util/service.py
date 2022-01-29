@@ -9,7 +9,7 @@ from websockets import ConnectionClosedOK
 
 from src.modules.fritz import Fritz, FritzStats
 from src.modules.jelly import Jelly
-from src.modules.kvm import KVM, State
+from src.modules.kvm import KVM
 from src.modules.plex import Plex
 from src.modules.sabnzbd import Sabnzbd
 from src.modules.storage import Storage
@@ -127,14 +127,7 @@ class Service:
             if k == "memory":
                 return {"result": self.kvm.set_active_memory(domain, v).status}
             elif k == "state":
-                if v == "start" or v == "boot":
-                    return {"result": self.kvm.boot_vm(domain).status}
-                elif v == "stop" or v == "shutdown":
-                    return {"result": self.kvm.shutdown_vm(domain).status}
-                elif v == "destroy":
-                    return {"result": self.kvm.destroy_vm(domain).status}
-                elif v == "pause" or v == "suspend":
-                    return {"result": self.kvm.pause_vm(domain).status}
+                return {"result": self.kvm.change_vm_state(domain, v).status}
 
             else:
                 return {
@@ -144,20 +137,18 @@ class Service:
                     }
                 }
 
-    def vm_info(self, domain) -> Dict[str, State]:
+    def vm_info(self, domain) -> Dict[str, Dict[str, Union[str, bool]]]:
         result = self.kvm.get_vm_info(domain)
 
         return {"result": result.status}
 
-    def start_vm(self, domain: str) -> Dict[str, State]:
+    def start_vm(self, domain: str) -> Dict[str, Dict[str, Union[str, bool]]]:
         result = self.kvm.boot_vm(domain)
 
         return {"result": result.status}
 
-    def stop_vm(self, domain: str) -> Dict[str, State]:
-        result = self.kvm.shutdown_vm(domain)
-
-        return {"result": result.status}
+    def stop_vm(self, domain: str) -> Dict[str, Dict[str, Union[str, bool]]]:
+        return {"result": self.kvm.change_vm_state(domain, 'shutdown').status}
 
     def check_active(self) -> Tuple[bool, Dict[str, bool]]:
         services = [
