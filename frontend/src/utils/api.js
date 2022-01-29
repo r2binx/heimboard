@@ -68,6 +68,13 @@ export function destroyVm(vmName) {
 
 /**
  * @param  {} vmName Name of the vm
+ */
+export function suspendVm(vmName) {
+    return axios.put(host + "/vm/" + vmName, { state: "suspend" });
+}
+
+/**
+ * @param  {} vmName Name of the vm
  * @param  {} memory Amount of memory in KiB
  */
 export function setVmMemory(vmName, memory) {

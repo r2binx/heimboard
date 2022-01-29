@@ -16,7 +16,7 @@ let netInPct = $ref(0)
 
 let bandwidth = $computed(() => {
     let fritz = state.fritz
-    return {"in": ~~(fritz.net.down / 1e6), "out": ~~(fritz.net.up / 1e6)};
+    return { "in": ~~(fritz.net.down / 1e6), "out": ~~(fritz.net.up / 1e6) };
 })
 
 
@@ -51,11 +51,11 @@ watchEffect(async () => {
 <template>
     <n-divider title-placement="left">Network</n-divider>
     <n-space justify="space-around">
-        <progress-circle :percentage="netOutPct" title="OUT">
-            {{ upRate }}Mbit/s
-        </progress-circle>
         <progress-circle :percentage="netInPct" title="IN">
             {{ downRate }}Mbit/s
+        </progress-circle>
+        <progress-circle :percentage="netOutPct" title="OUT">
+            {{ upRate }}Mbit/s
         </progress-circle>
     </n-space>
 

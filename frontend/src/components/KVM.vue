@@ -16,16 +16,23 @@ import {
     useLoadingBar,
     useMessage
 } from 'naive-ui';
-import { setVmMemory, startVm, stopVm } from '../utils/api';
+import Pause from "../assets/Pause.svg";
+import { PowerOff, Skull } from "@vicons/fa";
+import { destroyVm, setVmMemory, startVm, stopVm, suspendVm } from '../utils/api';
 
 const message = useMessage();
 const loadingBar = useLoadingBar();
 const windowWidth = inject('windowWidth')
 
 const state = inject('state');
+let expandedItems = $ref({})
+let buttonLoading = $ref({})
+
+const expandHandler = ({ name, expanded }) => expandedItems[name] = expanded
 
 function handleVmStart(name) {
     loadingBar.start();
+    buttonLoading[name] = true;
     startVm(name).then(res => {
         if (res.data.result.success) {
             message.success("Successfully started " + name);
@@ -35,31 +42,13 @@ function handleVmStart(name) {
             message.error(res.data.result.message);
             loadingBar.error()
         }
+        buttonLoading[name] = false;
     }).catch(
         err => {
             message.error("Failed to start " + name);
             loadingBar.error()
+            buttonLoading[name] = false;
             console.log(err);
-        }
-    );
-}
-
-function confirmShutdown(name) {
-    loadingBar.start();
-    stopVm(name).then(res => {
-        if (res.data.result.success) {
-            message.success("Shutdown successfull " + name);
-            loadingBar.finish();
-            state.refreshState()
-        } else {
-            message.error(res.data.result.message);
-            loadingBar.error()
-        }
-    }).catch(
-        err => {
-            message.error("Failed to shutdown " + name);
-            console.log(err);
-            loadingBar.error()
         }
     );
 }
@@ -92,6 +81,75 @@ function vmMemoryOptions(max_memory) {
     return options;
 }
 
+
+function confirmShutdown(name) {
+    loadingBar.start();
+    buttonLoading[name] = true;
+    stopVm(name).then(res => {
+        if (res.data.result.success) {
+            message.success("Shutdown successful " + name);
+            loadingBar.finish();
+            state.refreshState()
+        } else {
+            message.error(res.data.result.message);
+            loadingBar.error()
+        }
+        buttonLoading[name] = false;
+    }).catch(
+        err => {
+            message.error("Failed to shutdown " + name);
+            console.log(err);
+            buttonLoading[name] = false;
+            loadingBar.error()
+        }
+    );
+}
+
+function confirmSuspend(name) {
+    loadingBar.start();
+    buttonLoading[name] = true;
+    suspendVm(name).then(res => {
+        if (res.data.result.success) {
+            message.success("Suspending successful " + name);
+            loadingBar.finish();
+            state.refreshState()
+        } else {
+            message.error(res.data.result.message);
+            loadingBar.error()
+        }
+        buttonLoading[name] = false;
+    }).catch(
+        err => {
+            message.error("Failed to suspend" + name);
+            console.log(err);
+            buttonLoading[name] = false;
+            loadingBar.error()
+        }
+    );
+}
+
+function confirmDestroy(name) {
+    loadingBar.start();
+    buttonLoading[name] = true;
+    destroyVm(name).then(res => {
+        if (res.data.result.success) {
+            message.success("Destroyed successfully " + name);
+            loadingBar.finish();
+            state.refreshState()
+        } else {
+            message.error(res.data.result.message);
+            loadingBar.error()
+        }
+        buttonLoading[name] = false;
+    }).catch(
+        err => {
+            message.error("Failed to shutdown " + name);
+            console.log(err);
+            buttonLoading[name] = false;
+            loadingBar.error()
+        }
+    );
+}
 </script>
 <template>
     <n-divider title-placement="left">KVM</n-divider>
@@ -99,8 +157,8 @@ function vmMemoryOptions(max_memory) {
         <n-tbody>
             <n-tr v-for="vm in state.vms" :key="vm.name">
                 <n-td>
-                    <n-collapse v-if="vm.state === 'running' && vm.mem_modifiable">
-                        <n-collapse-item :title="vm.name.toUpperCase()" :key="vm.name">
+                    <n-collapse @item-header-click="expandHandler" v-if="vm.state === 'running' && vm.mem_modifiable">
+                        <n-collapse-item :title="vm.name.toUpperCase()" :key="vm.name" :name="vm.name">
                             <n-space
                                 :vertical="windowWidth<=720"
                                 style="width: max-content;"
@@ -118,20 +176,44 @@ function vmMemoryOptions(max_memory) {
                     <div v-else>{{ vm.name.toUpperCase() }}</div>
                 </n-td>
                 <n-td>
-                    <n-space style="float: right;" v-if="vm.state === 'running'">
+                    <n-space :vertical="windowWidth <= 720" style="float: right;" v-if="vm.state === 'running'">
+                        <n-popconfirm v-if="expandedItems[vm.name]" @positive-click="confirmSuspend(vm.name)">
+                            <template #trigger>
+                                <n-button tertiary circle size="large" type="info" :loading="buttonLoading[vm.name]">
+                                    <template #icon>
+                                        <Pause/>
+                                    </template>
+                                </n-button>
+                            </template>
+                            Suspend {{ vm.name }}?
+                        </n-popconfirm>
                         <n-popconfirm @positive-click="confirmShutdown(vm.name)">
                             <template #trigger>
-                                <n-button type="error">SHUTDOWN</n-button>
+                                <n-button tertiary circle size="large" type="warning" :loading="buttonLoading[vm.name]">
+                                    <template #icon>
+                                        <PowerOff/>
+                                    </template>
+                                </n-button>
                             </template>
-                            Shutdown?
+                            Shutdown {{ vm.name }}?
+                        </n-popconfirm>
+                        <n-popconfirm v-if="expandedItems[vm.name]" @positive-click="confirmDestroy(vm.name)">
+                            <template #trigger>
+                                <n-button tertiary circle size="large" type="error" :loading="buttonLoading[vm.name]">
+                                    <template #icon>
+                                        <Skull/>
+                                    </template>
+                                </n-button>
+                            </template>
+                            Destroy {{ vm.name }}!?
                         </n-popconfirm>
                     </n-space>
-                    <n-button
-                        style="float: right;"
-                        type="primary"
-                        v-else-if="vm.state === 'shutoff'"
-                        @click="handleVmStart(vm.name)"
-                    >START
+                    <n-button v-else-if="vm.state === 'shutoff'" tertiary circle size="large" style="float: right;"
+                              type="primary"
+                              :loading="buttonLoading[vm.name]" @click="handleVmStart(vm.name)">
+                        <template #icon>
+                            <PowerOff/>
+                        </template>
                     </n-button>
                     <div style="float: right;" v-else>{{ vm.state.toUpperCase() }}</div>
                 </n-td>
