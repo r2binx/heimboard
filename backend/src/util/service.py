@@ -125,19 +125,16 @@ class Service:
         data = await request.json()
         for k, v in data.items():
             if k == "memory":
-                result = self.kvm.set_active_memory(domain, v)
-
-                return {"result": result.status}
+                return {"result": self.kvm.set_active_memory(domain, v).status}
             elif k == "state":
                 if v == "start" or v == "boot":
-                    result = self.kvm.boot_vm(domain)
-                    return {"result": result.status}
+                    return {"result": self.kvm.boot_vm(domain).status}
                 elif v == "stop" or v == "shutdown":
-                    result = self.kvm.shutdown_vm(domain)
-                    return {"result": result.status}
+                    return {"result": self.kvm.shutdown_vm(domain).status}
                 elif v == "destroy":
-                    result = self.kvm.destroy_vm(domain)
-                    return {"result": result.status}
+                    return {"result": self.kvm.destroy_vm(domain).status}
+                elif v == "pause" or v == "suspend":
+                    return {"result": self.kvm.pause_vm(domain).status}
 
             else:
                 return {

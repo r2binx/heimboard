@@ -4,7 +4,7 @@ from typing import List, Tuple, Union, Dict
 from xml.dom import minidom
 
 import libvirt
-from libvirt import virConnect
+from libvirt import virConnect, virDomain
 
 
 class DomainState:
@@ -42,6 +42,13 @@ class DomainState:
 class State:
     name: str
     status: Dict[str, Union[str, bool]]
+
+
+def inactive_domain(domain: str) -> State:
+    return State(domain, {
+        "success": False,
+        "message": "Domain is not running"
+    })
 
 
 class KVM:
@@ -168,10 +175,7 @@ class KVM:
                         "message": "Failed to shutdown"
                     })
             else:
-                return State(domain, {
-                    "success": False,
-                    "message": "Domain is not running"
-                })
+                return inactive_domain(domain)
 
         except libvirt.libvirtError:
             print('Failed to find active domains')
@@ -179,8 +183,8 @@ class KVM:
 
     def destroy_vm(self, domain: str) -> State:
         try:
-            dom = self.conn.lookupByName(domain)
-            if dom.isActive():
+            dom = self.get_active_domain(domain)
+            if dom is not None:
                 success = True if dom.destroy() == 0 else False
 
                 if success:
@@ -194,10 +198,30 @@ class KVM:
                         "message": "Failed to destroy"
                     })
             else:
-                return State(domain, {
-                    "success": False,
-                    "message": "Domain is not running"
-                })
+                return inactive_domain(domain)
+
+        except libvirt.libvirtError:
+            print('Failed to find active domains')
+            sys.exit(1)
+
+    def pause_vm(self, domain: str) -> State:
+        try:
+            dom = self.get_active_domain(domain)
+            if dom is not None:
+                success = True if dom.suspend() == 0 else False
+
+                if success:
+                    return State(domain, {
+                        "success": success,
+                        "message": "Suspend successful"
+                    })
+                else:
+                    return State(domain, {
+                        "success": success,
+                        "message": "Failed to suspend"
+                    })
+            else:
+                return inactive_domain(domain)
 
         except libvirt.libvirtError:
             print('Failed to find active domains')
@@ -205,8 +229,8 @@ class KVM:
 
     def set_active_memory(self, domain: str, size: int) -> State:
         try:
-            dom = self.conn.lookupByName(domain)
-            if dom.isActive():
+            dom = self.get_active_domain(domain)
+            if dom is not None:
                 success = True if dom.setMemory(size) == 0 else False
 
                 if success:
@@ -223,14 +247,21 @@ class KVM:
                         })
 
             else:
-                return State(domain, {
-                    "success": False,
-                    "message": "Domain is not running"
-                })
+                return inactive_domain(domain)
 
         except libvirt.libvirtError:
             print('Failed to set active memory')
             sys.exit(1)
+
+    def get_active_domain(self, domain: str) -> Union[virDomain, None]:
+        try:
+            dom = self.conn.lookupByName(domain)
+            if dom.isActive():
+                return dom
+            else:
+                return None
+        except libvirt.libvirtError:
+            print('Failed to find active domains')
 
     def get_active_memory(self, domain: str) -> State:
         try:
@@ -244,10 +275,7 @@ class KVM:
                 })
 
             else:
-                return State(domain, {
-                    "success": False,
-                    "message": "Domain is not running"
-                })
+                return inactive_domain(domain)
 
         except libvirt.libvirtError:
             print('Failed to get active memory')
