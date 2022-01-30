@@ -1,18 +1,7 @@
 <script setup>
-import {
-    NButton,
-    NCollapse,
-    NCollapseItem,
-    NIcon,
-    NPopconfirm,
-    NSpace,
-    NTable,
-    NTbody,
-    NTd,
-    NTr,
-    useMessage
-} from "naive-ui";
-import { PowerOff, Spinner } from "@vicons/fa";
+import { NButton, NCollapse, NCollapseItem, NPopconfirm, NSpace, NTable, NTbody, NTd, NTr, useMessage } from "naive-ui";
+import { PowerOff } from "@vicons/fa";
+import RefreshOutlined from "../assets/RefreshOutlined.svg";
 import { reboot, shutdown } from "../utils/api.js";
 import BootTimePicker from "./BootTimePicker.vue";
 import { inject, onBeforeUnmount } from "vue";
@@ -98,11 +87,9 @@ onBeforeUnmount(() => clearInterval(interval))
                             <n-td>
                                 <n-popconfirm @positive-click="rebootConfirm">
                                     <template #trigger>
-                                        <n-button type="warning">
+                                        <n-button round size="large" tertiary type="warning">
                                             <template #icon>
-                                                <n-icon>
-                                                    <spinner/>
-                                                </n-icon>
+                                                <RefreshOutlined/>
                                             </template>
                                             REBOOT
                                         </n-button>
@@ -114,11 +101,9 @@ onBeforeUnmount(() => clearInterval(interval))
                             <n-td>
                                 <n-popconfirm @positive-click="shutdownConfirm">
                                     <template #trigger>
-                                        <n-button style="float: right;" type="error">
+                                        <n-button round tertiary size="large" style="float: right;" type="error">
                                             <template #icon>
-                                                <n-icon>
-                                                    <power-off/>
-                                                </n-icon>
+                                                <PowerOff/>
                                             </template>
                                             SHUTDOWN
                                         </n-button>
@@ -146,7 +131,7 @@ onBeforeUnmount(() => clearInterval(interval))
 </template>
 
 <style>
-.status-collapse * {
+.status-collapse .n-collapse-item__header * {
     font-size: 16px;
 }
 </style>

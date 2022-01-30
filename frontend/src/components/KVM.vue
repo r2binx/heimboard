@@ -197,23 +197,25 @@ function confirmDestroy(name) {
                     <div v-else>{{ vm.name.toUpperCase() }}</div>
                 </n-td>
                 <n-td>
-                    <n-button v-if="vm.state === 'shutoff'" tertiary circle size="large" style="float: right;"
+                    <n-button v-if="vm.state === 'shutoff'" tertiary round size="large" style="float: right;"
                               type="primary"
                               :loading="buttonLoading[vm.name]" @click="handleVmStart(vm.name)">
                         <template #icon>
                             <PowerOff/>
                         </template>
+                        Start
                     </n-button>
                     <template v-else>
-                        <n-space :vertical="windowWidth <= 720" style="float: right;">
+                        <n-space :vertical="windowWidth < 900" style="float: right;">
                             <n-popconfirm v-if="expandedItems[vm.name] && vm.state !== 'paused'"
                                           @positive-click="confirmSuspend(vm.name)">
                                 <template #trigger>
-                                    <n-button tertiary circle size="large" type="info"
+                                    <n-button tertiary round size="large" type="info"
                                               :loading="buttonLoading[vm.name]">
                                         <template #icon>
                                             <Pause/>
                                         </template>
+                                        Suspend
                                     </n-button>
                                 </template>
                                 Suspend {{ vm.name }}?
@@ -221,34 +223,37 @@ function confirmDestroy(name) {
                             <n-popconfirm v-if="vm.state === 'paused'"
                                           @positive-click="confirmResume(vm.name)">
                                 <template #trigger>
-                                    <n-button tertiary circle size="large" type="info"
+                                    <n-button tertiary round size="large" type="info"
                                               :loading="buttonLoading[vm.name]">
                                         <template #icon>
                                             <RefreshOutlined/>
                                         </template>
                                     </n-button>
+                                    Resume
                                 </template>
                                 Resume {{ vm.name }}?
                             </n-popconfirm>
                             <n-popconfirm v-if="vm.state !== 'paused'"
                                           @positive-click="confirmShutdown(vm.name)">
                                 <template #trigger>
-                                    <n-button tertiary circle size="large" type="warning"
+                                    <n-button tertiary round size="large" type="warning"
                                               :loading="buttonLoading[vm.name]">
                                         <template #icon>
                                             <PowerOff/>
                                         </template>
+                                        Shutdown
                                     </n-button>
                                 </template>
                                 Shutdown {{ vm.name }}?
                             </n-popconfirm>
                             <n-popconfirm v-if="expandedItems[vm.name]" @positive-click="confirmDestroy(vm.name)">
                                 <template #trigger>
-                                    <n-button tertiary circle size="large" type="error"
+                                    <n-button tertiary round size="large" type="error"
                                               :loading="buttonLoading[vm.name]">
                                         <template #icon>
                                             <Skull/>
                                         </template>
+                                        Destroy
                                     </n-button>
                                 </template>
                                 Destroy {{ vm.name }}!?
