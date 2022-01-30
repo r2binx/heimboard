@@ -5,14 +5,14 @@ import svgLoader from 'vite-svg-loader'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-    plugins: [vue({
+    plugins: [ vue({
         reactivityTransform: true
     }),
         VitePWA({
             registerType: 'autoUpdate',
             base: "/",
             srcDir: "src",
-            includeAssets: ['favicon.svg', 'favicon.ico', 'robots.txt', 'apple-touch-icon.png'],
+            includeAssets: [ 'favicon.svg', 'favicon.ico', 'robots.txt', 'apple-touch-icon.png' ],
             manifest: {
                 name: 'HEIMBOARD',
                 short_name: 'HEIM',
@@ -39,5 +39,10 @@ export default defineConfig({
                 ],
             }
         }),
-        svgLoader()]
+        svgLoader() ],
+    resolve: {
+        alias: {
+            '@': 'src',
+        },
+    },
 })

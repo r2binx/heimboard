@@ -175,4 +175,13 @@ n-icon {
     text-transform: uppercase;
     font-weight: 600;
 }
+
+@font-face {
+    font-family: 'Fira Code';
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src: local(''),
+    url('@/assets/fira-code-600.woff2') format('woff2');
+}
 </style>
