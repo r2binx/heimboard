@@ -24,7 +24,7 @@ watchEffect(async () => {
     <n-divider title-placement="left">Storage</n-divider>
     <n-list bordered>
         <n-list-item v-for="(mount, index) in storage" :key="index">
-            <n-thing>
+            <n-thing content-indented>
                 <template #avatar>
                     <n-icon size="1.5rem">
                         <save/>
@@ -40,6 +40,7 @@ watchEffect(async () => {
                         }} left
                     </span>
                 </template>
+                <br/>
                 <n-progress
                     type="line"
                     :percentage="mount.usage.percent"

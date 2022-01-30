@@ -7,9 +7,6 @@ import BootTimePicker from "@/components/BootTimePicker.vue";
 import { inject, onBeforeUnmount } from "vue";
 import { timeToString } from "@/utils/misc.js";
 
-const props = defineProps({
-    scheduledBoot: String,
-})
 const message = useMessage();
 
 const auth = inject("auth");
@@ -77,10 +74,10 @@ onBeforeUnmount(() => clearInterval(interval))
                                 <div style="float:right">{{ uptimeStr }}</div>
                             </n-td>
                         </n-tr>
-                        <n-tr v-if="props.scheduledBoot">
+                        <n-tr>
                             <n-td>SCHEDULED BOOT</n-td>
                             <n-td>
-                                <div style="float:right">at {{ props.scheduledBoot }}</div>
+                                <boot-time-picker style="float: right; text-align: center"/>
                             </n-td>
                         </n-tr>
                         <n-tr v-if="auth.hasPermission('admin')">
@@ -115,15 +112,6 @@ onBeforeUnmount(() => clearInterval(interval))
                         </n-tr>
                     </n-tbody>
                 </n-table>
-                <n-collapse v-if="auth.hasPermission('admin')">
-                    <n-collapse-item
-                        title="schedule boot"
-                        name="schedule"
-                        style="margin: 1em 0 !important"
-                    >
-                        <boot-time-picker/>
-                    </n-collapse-item>
-                </n-collapse>
             </n-space>
             <div v-else style="font-size: small;">NOTHING TO SEE HERE...</div>
         </n-collapse-item>

@@ -63,7 +63,7 @@ function changeTheme(newTheme) {
 <template>
     <n-config-provider class="container" :theme="theme">
         <div class="center">
-            <n-card :bordered="false" title="HEIMBOARD" size="huge" header-style="font-size: xx-large;">
+            <n-card class="main" :bordered="false" title="HEIMBOARD" size="huge" header-style="font-size: xx-large;">
                 <template #header-extra>
                     <n-button
                         id="refresh-button"
@@ -136,11 +136,15 @@ n-icon {
     .center {
         align-items: center;
         justify-content: center;
-        min-width: 50em;
+        min-width: 53em;
     }
 }
 
 @media (max-width: 720px) {
+    .main > .n-card-header, .main > .n-card__content, .main > .n-card__action {
+        padding: 1.5ex;
+    }
+
     #refresh-button {
         margin-right: 0px !important;
     }

@@ -39,7 +39,7 @@ let scheduledBoot = $computed(() => readableTime(state.schedule.boot))
     <div v-if="auth.hasPermission('guest')">
         <div v-if="state.reachable">
             <n-message-provider>
-                <Status :scheduledBoot="scheduledBoot"/>
+                <Status/>
             </n-message-provider>
             <SystemUsage/>
             <NetworkUsage/>
