@@ -16,10 +16,10 @@ import {
     useLoadingBar,
     useMessage
 } from 'naive-ui';
-import Pause from "../assets/Pause.svg";
-import RefreshOutlined from "../assets/RefreshOutlined.svg";
+import Pause from "@/assets/Pause.svg";
+import RefreshOutlined from "@/assets/RefreshOutlined.svg";
 import { PowerOff, Skull } from "@vicons/fa";
-import { destroyVm, resumeVm, setVmMemory, startVm, stopVm, suspendVm } from '../utils/api';
+import { destroyVm, resumeVm, setVmMemory, startVm, stopVm, suspendVm } from '@/utils/api';
 
 const message = useMessage();
 const loadingBar = useLoadingBar();
@@ -228,8 +228,8 @@ function confirmDestroy(name) {
                                         <template #icon>
                                             <RefreshOutlined/>
                                         </template>
+                                        Resume
                                     </n-button>
-                                    Resume
                                 </template>
                                 Resume {{ vm.name }}?
                             </n-popconfirm>

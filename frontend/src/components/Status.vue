@@ -1,11 +1,11 @@
 <script setup>
 import { NButton, NCollapse, NCollapseItem, NPopconfirm, NSpace, NTable, NTbody, NTd, NTr, useMessage } from "naive-ui";
 import { PowerOff } from "@vicons/fa";
-import RefreshOutlined from "../assets/RefreshOutlined.svg";
-import { reboot, shutdown } from "../utils/api.js";
-import BootTimePicker from "./BootTimePicker.vue";
+import RefreshOutlined from "@/assets/RefreshOutlined.svg";
+import { reboot, shutdown } from "@/utils/api.js";
+import BootTimePicker from "@/components/BootTimePicker.vue";
 import { inject, onBeforeUnmount } from "vue";
-import { timeToString } from "../utils/misc.js";
+import { timeToString } from "@/utils/misc.js";
 
 const props = defineProps({
     scheduledBoot: String,

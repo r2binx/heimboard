@@ -2,8 +2,8 @@
 import { NDivider, NIcon, NList, NListItem, NProgress, NThing } from 'naive-ui';
 import { inject, watchEffect } from 'vue';
 import { Save } from "@vicons/fa";
-import { formatBytes, progressColor } from '../utils/misc.js'
-import { fetchStorageUsage } from "../utils/api";
+import { formatBytes, progressColor } from '@/utils/misc.js'
+import { fetchStorageUsage } from "@/utils/api.js";
 
 const state = inject('state');
 

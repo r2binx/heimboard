@@ -1,6 +1,6 @@
 <script setup>
 import { NProgress, NSpace } from 'naive-ui'
-import { progressColor } from '../utils/misc.js'
+import { progressColor } from '@/utils/misc.js'
 import { inject } from "vue";
 
 const windowWidth = inject('windowWidth')

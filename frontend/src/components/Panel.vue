@@ -4,14 +4,14 @@
 import { inject } from "vue";
 import { NButton, NIcon, NLoadingBarProvider, NMessageProvider, NResult, NSpace } from "naive-ui";
 import { PowerOff } from "@vicons/fa";
-import Status from "./Status.vue";
-import SystemUsage from "./SystemUsage.vue";
-import NetworkUsage from "./NetworkUsage.vue";
-import Services from "./Services.vue";
-import KVM from "./KVM.vue";
-import Storage from "./Storage.vue"
-import { wakeOnLan } from "../utils/api.js";
-import { readableTime } from "../utils/misc";
+import Status from "@/components/Status.vue";
+import SystemUsage from "@/components/SystemUsage.vue";
+import NetworkUsage from "@/components/NetworkUsage.vue";
+import Services from "@/components/Services.vue";
+import KVM from "@/components/KVM.vue";
+import Storage from "@/components/Storage.vue"
+import { wakeOnLan } from "@/utils/api.js";
+import { readableTime } from "@/utils/misc";
 
 const auth = inject("auth");
 const state = inject("state");

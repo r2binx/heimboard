@@ -2,7 +2,7 @@
 import { inject, watchEffect } from 'vue'
 // import { $computed, $ref } from 'vue/macros'
 import { NDivider, NSpace } from 'naive-ui'
-import ProgressCircle from "./ProgressCircle.vue";
+import ProgressCircle from "@/components/ProgressCircle.vue";
 
 const auth = inject("auth");
 const state = inject("state");
