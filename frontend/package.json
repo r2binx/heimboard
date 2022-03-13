@@ -1,25 +1,28 @@
 {
-  "name": "heimboard",
-  "version": "0.9.11",
-  "scripts": {
-    "dev": "vite --port 4000",
-    "build": "vite build",
-    "serve": "vite preview --host --port 4000",
-    "preview": "npm run build && npm run serve"
-  },
-  "dependencies": {
-    "@auth0/auth0-spa-js": "1.19.4",
-    "axios": "0.25.0",
-    "vue": "3.2.29"
-  },
-  "devDependencies": {
-    "@vicons/fa": "0.11.0",
-    "@vitejs/plugin-vue": "2.1.0",
-    "eslint": "^8.7.0",
-    "eslint-plugin-vue": "^8.3.0",
-    "naive-ui": "2.24.4",
-    "vite": "2.7.13",
-    "vite-plugin-pwa": "0.11.13",
-    "vite-svg-loader": "3.1.2"
-  }
+	"name": "heimboard",
+	"version": "0.9.12",
+	"scripts": {
+		"dev": "vite --port 4000",
+		"build": "vite build",
+		"serve": "vite preview --host --port 4000",
+		"preview": "pnpm run build && pnpm run serve"
+	},
+	"dependencies": {
+		"@auth0/auth0-spa-js": "1.20.1",
+		"@vueuse/core": "^8.0.0",
+		"axios": "0.26.1",
+		"vue": "3.2.31"
+	},
+	"devDependencies": {
+		"@vicons/fa": "0.12.0",
+		"@vitejs/plugin-vue": "2.2.4",
+		"eslint": "^8.11.0",
+		"eslint-config-prettier": "^8.5.0",
+		"eslint-plugin-vue": "^8.5.0",
+		"naive-ui": "2.26.4",
+		"prettier": "2.5.1",
+		"vite": "2.8.6",
+		"vite-plugin-pwa": "0.11.13",
+		"vite-svg-loader": "3.1.2"
+	}
 }
