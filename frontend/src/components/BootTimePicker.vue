@@ -5,7 +5,10 @@ import { inject } from "vue"
 
 const state = inject("state")
 const auth = inject("auth")
-let scheduledBoot = $ref(state.schedule.boot)
+let scheduledBoot = $computed({
+	get: () => state.schedule.boot,
+	set: (val) => (state.schedule.boot = val),
+})
 
 function handleBoot(value) {
 	scheduledBoot = value

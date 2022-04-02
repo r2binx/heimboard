@@ -8,21 +8,21 @@
 		"preview": "pnpm run build && pnpm run serve"
 	},
 	"dependencies": {
-		"@auth0/auth0-spa-js": "1.20.1",
-		"@vueuse/core": "^8.0.0",
+		"@auth0/auth0-spa-js": "1.21.0",
+		"@vueuse/core": "^8.2.3",
 		"axios": "0.26.1",
 		"vue": "3.2.31"
 	},
 	"devDependencies": {
 		"@vicons/fa": "0.12.0",
-		"@vitejs/plugin-vue": "2.2.4",
-		"eslint": "^8.11.0",
+		"@vitejs/plugin-vue": "2.3.1",
+		"eslint": "^8.12.0",
 		"eslint-config-prettier": "^8.5.0",
 		"eslint-plugin-vue": "^8.5.0",
-		"naive-ui": "2.26.4",
-		"prettier": "2.5.1",
-		"vite": "2.8.6",
+		"naive-ui": "2.27.0",
+		"prettier": "2.6.1",
+		"vite": "2.9.1",
 		"vite-plugin-pwa": "0.11.13",
-		"vite-svg-loader": "3.1.2"
+		"vite-svg-loader": "3.2.0"
 	}
 }

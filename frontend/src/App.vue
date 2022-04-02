@@ -85,6 +85,7 @@ function changeTheme(newTheme) {
 					<n-button
 						v-if="auth.isAuthenticated.value"
 						id="refresh-button"
+						:loading="state.refreshing"
 						style="margin-right: 10px"
 						size="large"
 						circle
@@ -113,7 +114,6 @@ function changeTheme(newTheme) {
 						>🌞
 					</n-button>
 				</template>
-
 				<div v-if="!auth.loading.value">
 					<Panel v-if="auth.isAuthenticated.value" />
 					<div v-else>
@@ -126,8 +126,8 @@ function changeTheme(newTheme) {
 				</n-space>
 				<template v-if="auth.isAuthenticated.value" #action>
 					<n-button size="small" style="float: right" @click="auth.logout()"
-						>Logout</n-button
-					>
+						>Logout
+					</n-button>
 				</template>
 			</n-card>
 		</div>

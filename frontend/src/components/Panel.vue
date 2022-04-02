@@ -11,7 +11,7 @@ import Services from "@/components/Services.vue"
 import KVM from "@/components/KVM.vue"
 import Storage from "@/components/Storage.vue"
 import { wakeOnLan } from "@/utils/api.js"
-import { readableTime } from "@/utils/misc"
+import BootTimePicker from "./BootTimePicker.vue"
 
 const auth = inject("auth")
 const state = inject("state")
@@ -30,8 +30,6 @@ function handleWakeUp() {
 			console.log(err)
 		})
 }
-
-let scheduledBoot = $computed(() => readableTime(state.schedule.boot))
 </script>
 
 <template>
@@ -50,10 +48,12 @@ let scheduledBoot = $computed(() => readableTime(state.schedule.boot))
 			</n-message-provider>
 			<Storage />
 		</div>
-		<div v-else>
+		<template v-else>
 			<n-space v-if="state.net_reachable" vertical justify="center">
-				<p>Scheduled boot is at: {{ scheduledBoot }}</p>
-				<br />
+				<n-space style="margin-bottom: 25px; align-items: center" justify="center">
+					<p>Scheduled boot is at:</p>
+					<BootTimePicker />
+				</n-space>
 				<n-button style="font-size: 72px" circle :bordered="false" @click="handleWakeUp">
 					<n-icon>
 						<PowerOff />
@@ -66,7 +66,7 @@ let scheduledBoot = $computed(() => readableTime(state.schedule.boot))
 				status="error"
 				description="Seems like the network is unreachable"
 			></n-result>
-		</div>
+		</template>
 	</div>
 	<div v-else>
 		<p>You haven't been authorized yet to view this page.</p>

@@ -112,11 +112,12 @@ export class State {
 		this.fritz = {}
 		this.schedule = {}
 		this.net_reachable = false
-
+		this.refreshing = false
 		return reactive(this)
 	}
 
 	refreshState() {
+		this.refreshing = true
 		fetchUptime()
 			.then((res) => {
 				if (res.status === 200) {
@@ -150,6 +151,9 @@ export class State {
 				} else {
 					console.log(err)
 				}
+			})
+			.finally(() => {
+				this.refreshing = false
 			})
 
 		fetchWakeAvail().then((res) => {
