@@ -11,6 +11,7 @@ import {
 	NCard,
 	NConfigProvider,
 	NGlobalStyle,
+	NLoadingBarProvider,
 	NIcon,
 	NSpace,
 	NSpin,
@@ -115,7 +116,9 @@ function changeTheme(newTheme) {
 					</n-button>
 				</template>
 				<div v-if="!auth.loading.value">
-					<Panel v-if="auth.isAuthenticated.value" />
+					<template v-if="auth.isAuthenticated.value">
+						<n-loading-bar-provider> <Panel /> </n-loading-bar-provider
+					></template>
 					<div v-else>
 						<n-button size="large" type="primary" @click="auth.login()">Login</n-button>
 					</div>

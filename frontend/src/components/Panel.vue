@@ -2,7 +2,15 @@
 // This starter template is using Vue 3 <script setup> SFCs
 // Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
 import { inject } from "vue"
-import { NButton, NIcon, NLoadingBarProvider, NMessageProvider, NResult, NSpace } from "naive-ui"
+import {
+	NButton,
+	NIcon,
+	NLoadingBarProvider,
+	NMessageProvider,
+	NResult,
+	NSpace,
+	useLoadingBar,
+} from "naive-ui"
 import { PowerOff } from "@vicons/fa"
 import Status from "@/components/Status.vue"
 import SystemUsage from "@/components/SystemUsage.vue"
@@ -15,17 +23,23 @@ import BootTimePicker from "./BootTimePicker.vue"
 
 const auth = inject("auth")
 const state = inject("state")
+const loadingBar = useLoadingBar()
 
 function handleWakeUp() {
+	loadingBar.start()
 	wakeOnLan()
 		.then((res) => {
 			if (res.data.success) {
-				console.success("Woke up!")
+				console.log("Woke up!")
+				state.refreshState()
+				loadingBar.finish()
 			} else {
 				console.error(res.data.message)
+				loadingBar.error()
 			}
 		})
 		.catch((err) => {
+			loadingBar.error()
 			console.error("Failed to wake up!")
 			console.log(err)
 		})
