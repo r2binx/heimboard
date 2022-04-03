@@ -1,5 +1,5 @@
 <script setup>
-import { NSlider, useMessage } from "naive-ui"
+import { NSelect, useMessage } from "naive-ui"
 import { setVmMemory } from "@/utils/api"
 import { inject } from "vue"
 
@@ -27,25 +27,23 @@ function handleMemoryEdit(name, value) {
 		})
 }
 
-function vmMemoryMarks(max_memory) {
-	let options = {}
+function vmMemoryOptions(max_memory) {
+	let options = []
 	for (let i = 1; i <= max_memory; i++) {
-		options[i] = i % 4 === 0 ? i + "GB" : null
+		options.push({
+			value: i,
+			label: i + "GB",
+		})
 	}
 	return options
 }
 </script>
 
 <template>
-	<n-slider
-		style="width: 90%; margin: 8px auto 42px"
-		step="mark"
-		:max="vm.max_memory / 1024 / 1024"
-		:format-tooltip="(value) => `${value}GB`"
-		:marks="vmMemoryMarks(vm.max_memory / 1024 / 1024)"
+	<n-select
+		style="width: 100px; min-width: 30%; max-width: 80%"
 		:value="vm.current_memory / 1024 / 1024"
+		:options="vmMemoryOptions(vm.max_memory / 1024 / 1024)"
 		@update:value="($event) => handleMemoryEdit(vm.name, $event)"
 	/>
 </template>
-
-<style scoped></style>

@@ -1,22 +1,13 @@
 <script setup>
 import { inject } from "vue"
 // import { $ref } from 'vue/macros'
-import {
-	NButton,
-	NCollapse,
-	NCollapseItem,
-	NIcon,
-	NPopconfirm,
-	NSpace,
-	NThing,
-	useLoadingBar,
-	useMessage,
-} from "naive-ui"
+import { NButton, NIcon, NPopconfirm, NSpace, NThing, useLoadingBar, useMessage } from "naive-ui"
 import Pause from "@/assets/Pause.svg"
 import RefreshOutlined from "@/assets/RefreshOutlined.svg"
 import { Desktop, PowerOff, Skull } from "@vicons/fa"
 import { destroyVm, resumeVm, startVm, stopVm, suspendVm } from "@/utils/api"
 import MemorySlider from "@/components/MemorySlider.vue"
+import MemoryDropdown from "@/components/MemoryDropdown.vue"
 
 const message = useMessage()
 const loadingBar = useLoadingBar()
@@ -229,14 +220,14 @@ function confirmDestroy(name) {
 		</template>
 		<template v-if="vm.mem_modifiable && vm.state !== 'shutoff'">
 			<br />
-			<n-collapse v-if="windowWidth <= 720">
-				<n-collapse-item title="MEMORY" style="margin-bottom: 24px">
-					<MemorySlider :vm="vm" />
-				</n-collapse-item>
-			</n-collapse>
-			<n-space v-else vertical>
-				<MemorySlider :vm="vm" />
+			<n-space v-if="windowWidth <= 720" style="align-items: center"
+				>MEMORY:
+				<MemoryDropdown :vm="vm" />
 			</n-space>
+			<n-thing v-else>
+				<template #header>MEMORY</template>
+				<MemorySlider :vm="vm" />
+			</n-thing>
 		</template>
 	</n-thing>
 </template>
