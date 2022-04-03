@@ -1,6 +1,6 @@
 {
 	"name": "heimboard",
-	"version": "0.9.13",
+	"version": "0.9.14",
 	"scripts": {
 		"dev": "vite --port 4000",
 		"build": "vite build",
@@ -20,9 +20,10 @@
 		"eslint-config-prettier": "^8.5.0",
 		"eslint-plugin-vue": "^8.5.0",
 		"naive-ui": "2.27.0",
-		"prettier": "2.6.1",
+		"prettier": "2.6.2",
 		"vite": "2.9.1",
 		"vite-plugin-pwa": "0.11.13",
-		"vite-svg-loader": "3.2.0"
+		"vite-svg-loader": "3.2.0",
+		"workbox-window": "^6.5.2"
 	}
 }
