@@ -10,6 +10,7 @@ import {
 	NResult,
 	NSpace,
 	useLoadingBar,
+	useMessage,
 } from "naive-ui"
 import { PowerOff } from "@vicons/fa"
 import Status from "@/components/Status.vue"
@@ -24,18 +25,20 @@ import BootTimePicker from "./BootTimePicker.vue"
 const auth = inject("auth")
 const state = inject("state")
 const loadingBar = useLoadingBar()
+const message = useMessage()
 
 function handleWakeUp() {
 	loadingBar.start()
 	wakeOnLan()
 		.then((res) => {
 			if (res.data.success) {
-				console.log("Woke up!")
-				state.refreshState()
 				loadingBar.finish()
+				message.success("Wake up successful, please wait for services to come online")
+				setTimeout(state.refreshState, 2000)
 			} else {
 				console.error(res.data.message)
 				loadingBar.error()
+				message.error("Wake up failed")
 			}
 		})
 		.catch((err) => {
