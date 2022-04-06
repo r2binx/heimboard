@@ -22,6 +22,10 @@ export function reboot() {
 	return axios.get(host + "/reboot")
 }
 
+export function tryShutdown() {
+	return axios.get(host + "/inactive-shutdown")
+}
+
 export function shutdown() {
 	return axios.get(host + "/shutdown")
 }

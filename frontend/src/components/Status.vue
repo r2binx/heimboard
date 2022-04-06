@@ -13,7 +13,7 @@ import {
 } from "naive-ui"
 import { PowerOff } from "@vicons/fa"
 import RefreshOutlined from "@/assets/RefreshOutlined.svg"
-import { reboot, shutdown } from "@/utils/api.js"
+import { reboot, shutdown, tryShutdown } from "@/utils/api.js"
 import BootTimePicker from "@/components/BootTimePicker.vue"
 import { inject, onBeforeUnmount } from "vue"
 import { timeToString } from "@/utils/misc.js"
@@ -28,6 +28,22 @@ function shutdownConfirm() {
 		.then((res) => {
 			if (res.data.success) {
 				message.success("Shutting down!")
+			} else {
+				message.error(res.data.message)
+			}
+		})
+		.catch((err) => {
+			message.error("Failed to shutdown!")
+			console.log(err)
+		})
+}
+
+function tryShutdownConfirm() {
+	console.log("try shutdown click confirmed")
+	tryShutdown()
+		.then((res) => {
+			if (res.data.success) {
+				message.success("Shutting down when inactive!")
 			} else {
 				message.error(res.data.message)
 			}
@@ -106,6 +122,7 @@ onBeforeUnmount(() => clearInterval(interval))
 								</n-popconfirm>
 							</n-td>
 							<n-td>
+								<!-- TODO: implement shutdown when active (wait for inactive) or immediate shutdown -->
 								<n-popconfirm @positive-click="shutdownConfirm">
 									<template #trigger>
 										<n-button
@@ -119,6 +136,28 @@ onBeforeUnmount(() => clearInterval(interval))
 												<PowerOff />
 											</template>
 											SHUTDOWN
+										</n-button>
+									</template>
+									<template v-if="state.active" #action>
+										<n-button
+											type="error"
+											size="small"
+											@click="shutdownConfirm"
+										>
+											<template #icon>
+												<PowerOff />
+											</template>
+											NOW
+										</n-button>
+										<n-button
+											type="warning"
+											size="small"
+											@click="tryShutdownConfirm"
+										>
+											<template #icon>
+												<PowerOff />
+											</template>
+											LATER
 										</n-button>
 									</template>
 									<div v-if="state.active">System is active, are you sure?</div>
