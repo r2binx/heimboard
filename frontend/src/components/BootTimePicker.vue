@@ -1,30 +1,33 @@
-<script setup>
-import { NTimePicker } from "naive-ui"
-import { scheduleBoot } from "@/utils/api"
-import { inject } from "vue"
+<script setup lang="ts">
+import { NTimePicker } from "naive-ui";
+import { useAuth0 as auth0VueClient } from "@auth0/auth0-vue";
+import useAuth0 from "@/composables/useAuth0";
+import useApi from "@/composables/useApi";
 
-const state = inject("state")
-const auth = inject("auth")
-let scheduledBoot = $computed({
-	get: () => state.schedule.boot,
-	set: (val) => (state.schedule.boot = val),
-})
+const { hasPermission } = useAuth0(auth0VueClient());
 
-function handleBoot(value) {
-	scheduledBoot = value
-	state.schedule.boot = scheduledBoot
-	scheduleBoot(scheduledBoot)
+const { useApiState, scheduleBoot } = useApi();
+const { schedule } = useApiState();
+
+function handleBoot(value: number | null) {
+    if (value !== null) {
+        if (schedule.value) {
+            schedule.value.time = value;
+        }
+        scheduleBoot(value);
+    }
 }
 </script>
+
 <template>
-	<n-time-picker
-		clearable
-		:disabled="!auth.hasPermission('admin')"
-		format="HH:mm"
-		:value="scheduledBoot"
-		placeholder="Not set"
-		:minutes="15"
-		style="width: 110px"
-		@update:value="handleBoot"
-	/>
+    <n-time-picker
+        clearable
+        :disabled="!hasPermission('admin')"
+        format="HH:mm"
+        :value="schedule?.time"
+        placeholder="Not set"
+        :minutes="15"
+        style="width: 110px"
+        @update:value="handleBoot"
+    />
 </template>
