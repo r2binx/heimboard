@@ -19,7 +19,7 @@ type Mount = {
 let storage = ref<Array<Mount>>();
 
 watchEffect(async () => {
-    if (state.reachable) {
+    if (state.reachable.value) {
         fetchStorageUsage().then((res) => {
             if (res.status === 200) {
                 storage.value = res.data.result;

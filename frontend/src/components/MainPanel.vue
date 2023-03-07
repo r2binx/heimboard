@@ -57,7 +57,7 @@ function handleWakeUp() {
 
 <template>
     <div v-if="hasPermission('guest')">
-        <div v-if="state.reachable">
+        <div v-if="state.reachable.value">
             <n-message-provider>
                 <HostStatus />
             </n-message-provider>
@@ -72,7 +72,7 @@ function handleWakeUp() {
             <HostStorage />
         </div>
         <template v-else>
-            <n-space v-if="state.net_reachable" vertical justify="center">
+            <n-space v-if="state.net_reachable.value" vertical justify="center">
                 <n-space
                     style="margin-bottom: 25px; align-items: center"
                     justify="center"

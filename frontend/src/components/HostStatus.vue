@@ -83,7 +83,7 @@ onBeforeUnmount(() => clearInterval(interval));
     <n-collapse>
         <n-collapse-item class="status-collapse" title="STATUS" name="status">
             <template #header-extra>
-                <p v-if="state.reachable" class="active">ONLINE</p>
+                <p v-if="state.reachable.value" class="active">ONLINE</p>
                 <p v-else class="idle">OFFLINE</p>
             </template>
             <n-space v-if="hasPermission('guest')" vertical>
@@ -127,7 +127,7 @@ onBeforeUnmount(() => clearInterval(interval));
                                             REBOOT
                                         </n-button>
                                     </template>
-                                    <div v-if="state.active">
+                                    <div v-if="state.active.value">
                                         System is active, are you sure?
                                     </div>
                                     <div v-else>Are you sure you want to reboot?</div>
@@ -150,7 +150,7 @@ onBeforeUnmount(() => clearInterval(interval));
                                             SHUTDOWN
                                         </n-button>
                                     </template>
-                                    <template v-if="state.active" #action>
+                                    <template v-if="state.active.value" #action>
                                         <n-button
                                             type="error"
                                             size="small"
@@ -172,7 +172,7 @@ onBeforeUnmount(() => clearInterval(interval));
                                             LATER
                                         </n-button>
                                     </template>
-                                    <div v-if="state.active">
+                                    <div v-if="state.active.value">
                                         System is active, are you sure?
                                     </div>
                                     <div v-else>Are you sure you want to shutdown?</div>

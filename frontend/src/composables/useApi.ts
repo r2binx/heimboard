@@ -140,6 +140,15 @@ export function fetchStorageUsage() {
     return axios.get(host + "/storage/usage", { timeout: 1000 });
 }
 
+function catchNetworkError(error: any, message: string) {
+    if (!!error.isAxiosError && !error.response) {
+        console.log(message);
+        console.debug(error);
+    } else {
+        console.log(error);
+    }
+}
+
 const state: Omit<ApiState, "refreshState"> = reactive({
     reachable: false,
     active: false,
@@ -177,40 +186,39 @@ function useApiState() {
                     state.services = activeServices.data.active;
                     state.vms = allVMs.data.result;
                     state.fritz = fritz.data.result;
+                } else {
+                    state.reachable = false;
                 }
             })
             .catch((err) => {
-                if (!!err.isAxiosError && !err.response) {
-                    console.log("Server unreachable");
-                    console.debug(err);
-                } else {
-                    console.log(err);
-                }
+                catchNetworkError(err, "Server unreachable");
+                state.reachable = false;
             })
             .finally(() => {
                 state.refreshing = false;
             });
 
-        fetchWakeAvail().then((res) => {
-            if (res.status === 200) {
-                state.net_reachable = true;
+        fetchWakeAvail()
+            .then((res) => {
+                if (res.status === 200) {
+                    state.net_reachable = true;
 
-                fetchScheduledBoot()
-                    .then((schedres) => {
-                        if (schedres.status === 200) {
-                            state.schedule = schedres.data;
-                        }
-                    })
-                    .catch((err) => {
-                        if (!!err.isAxiosError && !err.response) {
-                            console.log("Network unreachable");
-                            console.debug(err);
-                        } else {
-                            console.log(err);
-                        }
-                    });
-            }
-        });
+                    fetchScheduledBoot()
+                        .then((schedres) => {
+                            if (schedres.status === 200) {
+                                state.schedule = schedres.data;
+                            }
+                        })
+                        .catch((err) => {
+                            catchNetworkError(err, "Network unreachable");
+                            state.net_reachable = false;
+                        });
+                }
+            })
+            .catch((err) => {
+                catchNetworkError(err, "Network unreachable");
+                state.net_reachable = false;
+            });
     };
 
     return {

@@ -9,7 +9,7 @@ const state = useApiState();
 
 <template>
     <n-divider title-placement="left">LIBVIRT</n-divider>
-    <template v-if="state.vms">
+    <template v-if="state.vms.value">
         <n-list bordered>
             <n-list-item v-for="vm in state.vms.value" :key="vm.name">
                 <KvmThing :vm="vm" />
