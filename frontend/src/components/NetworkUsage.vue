@@ -1,46 +1,65 @@
-<script setup>
-import { inject, watchEffect } from "vue"
-import { useWebSocket } from "@vueuse/core"
-// import { $computed, $ref } from 'vue/macros'
-import { NDivider, NSpace } from "naive-ui"
-import ProgressCircle from "@/components/ProgressCircle.vue"
+<script setup lang="ts">
+import ProgressCircle from "@/components/ProgressCircle.vue";
+import { useWindowWidth } from "@/composables/useWindowWidth";
+import { useWebSocket } from "@vueuse/core";
+import { NDivider, NSpace } from "naive-ui";
+import { computed, ref } from "vue";
+import useApi from "@/composables/useApi";
+import useAuth0 from "@/composables/useAuth0";
 
-const auth = inject("auth")
-const state = inject("state")
+const { getAccessToken } = useAuth0();
+const { useApiState } = useApi();
+const state = useApiState();
 
-let upRate = $ref(0)
-let netOutPct = $ref(0)
+const { windowWidth } = useWindowWidth();
 
-let downRate = $ref(0)
-let netInPct = $ref(0)
+type Usage = Record<"in" | "out", { value: number; pct: number }>;
 
-let bandwidth = $computed(() => {
-	let fritz = state.fritz
-	return { in: ~~(fritz.net.down / 1e6), out: ~~(fritz.net.up / 1e6) }
-})
+let bandwidth = computed(() => {
+    let fritz = state.fritz.value;
+    if (!fritz) return { in: 0, out: 0 };
 
-watchEffect(async () => {
-	const token = await auth.getToken()
-	useWebSocket("wss://" + import.meta.env.VITE_APP_IDLEREPORTER + "/net?rate=1&token=" + token, {
-		autoReconnect: true,
-		onConnected: () => console.log("Successfully connected to the fritz websocket server..."),
-		onMessage: (ws, event) => {
-			let data = JSON.parse(event.data)
-			downRate = ~~(data["in"] / 125000)
-			upRate = ~~(data["out"] / 125000)
+    return { in: ~~(fritz.net.down / 1e6), out: ~~(fritz.net.up / 1e6) };
+});
 
-			netOutPct = (upRate / bandwidth.out) * 100
-			netInPct = (downRate / bandwidth.in) * 100
-		},
-	})
-})
+const rateInPct = (rate: number, type: "in" | "out") => {
+    return (rate / bandwidth.value[type]) * 100;
+};
+
+const usage = ref<Usage>({ in: { value: 0, pct: 0 }, out: { value: 0, pct: 0 } });
+
+getAccessToken().then((token) => {
+    useWebSocket(
+        "wss://" + import.meta.env.VITE_APP_IDLEREPORTER + "/net?rate=1&token=" + token,
+        {
+            autoReconnect: true,
+            onConnected: () =>
+                console.log("Successfully connected to the fritz websocket server..."),
+            onMessage: (ws, event) => {
+                let data = JSON.parse(event.data);
+                for (let type of Object.keys(data) as ("in" | "out")[]) {
+                    const mbits = ~~(data[type] / 125000);
+                    usage.value[type].value = mbits;
+                    usage.value[type].pct = rateInPct(mbits, type);
+                }
+            },
+        }
+    );
+});
 </script>
-<template>
-	<n-divider title-placement="left">Network</n-divider>
-	<n-space justify="space-around">
-		<progress-circle :percentage="netInPct" title="IN"> {{ downRate }}Mbit/s </progress-circle>
-		<progress-circle :percentage="netOutPct" title="OUT"> {{ upRate }}Mbit/s </progress-circle>
-	</n-space>
-</template>
 
-<style></style>
+<template>
+    <n-divider title-placement="left">Network</n-divider>
+    <n-space justify="space-around">
+        <progress-circle
+            v-for="(bw, key) in usage"
+            :key="key"
+            :percentage="bw.pct"
+            :title="key"
+        >
+            <div :style="{ fontSize: windowWidth <= 420 ? 'medium' : 'large' }">
+                {{ bw.value }}<span style="font-size: small">Mbit/s</span>
+            </div>
+        </progress-circle>
+    </n-space>
+</template>

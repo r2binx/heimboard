@@ -1,29 +1,52 @@
 {
-	"name": "heimboard",
-	"version": "0.9.14",
-	"scripts": {
-		"dev": "vite --port 4000",
-		"build": "vite build",
-		"serve": "vite preview --host --port 4000",
-		"preview": "pnpm run build && pnpm run serve"
-	},
-	"dependencies": {
-		"@auth0/auth0-spa-js": "1.21.0",
-		"@vueuse/core": "^8.2.3",
-		"axios": "0.26.1",
-		"vue": "3.2.31"
-	},
-	"devDependencies": {
-		"@vicons/fa": "0.12.0",
-		"@vitejs/plugin-vue": "2.3.1",
-		"eslint": "^8.12.0",
-		"eslint-config-prettier": "^8.5.0",
-		"eslint-plugin-vue": "^8.5.0",
-		"naive-ui": "2.27.0",
-		"prettier": "2.6.2",
-		"vite": "2.9.1",
-		"vite-plugin-pwa": "0.11.13",
-		"vite-svg-loader": "3.2.0",
-		"workbox-window": "^6.5.2"
-	}
+    "name": "heimboard",
+    "version": "0.9.15",
+    "packageManager": "pnpm@8.9.2+sha256.8d62573d93061f2722b7b48c9739e96cd4603c3ab153bc81c619dcb9861a214e",
+    "engines": {
+        "node": "^18.0.0"
+    },
+    "scripts": {
+        "dev": "vite --port 4000",
+        "watch": "vite build --watch --mode development",
+        "build": "vite build",
+        "serve": "vite preview --host --port 4000",
+        "preview": "pnpm run build && pnpm run serve",
+        "type-check": "vue-tsc --noEmit",
+        "lint": "eslint ./src --ext .ts,.js,.jsx,.vue --fix --ignore-path ../.gitignore",
+        "format": "prettier --write \"src/**/*.{ts,js,vue}\""
+    },
+    "dependencies": {
+        "@auth0/auth0-vue": "^2.3.1",
+        "@vueuse/core": "^10.5.0",
+        "@vueuse/head": "^2.0.0",
+        "axios": "1.5.1",
+        "vue": "3.3.4"
+    },
+    "devDependencies": {
+        "@rushstack/eslint-patch": "^1.5.1",
+        "@tsconfig/node18": "^18.2.2",
+        "@types/node": "^18.18.5",
+        "@typescript-eslint/parser": "^6.8.0",
+        "@vicons/fa": "0.12.0",
+        "@vitejs/plugin-vue": "4.4.0",
+        "@vue/eslint-config-prettier": "^8.0.0",
+        "@vue/eslint-config-typescript": "^12.0.0",
+        "@vue/tsconfig": "^0.4.0",
+        "eslint": "8.51.0",
+        "eslint-plugin-vue": "^9.17.0",
+        "espree": "^9.6.1",
+        "naive-ui": "2.35.0",
+        "prettier": "^3.0.3",
+        "typescript": "5.2.2",
+        "unplugin-vue-components": "^0.25.2",
+        "vite": "4.4.11",
+        "vite-plugin-checker": "^0.6.2",
+        "vite-plugin-inspect": "^0.7.40",
+        "vite-plugin-pwa": "0.16.5",
+        "vite-plugin-vue-devtools": "1.0.0-rc.5",
+        "vite-svg-loader": "4.0.0",
+        "vue-eslint-parser": "^9.3.2",
+        "vue-tsc": "1.8.19",
+        "workbox-window": "^7.0.0"
+    }
 }

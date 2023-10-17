@@ -1,18 +1,22 @@
-<script setup>
-import { inject } from "vue"
-// import { $ref } from 'vue/macros'
-import { NDivider, NList, NListItem } from "naive-ui"
-import KvmThing from "@/components/KvmThing.vue"
+<script setup lang="ts">
+import { NDivider, NList, NListItem } from "naive-ui";
+import KvmThing from "@/components/KvmThing.vue";
+import useApi from "@/composables/useApi";
 
-const state = inject("state")
+const { useApiState } = useApi();
+const state = useApiState();
 </script>
+
 <template>
-	<n-divider title-placement="left">LIBVIRT</n-divider>
-	<n-list bordered>
-		<n-list-item v-for="vm in state.vms" :key="vm.name">
-			<KvmThing :vm="vm" />
-		</n-list-item>
-	</n-list>
+    <n-divider title-placement="left">LIBVIRT</n-divider>
+    <template v-if="state.vms.value">
+        <n-list bordered>
+            <n-list-item v-for="vm in state.vms.value" :key="vm.name">
+                <KvmThing :vm="vm" />
+            </n-list-item>
+        </n-list>
+    </template>
+    <p v-else>no vms</p>
 </template>
 
 <style></style>

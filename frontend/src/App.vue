@@ -1,225 +1,294 @@
-<script setup>
+<script setup lang="ts">
 // This starter template is using Vue 3 <script setup> SFCs
 // Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
-import RefreshOutlined from "@/assets/RefreshOutlined.svg"
-import { onBeforeUnmount, onMounted, onUnmounted, provide, watch } from "vue"
-// import doesn't work with vite dev server
-// import { $ref } from 'vue/macros'
+import RefreshOutlined from "@/components/icons/RefreshOutlined.vue";
+import { useAuth0 as auth0VueClient } from "@auth0/auth0-vue";
 import {
-	darkTheme,
-	NButton,
-	NCard,
-	NConfigProvider,
-	NGlobalStyle,
-	NIcon,
-	NMessageProvider,
-	NLoadingBarProvider,
-	NSpace,
-	NSpin,
-	useOsTheme,
-} from "naive-ui"
-import Panel from "@/components/Panel.vue"
-import { Auth } from "@/utils/useAuth0.js"
-import { State } from "@/utils/api.js"
-import { registerSW } from "virtual:pwa-register"
+    darkTheme as naiveDarkTheme,
+    NButton,
+    NCard,
+    NConfigProvider,
+    NGlobalStyle,
+    NLoadingBarProvider,
+    NMessageProvider,
+    NNotificationProvider,
+    NSpace,
+    NSpin,
+    useOsTheme,
+    type GlobalThemeOverrides,
+} from "naive-ui";
+import type { BuiltInGlobalTheme } from "naive-ui/es/themes/interface";
+import {
+    computed,
+    defineAsyncComponent,
+    onUnmounted,
+    reactive,
+    ref,
+    watch,
+    type Ref,
+} from "vue";
+import ReloadPrompt from "@/components/ReloadPrompt.vue";
+import useApi from "@/composables/useApi";
+import useAuth0 from "./composables/useAuth0";
+import { useHead } from "@vueuse/head";
 
-let windowWidth = $ref(window.innerWidth)
-const onWidthChange = () => (windowWidth = window.innerWidth)
-onMounted(() => window.addEventListener("resize", onWidthChange))
-onUnmounted(() => window.removeEventListener("resize", onWidthChange))
-provide("windowWidth", $$(windowWidth))
+const osThemeRef = useOsTheme();
+let theme: Ref<BuiltInGlobalTheme | null> = ref(
+    osThemeRef.value === "dark" ? naiveDarkTheme : null
+);
 
-const osThemeRef = $(useOsTheme())
-let theme = $ref(osThemeRef === "dark" ? darkTheme : null)
-let activeShade = $ref(osThemeRef === "dark" ? "#63e2b7" : "#18a058")
-let idleShade = $ref(osThemeRef === "dark" ? "#e88080" : "#d03050")
+let activeShade = ref(osThemeRef.value === "dark" ? "#63e2b7" : "#18a058");
+let idleShade = ref(osThemeRef.value === "dark" ? "#e88080" : "#d03050");
+let fontColor = ref(osThemeRef.value === "dark" ? "#e8e8e8" : "#1f2225");
 
-let fontColor = $ref(osThemeRef === "dark" ? "#e8e8e8" : "#1f2225")
-provide("fontColor", fontColor)
+useHead({
+    title: "HEIMBOARD",
+    meta: [
+        { name: "description", content: "Dashboard for the blckct.io server" },
+        {
+            name: "theme-color",
+            content: computed(() =>
+                osThemeRef.value === "dark" ? "#18181C" : "#FFFFFF"
+            ),
+        },
+    ],
+});
 
-const auth = new Auth()
-provide("auth", auth)
+const { isAuthenticated, isLoading, loginWithRedirect, logout, idTokenClaims, user } =
+    auth0VueClient();
 
-const state = new State()
-provide("state", state)
+const auth0Info = reactive({ isAuthenticated, isLoading, idTokenClaims, user });
+
+const auth0Logout = () => {
+    logout({
+        logoutParams: {
+            returnTo: window.location.origin,
+        },
+    });
+};
+
+const { useApiState } = useApi();
+const state = useApiState();
+
+const { accessToken, getAccessToken } = useAuth0();
+
+const keepRefreshing = ref(false);
+
+const refreshState = () => {
+    if (!accessToken.value) {
+        getAccessToken().then((token) => {
+            state.refreshState(token);
+        });
+    } else {
+        state.refreshState(accessToken.value);
+    }
+};
 
 watch(
-	() => auth.isAuthenticated.value,
-	() => state.refreshState()
-)
+    () => isAuthenticated.value,
+    () => refreshState()
+);
 
 const keepAlive = () => {
-	if (document.hasFocus() && auth.isAuthenticated.value) {
-		state.refreshState()
-	}
+    if (document.hasFocus() && isAuthenticated.value && keepRefreshing.value) {
+        refreshState();
+    }
+};
+
+const intervalFocusHandler = setInterval(keepAlive, 30000);
+
+const MainPanel = defineAsyncComponent(() => import("@/components/MainPanel.vue"));
+
+onUnmounted(() => clearInterval(intervalFocusHandler));
+
+const darkThemeOverrides: GlobalThemeOverrides = {};
+const lightThemeOverrides: GlobalThemeOverrides = {};
+
+function darkTheme() {
+    theme.value = naiveDarkTheme;
+    activeShade.value = "#63e2b7";
+    idleShade.value = "#e88080";
+    fontColor.value = "#e8e8e8";
 }
-
-const intervalFocusHandler = setInterval(keepAlive, 30000)
-
-onBeforeUnmount(() => clearInterval(intervalFocusHandler))
-
-onMounted(async () => {
-	registerSW({
-		immediate: true,
-		onNeedRefresh: () => console.log("The PWA will update automagically"),
-	})
-})
-
-function changeTheme(newTheme) {
-	theme = newTheme
-	activeShade = newTheme === darkTheme ? "#63e2b7" : "#18a058"
-	idleShade = newTheme === darkTheme ? "#e88080" : "#d03050"
-	fontColor = newTheme === darkTheme ? "#e8e8e8" : "#1f2225"
+function defaultTheme() {
+    theme.value = null;
+    activeShade.value = "#18a058";
+    idleShade.value = "#d03050";
+    fontColor.value = "#1f2225";
 }
 </script>
 
 <template>
-	<n-config-provider class="container" :theme="theme">
-		<div class="center">
-			<n-card
-				class="main"
-				:bordered="false"
-				title="HEIMBOARD"
-				size="huge"
-				header-style="font-size: xx-large;"
-			>
-				<template #header-extra>
-					<n-button
-						v-if="auth.isAuthenticated.value"
-						id="refresh-button"
-						:loading="state.refreshing"
-						style="margin-right: 10px"
-						size="large"
-						circle
-						@click="state.refreshState()"
-					>
-						<template #icon>
-							<n-icon>
-								<RefreshOutlined />
-							</n-icon>
-						</template>
-					</n-button>
-					<n-button
-						v-if="theme == null || theme === 'light'"
-						class="theme-toggle"
-						size="large"
-						circle
-						@click="changeTheme(darkTheme)"
-						>🌚
-					</n-button>
-					<n-button
-						v-else
-						class="theme-toggle"
-						size="large"
-						circle
-						@click="changeTheme(null)"
-						>🌞
-					</n-button>
-				</template>
-				<div v-if="!auth.loading.value">
-					<template v-if="auth.isAuthenticated.value">
-						<n-message-provider>
-							<n-loading-bar-provider>
-								<Panel />
-							</n-loading-bar-provider>
-						</n-message-provider>
-					</template>
-					<div v-else>
-						<n-button size="large" type="primary" @click="auth.login()">Login</n-button>
-					</div>
-				</div>
-				<n-space v-else vertical justify="center">
-					<n-spin size="large" />
-					<p>Loading...</p>
-				</n-space>
-				<template v-if="auth.isAuthenticated.value" #action>
-					<n-button size="small" style="float: right" @click="auth.logout()"
-						>Logout
-					</n-button>
-				</template>
-			</n-card>
-		</div>
-		<n-global-style />
-	</n-config-provider>
+    <n-config-provider
+        class="container"
+        :theme="theme"
+        :theme-overrides="theme === null ? lightThemeOverrides : darkThemeOverrides"
+    >
+        <n-message-provider>
+            <n-notification-provider placement="bottom-right">
+                <ReloadPrompt>
+                    <div class="center">
+                        <n-card
+                            class="main"
+                            :bordered="false"
+                            title="HEIMBOARD"
+                            size="huge"
+                            header-style="font-size: xx-large;"
+                        >
+                            <template #header-extra>
+                                <n-button
+                                    v-if="isAuthenticated"
+                                    id="refresh-button"
+                                    :loading="state.refreshing.value"
+                                    style="margin-right: 10px"
+                                    size="large"
+                                    circle
+                                    @click="refreshState"
+                                >
+                                    <template #icon>
+                                        <RefreshOutlined />
+                                    </template>
+                                </n-button>
+                                <n-button
+                                    v-if="theme == null || theme.name === 'light'"
+                                    class="theme-toggle"
+                                    size="large"
+                                    circle
+                                    @click="darkTheme"
+                                    >🌚
+                                </n-button>
+                                <n-button
+                                    v-else
+                                    class="theme-toggle"
+                                    size="large"
+                                    circle
+                                    @click="defaultTheme"
+                                    >🌞
+                                </n-button>
+                            </template>
+                            <div v-if="!isLoading">
+                                <template v-if="isAuthenticated">
+                                    <n-loading-bar-provider>
+                                        <Suspense>
+                                            <MainPanel />
+                                        </Suspense>
+                                    </n-loading-bar-provider>
+                                </template>
+                                <div v-else>
+                                    <n-button
+                                        size="large"
+                                        type="primary"
+                                        @click="loginWithRedirect()"
+                                        >Login</n-button
+                                    >
+                                </div>
+                            </div>
+                            <n-space v-else vertical justify="center">
+                                <n-spin size="large" />
+                                <p>Loading...</p>
+                            </n-space>
+                            <template v-if="isAuthenticated" #action>
+                                <n-button
+                                    size="small"
+                                    style="float: right"
+                                    @click="auth0Logout()"
+                                    >Logout
+                                </n-button>
+                            </template>
+                        </n-card>
+                    </div>
+                    <n-global-style />
+                </ReloadPrompt>
+            </n-notification-provider>
+        </n-message-provider>
+    </n-config-provider>
 </template>
 
 <style>
-n-icon {
-	fill: v-bind(fontColor);
-}
-
 .idle {
-	color: v-bind(idleShade);
+    color: v-bind(idleShade);
+}
+.active {
+    color: v-bind(activeShade);
 }
 
-.active {
-	color: v-bind(activeShade);
+.main > .n-card-header {
+    display: grid;
+    text-align: center;
+    grid-template-columns: 1fr auto 1fr;
+}
+.main > .n-card-header .n-card-header__main {
+    grid-column-start: 2;
+}
+.main > .n-card-header .n-card-header__extra {
+    margin-left: auto;
+    grid-column-start: 3;
 }
 
 @media only screen and (min-width: 721px) {
-	.container {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		margin-top: 5ex;
-		flex-direction: row;
-		padding: 5rem;
-	}
+    .container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: 5ex;
+        flex-direction: row;
+        padding: 5rem;
+    }
 
-	.center {
-		align-items: center;
-		justify-content: center;
-		min-width: 53em;
-	}
+    .center {
+        min-width: 53em;
+    }
 }
 
-@media (max-width: 720px) {
-	.main > .n-card-header,
-	.main > .n-card__content,
-	.main > .n-card__action {
-		padding: 1.5ex;
-	}
+@media only screen and (max-width: 720px) {
+    .main > .n-card-header,
+    .main > .n-card__content,
+    .main > .n-card__action {
+        padding: 1.5ex;
+    }
 
-	#refresh-button {
-		margin-right: 0px !important;
-	}
+    .container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0;
+        flex-direction: row;
+    }
 
-	.theme-toggle {
-		display: none;
-	}
+    .center {
+        width: 100%;
+    }
+}
 
-	.container {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		margin: 0;
-		flex-direction: row;
-	}
+@media only screen and (max-width: 428px) {
+    #refresh-button {
+        margin-right: 0 !important;
+    }
 
-	.center {
-		align-items: center;
-		justify-content: center;
-		width: 100%;
-	}
+    .theme-toggle {
+        display: none;
+    }
 }
 
 #app {
-	font-family: "Fira Code", monospace;
-	-webkit-font-smoothing: antialiased;
-	-moz-osx-font-smoothing: grayscale;
-	text-align: center;
+    font-family: "Fira Code", monospace;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-align: center;
 }
 
 * {
-	text-transform: uppercase;
-	font-weight: 600;
+    text-transform: uppercase;
+    font-weight: 600;
 }
 
 @font-face {
-	font-family: "Fira Code";
-	font-style: normal;
-	font-weight: 600;
-	font-display: swap;
-	src: local(""), url("@/assets/fira-code-600.woff2") format("woff2");
+    font-family: "Fira Code";
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src:
+        local(""),
+        url("/fira-code-600.woff2") format("woff2");
 }
 </style>
