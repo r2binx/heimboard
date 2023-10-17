@@ -54,7 +54,7 @@ function vmMemoryMarks(max_memory: number) {
         style="width: 100px; min-width: 30%; max-width: 80%"
         :value="vm.current_memory / 1024 / 1024"
         :options="vmMemoryOptions(vm.max_memory / 1024 / 1024)"
-        @update:value="($event) => handleMemoryEdit(vm.name, $event)"
+        :on-update:value="({ value }) => handleMemoryEdit(vm.name, value)"
     />
     <n-slider
         v-else-if="type === 'slider'"

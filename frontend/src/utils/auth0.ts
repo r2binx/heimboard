@@ -12,4 +12,4 @@ const config: Auth0VueClientOptions = {
     },
 };
 
-export default createAuth0(config);
+export const auth0 = createAuth0(config);

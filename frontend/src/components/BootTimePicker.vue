@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import { NTimePicker } from "naive-ui";
-import { useAuth0 as auth0VueClient } from "@auth0/auth0-vue";
 import useAuth0 from "@/composables/useAuth0";
 import useApi from "@/composables/useApi";
 
-const { hasPermission } = useAuth0(auth0VueClient());
+const { isAdmin } = useAuth0();
 
 const { useApiState, scheduleBoot } = useApi();
 const { schedule } = useApiState();
@@ -22,7 +21,7 @@ function handleBoot(value: number | null) {
 <template>
     <n-time-picker
         clearable
-        :disabled="!hasPermission('admin')"
+        :disabled="!isAdmin()"
         format="HH:mm"
         :value="schedule?.time"
         placeholder="Not set"

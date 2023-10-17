@@ -1,12 +1,11 @@
 <script setup lang="ts">
-import { useAuth0 as auth0VueClient } from "@auth0/auth0-vue";
 import ProgressCircle from "@/components/ProgressCircle.vue";
 import { useWebSocket } from "@vueuse/core";
 import { NDivider, NSpace } from "naive-ui";
 import { ref } from "vue";
 import useAuth0 from "@/composables/useAuth0";
 
-const { getAccessToken } = useAuth0(auth0VueClient());
+const { getAccessToken } = useAuth0();
 const usage = ref<Record<"cpu" | "memory", number>>({ cpu: 0, memory: 0 });
 
 getAccessToken().then((token) => {

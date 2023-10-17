@@ -25,6 +25,16 @@ enum VMState {
     suspended,
 }
 
+interface StorageUsage {
+    name: string;
+    usage: {
+        total: number;
+        used: number;
+        free: number;
+        percent: number;
+    };
+}
+
 type VmInfo = {
     name: string;
     UUID: string;
@@ -34,17 +44,57 @@ type VmInfo = {
     max_memory: number;
 };
 
-type ApiState = {
-    reachable: boolean;
-    active: boolean;
-    uptime: number;
-    services: Record<"jelly" | "plex" | "kvm" | "nzb", boolean> | undefined;
-    vms: VmInfo[] | undefined;
-    fritz: FritzInfo | undefined;
-    schedule: BootSchedule | undefined;
-    net_reachable: boolean;
-    refreshing: boolean;
-    refreshState: (token: string) => void;
+type HostServices = {
+    jelly?: JellyMediaState[];
+    plex?: boolean;
+    kvm?: boolean;
+    nzb?: boolean;
 };
 
-export type { ApiState, BootSchedule, FritzInfo, VmInfo };
+interface Result {
+    result: {
+        success: boolean;
+        message: string;
+    };
+}
+
+type ApiState = {
+    active: boolean;
+    fritz: FritzInfo | undefined;
+    net_reachable: boolean;
+    reachable: boolean;
+    refreshing: boolean;
+    schedule: BootSchedule | undefined;
+    services: HostServices | undefined;
+    storage: StorageUsage[] | undefined;
+    uptime: number;
+    vms: VmInfo[] | undefined;
+};
+
+interface JellyNowPlayingItem {
+    title: string;
+    paused: boolean;
+    position: number;
+    duration: number;
+    play_method: string;
+}
+
+interface JellyMediaState {
+    user: string;
+    client: string;
+    device: string;
+    last_activity: number;
+    now_playing?: JellyNowPlayingItem;
+}
+
+export type {
+    ApiState,
+    Result,
+    StorageUsage,
+    HostServices,
+    BootSchedule,
+    FritzInfo,
+    VmInfo,
+    JellyMediaState,
+    JellyNowPlayingItem,
+};

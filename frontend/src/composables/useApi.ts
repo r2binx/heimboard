@@ -1,10 +1,19 @@
-import type { ApiState } from "@/types/ApiState";
+import type {
+    BootSchedule,
+    ApiState,
+    HostServices,
+    VmInfo,
+    FritzInfo,
+    Result,
+    StorageUsage,
+} from "@/types/ApiState";
 import axios, { type RawAxiosRequestConfig } from "axios";
+import type { ToRefs } from "vue";
 import { reactive, toRefs } from "vue";
 
 const host = "https://" + import.meta.env.VITE_APP_IDLEREPORTER;
 
-async function axiosRequest(
+async function axiosRequest<T>(
     method: "GET" | "POST" | string,
     url: string,
     options?: RawAxiosRequestConfig
@@ -18,34 +27,34 @@ async function axiosRequest(
         requestConfig = { ...requestConfig, ...options };
     }
 
-    return axios.request(requestConfig);
+    return axios.request<T>(requestConfig);
 }
 
 export function fritzInfo() {
-    return axiosRequest("GET", host + "/fritz/info");
+    return axiosRequest<{ result: FritzInfo }>("GET", host + "/fritz/info");
 }
 
 export function fetchActive() {
-    return axiosRequest("GET", host + "/active");
+    return axiosRequest<{ active: HostServices }>("GET", host + "/active");
 }
 
 /**
  * @returns a promise with uptime in seconds
  */
 export function fetchUptime() {
-    return axiosRequest("GET", host + "/uptime", { timeout: 1000 });
+    return axiosRequest<number>("GET", host + "/uptime", { timeout: 1000 });
 }
 
 export function reboot() {
-    return axiosRequest("GET", host + "/reboot");
+    return axiosRequest<Result["result"]>("GET", host + "/reboot");
 }
 
 export function tryShutdown() {
-    return axiosRequest("GET", host + "/inactive-shutdown");
+    return axiosRequest<Result["result"]>("GET", host + "/inactive-shutdown");
 }
 
 export function shutdown() {
-    return axiosRequest("GET", host + "/shutdown");
+    return axiosRequest<Result["result"]>("GET", host + "/shutdown");
 }
 
 /**
@@ -60,35 +69,35 @@ export function scheduleBoot(time: number) {
 }
 
 export function fetchScheduledBoot() {
-    return axiosRequest(
+    return axiosRequest<BootSchedule>(
         "GET",
         "https://" + import.meta.env.VITE_APP_WAKESERVER + "/boot-schedule"
     );
 }
 
 export function fetchAllVms() {
-    return axiosRequest("GET", host + "/vm/all");
+    return axiosRequest<{ result: VmInfo[] }>("GET", host + "/vm/all");
 }
 
 /**
  * @param  {} vmName Name of the vm
  */
 export function stopVm(vmName: string) {
-    return axiosRequest("POST", host + "/vm/" + vmName + "/stop");
+    return axiosRequest<Result>("POST", host + "/vm/" + vmName + "/stop");
 }
 
 /**
  * @param  {} vmName Name of the vm
  */
 export function startVm(vmName: string) {
-    return axiosRequest("POST", host + "/vm/" + vmName + "/start");
+    return axiosRequest<Result>("POST", host + "/vm/" + vmName + "/start");
 }
 
 /**
  * @param  {} vmName Name of the vm
  */
 export function destroyVm(vmName: string) {
-    return axiosRequest("PUT", host + "/vm/" + vmName, {
+    return axiosRequest<Result>("PUT", host + "/vm/" + vmName, {
         data: { state: "destroy" },
     });
 }
@@ -97,7 +106,7 @@ export function destroyVm(vmName: string) {
  * @param  {} vmName Name of the vm
  */
 export function suspendVm(vmName: string) {
-    return axiosRequest("PUT", host + "/vm/" + vmName, {
+    return axiosRequest<Result>("PUT", host + "/vm/" + vmName, {
         data: { state: "suspend" },
     });
 }
@@ -106,7 +115,7 @@ export function suspendVm(vmName: string) {
  * @param  {} vmName Name of the vm
  */
 export function resumeVm(vmName: string) {
-    return axiosRequest("PUT", host + "/vm/" + vmName, {
+    return axiosRequest<Result>("PUT", host + "/vm/" + vmName, {
         data: { state: "resume" },
     });
 }
@@ -116,20 +125,20 @@ export function resumeVm(vmName: string) {
  * @param  {} memory Amount of memory in KiB
  */
 export function setVmMemory(vmName: string, memory: number) {
-    return axiosRequest("PUT", host + "/vm/" + vmName, {
+    return axiosRequest<Result>("PUT", host + "/vm/" + vmName, {
         data: { memory: memory },
     });
 }
 
 export function wakeOnLan() {
-    return axiosRequest(
+    return axiosRequest<Result["result"]>(
         "GET",
         "https://" + import.meta.env.VITE_APP_WAKESERVER + "/wakeup"
     );
 }
 
 export function fetchWakeAvail() {
-    return axiosRequest(
+    return axiosRequest<string>(
         "GET",
         "https://" + import.meta.env.VITE_APP_WAKESERVER + "/ping",
         { timeout: 1000 }
@@ -137,7 +146,9 @@ export function fetchWakeAvail() {
 }
 
 export function fetchStorageUsage() {
-    return axios.get(host + "/storage/usage", { timeout: 1000 });
+    return axiosRequest<{ result: StorageUsage[] }>("GET", host + "/storage/usage", {
+        timeout: 2000,
+    });
 }
 
 function catchNetworkError(error: any, message: string) {
@@ -149,7 +160,7 @@ function catchNetworkError(error: any, message: string) {
     }
 }
 
-const state: Omit<ApiState, "refreshState"> = reactive({
+const state: ApiState = reactive({
     reachable: false,
     active: false,
     uptime: 0,
@@ -157,12 +168,13 @@ const state: Omit<ApiState, "refreshState"> = reactive({
     vms: undefined,
     fritz: undefined,
     schedule: undefined,
+    storage: undefined,
     net_reachable: false,
     refreshing: false,
 });
 
-function useApiState() {
-    const refreshState = (token: string) => {
+function useApiState(): ToRefs<ApiState> & { refreshState: (token: string) => void } {
+    const refreshState = async (token: string) => {
         state.refreshing = true;
         axios.interceptors.request.use((config) => {
             if (config.headers) {
@@ -170,55 +182,44 @@ function useApiState() {
             }
             return config;
         });
-        fetchUptime()
-            .then(async (res) => {
-                if (res.status === 200) {
-                    state.uptime = res.data;
-                    state.reachable = true;
 
-                    const [activeServices, allVMs, fritz] = await Promise.all([
-                        fetchActive(),
-                        fetchAllVms(),
-                        fritzInfo(),
-                    ]);
+        const [wakeAvail, uptime] = await Promise.allSettled([
+            fetchWakeAvail(),
+            fetchUptime(),
+        ]);
 
-                    state.active = activeServices.data.result;
-                    state.services = activeServices.data.active;
-                    state.vms = allVMs.data.result;
-                    state.fritz = fritz.data.result;
-                } else {
-                    state.reachable = false;
-                }
-            })
-            .catch((err) => {
-                catchNetworkError(err, "Server unreachable");
-                state.reachable = false;
-            })
-            .finally(() => {
-                state.refreshing = false;
-            });
+        if (wakeAvail.status === "fulfilled" && wakeAvail.value.status === 200) {
+            state.net_reachable = true;
 
-        fetchWakeAvail()
-            .then((res) => {
-                if (res.status === 200) {
-                    state.net_reachable = true;
+            const schedres = await fetchScheduledBoot();
+            if (schedres.status === 200) {
+                state.schedule = schedres.data;
+            }
+        } else {
+            state.net_reachable = false;
+        }
 
-                    fetchScheduledBoot()
-                        .then((schedres) => {
-                            if (schedres.status === 200) {
-                                state.schedule = schedres.data;
-                            }
-                        })
-                        .catch((err) => {
-                            catchNetworkError(err, "Network unreachable");
-                            state.net_reachable = false;
-                        });
-                }
-            })
-            .catch((err) => {
-                catchNetworkError(err, "Network unreachable");
-                state.net_reachable = false;
-            });
+        if (uptime.status === "fulfilled" && uptime.value.status === 200) {
+            state.uptime = uptime.value.data;
+            state.reachable = true;
+
+            const [activeServices, allVMs, fritz, storage] = await Promise.all([
+                fetchActive(),
+                fetchAllVms(),
+                fritzInfo(),
+                fetchStorageUsage(),
+            ]);
+
+            state.active = activeServices.data.active ? true : false;
+            state.services = activeServices.data.active;
+            state.vms = allVMs.data.result;
+            state.fritz = fritz.data.result;
+            state.storage = storage.data.result;
+        } else {
+            state.reachable = false;
+        }
+
+        state.refreshing = false;
     };
 
     return {

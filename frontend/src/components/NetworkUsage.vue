@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useAuth0 as auth0VueClient } from "@auth0/auth0-vue";
 import ProgressCircle from "@/components/ProgressCircle.vue";
 import { useWindowWidth } from "@/composables/useWindowWidth";
 import { useWebSocket } from "@vueuse/core";
@@ -8,7 +7,7 @@ import { computed, ref } from "vue";
 import useApi from "@/composables/useApi";
 import useAuth0 from "@/composables/useAuth0";
 
-const { getAccessToken } = useAuth0(auth0VueClient());
+const { getAccessToken } = useAuth0();
 const { useApiState } = useApi();
 const state = useApiState();
 

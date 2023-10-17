@@ -1,11 +1,18 @@
 {
-    "files": [],
-    "references": [
-        {
-            "path": "./tsconfig.node.json"
-        },
-        {
-            "path": "./tsconfig.app.json"
+    "extends": "@vue/tsconfig/tsconfig.dom.json",
+    "include": [
+        "vite.config.*",
+        "components.d.ts",
+        "env.d.ts",
+        "src/**/*.ts",
+        "src/**/*.d.ts",
+        "src/**/*.vue"
+    ],
+    "compilerOptions": {
+        "composite": true,
+        "baseUrl": ".",
+        "paths": {
+            "@/*": ["./src/*"]
         }
-    ]
+    }
 }

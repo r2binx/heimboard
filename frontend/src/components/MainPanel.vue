@@ -1,6 +1,4 @@
 <script setup lang="ts">
-// This starter template is using Vue 3 <script setup> SFCs
-// Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
 import { defineAsyncComponent } from "vue";
 import {
     NButton,
@@ -11,6 +9,7 @@ import {
     NSpace,
     useLoadingBar,
     useMessage,
+    type ButtonProps,
 } from "naive-ui";
 import { PowerOff } from "@vicons/fa";
 import HostStatus from "@/components/HostStatus.vue";
@@ -21,9 +20,14 @@ import HostStorage from "@/components/HostStorage.vue";
 import BootTimePicker from "@/components/BootTimePicker.vue";
 import useApi from "@/composables/useApi";
 import useAuth0 from "@/composables/useAuth0";
-import { useAuth0 as auth0VueClient } from "@auth0/auth0-vue";
 
-const { hasPermission } = useAuth0(auth0VueClient());
+type ButtonThemeOverrides = NonNullable<ButtonProps["themeOverrides"]>;
+
+const buttonThemeOverrides: ButtonThemeOverrides = {
+    iconSizeLarge: "60px",
+};
+
+const { hasPermission, isAdmin } = useAuth0();
 const { wakeOnLan, useApiState } = useApi();
 const state = useApiState();
 const loadingBar = useLoadingBar();
@@ -56,15 +60,15 @@ function handleWakeUp() {
 </script>
 
 <template>
-    <div v-if="hasPermission('guest')">
+    <div v-if="hasPermission()">
         <div v-if="state.reachable.value">
             <n-message-provider>
                 <HostStatus />
             </n-message-provider>
             <SystemUsage />
             <NetworkUsage />
-            <HostServices />
-            <n-message-provider v-if="hasPermission('admin')">
+            <HostServices v-if="state.active.value" />
+            <n-message-provider v-if="isAdmin()">
                 <n-loading-bar-provider>
                     <KVM />
                 </n-loading-bar-provider>
@@ -81,14 +85,17 @@ function handleWakeUp() {
                     <BootTimePicker />
                 </n-space>
                 <n-button
-                    style="font-size: 72px"
+                    :theme-overrides="buttonThemeOverrides"
+                    size="large"
                     circle
                     :bordered="false"
                     @click="handleWakeUp"
                 >
-                    <n-icon>
-                        <PowerOff />
-                    </n-icon>
+                    <template #icon>
+                        <n-icon>
+                            <PowerOff />
+                        </n-icon>
+                    </template>
                 </n-button>
                 <p style="font-size: large">WAKE UP</p>
             </n-space>

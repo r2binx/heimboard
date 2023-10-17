@@ -6,7 +6,6 @@ import { h } from "vue";
 const notification = useNotification();
 const message = useMessage();
 const { updateServiceWorker } = useRegisterSW({
-    immediate: true,
     onNeedRefresh: () => updateNotification(),
     onOfflineReady: () => message.success("Install successful"),
     onRegisterError: (err) => console.log(err),
@@ -23,7 +22,6 @@ const updateNotification = () => {
             h(
                 NButton,
                 {
-                    text: true,
                     type: "primary",
                     onClick: () => {
                         updateServiceWorker();

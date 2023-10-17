@@ -18,21 +18,28 @@ import {
     type GlobalThemeOverrides,
 } from "naive-ui";
 import type { BuiltInGlobalTheme } from "naive-ui/es/themes/interface";
-import { computed, defineAsyncComponent, onUnmounted, watch } from "vue";
-import { $, $ref } from "vue/macros";
+import {
+    computed,
+    defineAsyncComponent,
+    onUnmounted,
+    reactive,
+    ref,
+    watch,
+    type Ref,
+} from "vue";
 import ReloadPrompt from "@/components/ReloadPrompt.vue";
 import useApi from "@/composables/useApi";
 import useAuth0 from "./composables/useAuth0";
 import { useHead } from "@vueuse/head";
 
-const osThemeRef = $(useOsTheme());
-let theme: BuiltInGlobalTheme | null = $ref(
-    osThemeRef === "dark" ? naiveDarkTheme : null
+const osThemeRef = useOsTheme();
+let theme: Ref<BuiltInGlobalTheme | null> = ref(
+    osThemeRef.value === "dark" ? naiveDarkTheme : null
 );
 
-let activeShade = $ref(osThemeRef === "dark" ? "#63e2b7" : "#18a058");
-let idleShade = $ref(osThemeRef === "dark" ? "#e88080" : "#d03050");
-let fontColor = $ref(osThemeRef === "dark" ? "#e8e8e8" : "#1f2225");
+let activeShade = ref(osThemeRef.value === "dark" ? "#63e2b7" : "#18a058");
+let idleShade = ref(osThemeRef.value === "dark" ? "#e88080" : "#d03050");
+let fontColor = ref(osThemeRef.value === "dark" ? "#e8e8e8" : "#1f2225");
 
 useHead({
     title: "HEIMBOARD",
@@ -40,12 +47,17 @@ useHead({
         { name: "description", content: "Dashboard for the blckct.io server" },
         {
             name: "theme-color",
-            content: computed(() => (osThemeRef === "dark" ? "#18181C" : "#FFFFFF")),
+            content: computed(() =>
+                osThemeRef.value === "dark" ? "#18181C" : "#FFFFFF"
+            ),
         },
     ],
 });
 
-const { isAuthenticated, isLoading, loginWithRedirect, logout } = auth0VueClient();
+const { isAuthenticated, isLoading, loginWithRedirect, logout, idTokenClaims, user } =
+    auth0VueClient();
+
+const auth0Info = reactive({ isAuthenticated, isLoading, idTokenClaims, user });
 
 const auth0Logout = () => {
     logout({
@@ -58,7 +70,9 @@ const auth0Logout = () => {
 const { useApiState } = useApi();
 const state = useApiState();
 
-const { accessToken, getAccessToken } = useAuth0(auth0VueClient());
+const { accessToken, getAccessToken } = useAuth0();
+
+const keepRefreshing = ref(false);
 
 const refreshState = () => {
     if (!accessToken.value) {
@@ -76,7 +90,7 @@ watch(
 );
 
 const keepAlive = () => {
-    if (document.hasFocus() && isAuthenticated.value) {
+    if (document.hasFocus() && isAuthenticated.value && keepRefreshing.value) {
         refreshState();
     }
 };
@@ -91,16 +105,16 @@ const darkThemeOverrides: GlobalThemeOverrides = {};
 const lightThemeOverrides: GlobalThemeOverrides = {};
 
 function darkTheme() {
-    theme = naiveDarkTheme;
-    activeShade = "#63e2b7";
-    idleShade = "#e88080";
-    fontColor = "#e8e8e8";
+    theme.value = naiveDarkTheme;
+    activeShade.value = "#63e2b7";
+    idleShade.value = "#e88080";
+    fontColor.value = "#e8e8e8";
 }
 function defaultTheme() {
-    theme = null;
-    activeShade = "#18a058";
-    idleShade = "#d03050";
-    fontColor = "#1f2225";
+    theme.value = null;
+    activeShade.value = "#18a058";
+    idleShade.value = "#d03050";
+    fontColor.value = "#1f2225";
 }
 </script>
 
@@ -198,6 +212,19 @@ function defaultTheme() {
     color: v-bind(activeShade);
 }
 
+.main > .n-card-header {
+    display: grid;
+    text-align: center;
+    grid-template-columns: 1fr auto 1fr;
+}
+.main > .n-card-header .n-card-header__main {
+    grid-column-start: 2;
+}
+.main > .n-card-header .n-card-header__extra {
+    margin-left: auto;
+    grid-column-start: 3;
+}
+
 @media only screen and (min-width: 721px) {
     .container {
         display: flex;
@@ -213,19 +240,11 @@ function defaultTheme() {
     }
 }
 
-@media (max-width: 720px) {
+@media only screen and (max-width: 720px) {
     .main > .n-card-header,
     .main > .n-card__content,
     .main > .n-card__action {
         padding: 1.5ex;
-    }
-
-    #refresh-button {
-        margin-right: 0px !important;
-    }
-
-    .theme-toggle {
-        display: none;
     }
 
     .container {
@@ -238,6 +257,16 @@ function defaultTheme() {
 
     .center {
         width: 100%;
+    }
+}
+
+@media only screen and (max-width: 428px) {
+    #refresh-button {
+        margin-right: 0 !important;
+    }
+
+    .theme-toggle {
+        display: none;
     }
 }
 
@@ -258,6 +287,8 @@ function defaultTheme() {
     font-style: normal;
     font-weight: 600;
     font-display: swap;
-    src: local(""), url("/fira-code-600.woff2") format("woff2");
+    src:
+        local(""),
+        url("/fira-code-600.woff2") format("woff2");
 }
 </style>

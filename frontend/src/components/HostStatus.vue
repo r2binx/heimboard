@@ -4,7 +4,6 @@ import RefreshOutlined from "@/components/icons/RefreshOutlined.vue";
 import useApi from "@/composables/useApi";
 import useAuth0 from "@/composables/useAuth0";
 import { timeToString } from "@/utils/common";
-import { useAuth0 as auth0VueClient } from "@auth0/auth0-vue";
 import { PowerOff } from "@vicons/fa";
 import {
     NButton,
@@ -20,7 +19,7 @@ import {
 } from "naive-ui";
 import { computed, onBeforeUnmount } from "vue";
 
-const { hasPermission } = useAuth0(auth0VueClient());
+const { hasPermission, isAdmin } = useAuth0();
 const message = useMessage();
 
 const { shutdown, tryShutdown, reboot } = useApi();
@@ -86,7 +85,7 @@ onBeforeUnmount(() => clearInterval(interval));
                 <p v-if="state.reachable.value" class="active">ONLINE</p>
                 <p v-else class="idle">OFFLINE</p>
             </template>
-            <n-space v-if="hasPermission('guest')" vertical>
+            <n-space v-if="hasPermission()" vertical>
                 <n-table striped>
                     <n-tbody>
                         <n-tr v-if="state.fritz.value">
@@ -111,7 +110,7 @@ onBeforeUnmount(() => clearInterval(interval));
                                 />
                             </n-td>
                         </n-tr>
-                        <n-tr v-if="hasPermission('admin')">
+                        <n-tr v-if="isAdmin()">
                             <n-td>
                                 <n-popconfirm @positive-click="rebootConfirm">
                                     <template #trigger>

@@ -13,11 +13,10 @@ import {
     useLoadingBar,
     useMessage,
 } from "naive-ui";
-import { useAuth0 as auth0VueClient } from "@auth0/auth0-vue";
-import { $ref } from "vue/macros";
 import type { VmInfo } from "@/types/ApiState";
 import VmMemorySelector from "@/components/VmMemorySelector.vue";
 import useAuth0 from "@/composables/useAuth0";
+import { ref, type Ref } from "vue";
 
 const message = useMessage();
 const loadingBar = useLoadingBar();
@@ -26,15 +25,15 @@ const { destroyVm, resumeVm, startVm, stopVm, suspendVm } = useApi();
 
 defineProps<{ vm: VmInfo }>();
 
-const { getAccessToken } = useAuth0(auth0VueClient());
+const { getAccessToken } = useAuth0();
 
 const { useApiState } = useApi();
 const state = useApiState();
-let buttonLoading = $ref<Record<string, boolean>>({});
+let buttonLoading: Ref<Record<string, boolean>> = ref({});
 
 function handleVmStart(name: string) {
     loadingBar.start();
-    buttonLoading[name] = true;
+    buttonLoading.value[name] = true;
     startVm(name)
         .then(async (res) => {
             if (res.data.result.success) {
@@ -45,19 +44,19 @@ function handleVmStart(name: string) {
                 message.error(res.data.result.message);
                 loadingBar.error();
             }
-            buttonLoading[name] = false;
+            buttonLoading.value[name] = false;
         })
         .catch((err) => {
             message.error("Failed to start " + name);
             loadingBar.error();
-            buttonLoading[name] = false;
+            buttonLoading.value[name] = false;
             console.log(err);
         });
 }
 
 function confirmShutdown(name: string) {
     loadingBar.start();
-    buttonLoading[name] = true;
+    buttonLoading.value[name] = true;
     stopVm(name)
         .then(async (res) => {
             if (res.data.result.success) {
@@ -68,19 +67,19 @@ function confirmShutdown(name: string) {
                 message.error(res.data.result.message);
                 loadingBar.error();
             }
-            buttonLoading[name] = false;
+            buttonLoading.value[name] = false;
         })
         .catch((err) => {
             message.error("Failed to shutdown " + name);
             console.log(err);
-            buttonLoading[name] = false;
+            buttonLoading.value[name] = false;
             loadingBar.error();
         });
 }
 
 function confirmSuspend(name: string) {
     loadingBar.start();
-    buttonLoading[name] = true;
+    buttonLoading.value[name] = true;
     suspendVm(name)
         .then(async (res) => {
             if (res.data.result.success) {
@@ -91,19 +90,19 @@ function confirmSuspend(name: string) {
                 message.error(res.data.result.message);
                 loadingBar.error();
             }
-            buttonLoading[name] = false;
+            buttonLoading.value[name] = false;
         })
         .catch((err) => {
             message.error("Failed to suspend" + name);
             console.log(err);
-            buttonLoading[name] = false;
+            buttonLoading.value[name] = false;
             loadingBar.error();
         });
 }
 
 function confirmResume(name: string) {
     loadingBar.start();
-    buttonLoading[name] = true;
+    buttonLoading.value[name] = true;
     resumeVm(name)
         .then(async (res) => {
             if (res.data.result.success) {
@@ -114,19 +113,19 @@ function confirmResume(name: string) {
                 message.error(res.data.result.message);
                 loadingBar.error();
             }
-            buttonLoading[name] = false;
+            buttonLoading.value[name] = false;
         })
         .catch((err) => {
             message.error("Failed to suspend" + name);
             console.log(err);
-            buttonLoading[name] = false;
+            buttonLoading.value[name] = false;
             loadingBar.error();
         });
 }
 
 function confirmDestroy(name: string) {
     loadingBar.start();
-    buttonLoading[name] = true;
+    buttonLoading.value[name] = true;
     destroyVm(name)
         .then(async (res) => {
             if (res.data.result.success) {
@@ -137,12 +136,12 @@ function confirmDestroy(name: string) {
                 message.error(res.data.result.message);
                 loadingBar.error();
             }
-            buttonLoading[name] = false;
+            buttonLoading.value[name] = false;
         })
         .catch((err) => {
             message.error("Failed to shutdown " + name);
             console.log(err);
-            buttonLoading[name] = false;
+            buttonLoading.value[name] = false;
             loadingBar.error();
         });
 }

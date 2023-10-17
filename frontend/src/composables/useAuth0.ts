@@ -1,9 +1,9 @@
-import type { useAuth0 as auth0VueClient } from "@auth0/auth0-vue";
+import { auth0 } from "@/utils/auth0";
 import { ref } from "vue";
 
 const accessToken = ref<string>();
 
-export default function useAuth0(auth0: ReturnType<typeof auth0VueClient>) {
+export default function useAuth0() {
     const getAccessToken = async () => {
         const refreshToken = async () =>
             (accessToken.value = await auth0.getAccessTokenSilently());
@@ -18,13 +18,23 @@ export default function useAuth0(auth0: ReturnType<typeof auth0VueClient>) {
         return accessToken.value!;
     };
 
-    const hasPermission = (permissions: string) => {
+    const hasPermission = (): boolean => {
+        if (!auth0.user.value) return false;
         return (
             auth0.isAuthenticated.value &&
-            auth0.user.value["https://heim.blckct.io/permissions"].indexOf(permissions) >
-                -1
+            auth0.user.value["https://heim.blckct.io/roles"].some((role: string) =>
+                ["admin", "guest"].includes(role)
+            )
         );
     };
 
-    return { accessToken, getAccessToken, hasPermission };
+    const isAdmin = (): boolean => {
+        if (!auth0.user.value) return false;
+        return (
+            auth0.isAuthenticated.value &&
+            auth0.user.value["https://heim.blckct.io/roles"].indexOf("admin") > -1
+        );
+    };
+
+    return { accessToken, getAccessToken, hasPermission, isAdmin };
 }
